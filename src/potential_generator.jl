@@ -324,7 +324,7 @@ end
 
 function g(x::Real, y::Real)
     y_min = 1/π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
-    return 2.0 * smooth_step(0.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
+    return 2.0 * smooth_step(2.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
     #return 0.5 * max(0.0, x + 3.0*abs(y)^2 - 5.0)^2 + 10.0*max(0.0, x - 4.0)^2
 end
 
@@ -338,7 +338,8 @@ end
 # end
 
 function V_wing(Lx::Real, x::Real, y::Real)
-    return 1e7 * ((abs(x) - Lx) + g(abs(x) - Lx, y))
+    Δx = abs(x) - Lx
+    return 1e7 * (Δx + g(Δx/5.0, y))
 end
 
 function ∇V_wing(Lx::Real, x::Real, y::Real)

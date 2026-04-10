@@ -222,7 +222,7 @@ function plot_u_edge_profile(geometry::Geometry, coefficients::AbstractVector{Fl
     res = 200
     # 1. Fix x at the right boundary
     x_boundary = geometry.diam_x / 2
-    x_interior = geometry.diam_x / 2 - 2.0
+    x_interior = geometry.diam_x / 2 - 3.0
     
     # 2. Vary y across the full range
     ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
