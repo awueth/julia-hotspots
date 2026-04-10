@@ -105,6 +105,7 @@ function solve_problem(ctx::InfinityHotspotsContext;
     λs, vecs = solve_galerkin(ctx.prob; nev=nev, solver=solver)
     λ = Float64(λs[1])
     coeffs = vec(Float64.(vecs[:, 1]))
+    coeffs .*= sign(coeffs[1])
 
     @printf("Eigenvalue λ₁ = %.6f\n", λ)
     return InfinityHotspotsSolution(λ, coeffs)
