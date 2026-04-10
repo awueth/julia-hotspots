@@ -6,7 +6,7 @@ using LinearAlgebra
 
 export SpectralGalerkinProblem, solve_galerkin, reconstruct_field, reconstruct_full_field
 export evolve_coefficients, evaluate_solution
-export TensorProductBasis, CosineBasis1D, SymmetricCosineBasis1D, SineWingBasis1D, CustomBasis1D, MixedSineBasis1D, HalfCosineBasis1D
+export TensorProductBasis, MixedSineBasis1D, HalfCosineBasis1D
 export RectangularDomain
 
 # ─────────────────────────────────────────────
@@ -32,8 +32,6 @@ end
 abstract type AbstractBasis1D end
 
 n_modes(b::AbstractBasis1D) = b.n_modes
-analytical_mass(::AbstractBasis1D) = nothing
-analytical_stiffness(::AbstractBasis1D) = nothing
 
 # ─────────────────────────────────────────────
 # Mixed Sine Basis (X-direction, 1st quadrant)
@@ -143,39 +141,28 @@ n_dof(b::TensorProductBasis) = n_modes(b.basis_x) * n_modes(b.basis_y)
 
 Assemble mass (M), stiffness (K), and advection (B) matrices.
 
-Uses analytical Kronecker products for M and K when the 1D bases provide
-`analytical_mass` / `analytical_stiffness`. Falls back to numerical
-Gauss-Legendre quadrature otherwise. Advection is always numerical.
+This solver only supports `TensorProductBasis(MixedSineBasis1D, HalfCosineBasis1D)`.
+For this basis pair the mass and stiffness matrices are diagonal, so they are
+stored as diagonal vectors. Advection is assembled numerically.
 """
 function assemble_matrices(
-    basis::TensorProductBasis,
+    basis::TensorProductBasis{MixedSineBasis1D,HalfCosineBasis1D},
     domain::RectangularDomain,
     grad_V::Function,
     Nquad::Int,
 )
     bx, by = basis.basis_x, basis.basis_y
-    Nx, Ny = n_modes(bx), n_modes(by)
-    N_basis = Nx * Ny
 
-    # --- Mass matrix ---
-    Mx_ana = analytical_mass(bx)
-    My_ana = analytical_mass(by)
-    if Mx_ana !== nothing && My_ana !== nothing
-        M = kron(Mx_ana, My_ana)
-    else
-        M = _assemble_mass_numerical(basis, domain, Nquad)
-    end
+    # Mass matrix
+    Mx = analytical_mass(bx)
+    My = analytical_mass(by)
+    M = kron(Mx, My)
 
-    # --- Stiffness matrix ---
-    Ax_ana = analytical_stiffness(bx)
-    Ay_ana = analytical_stiffness(by)
-    if Ax_ana !== nothing && Ay_ana !== nothing && Mx_ana !== nothing && My_ana !== nothing
-        K = kron(Ax_ana, My_ana) + kron(Mx_ana, Ay_ana)
-    else
-        K = _assemble_stiffness_numerical(basis, domain, Nquad)
-    end
+    # Stiffness matrix
+    Ax = analytical_stiffness(bx)
+    Ay = analytical_stiffness(by)
+    K = kron(Ax, My) + kron(Mx, Ay)
 
-    # --- Advection matrix (always numerical) ---
     B = _assemble_advection(basis, domain, grad_V, Nquad)
 
     return K, M, B
@@ -330,15 +317,6 @@ function solve_galerkin(prob::SpectralGalerkinProblem; nev::Int=6, solver::Symbo
     M = prob.M
 
     if solver == :krylov
-        # matvec(z) = M_factored \ (A * z)
-        # eigenvalues, eigenvectors, _ = eigsolve(
-        #     matvec, prob.n_dof, nev, :SR;
-        #     issymmetric=false,
-        #     krylovdim=max(3 * nev, 30),
-        #     maxiter=300,
-        # )
-        # eigvec_matrix = hcat(eigenvectors[1:nev]...)
-        # return real.(eigenvalues[1:nev]), eigvec_matrix
         A_factored = lu(A)
         matvec(z) = A_factored \ (M * z)
         eigenvalues_inv, eigenvectors, _ = eigsolve(
