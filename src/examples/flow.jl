@@ -5,14 +5,13 @@ using LinearAlgebra
 using StaticArrays
 using Revise
 
-includet("../potential_generator.jl")
+#includet("../potential_generator.jl")
 
-using .PotentialGenerator
+#using .PotentialGenerator
 
-pot = generate_potential()
-data = pot.data
-const Lx = data.Lx
-const Ly = data.Ly
+#pot = generate_potential()
+#data = pot.data
+const Lx = 0.5 * pi
 
 function smooth_step(x)
     # if x <= 0
@@ -26,29 +25,20 @@ function smooth_step(x)
     return max(0.0, x)^2
 end
 
-function g(x::Real, y::Real, s::Real)
+function g(x::Real, y::Real)
     #return 2.0 * s * smooth_step(0.5 * x - 1.0) * max(0.0, abs(y) - 2.0/3.0)^2
-    return s * max(0.0, x+2*y^2-5.0)^2
+    return 0.5 * max(0.0, x + 3.0*abs(y)^2 - 5.0)^2 + 10.0*max(0.0, x - 4.0)^2
 end
-
-# function g(x::Real, y::Real, s::Real)
-#     t0 = 3.0
-#     c = 0.6
-#     T = 2.0 * pi - 0.5 * pi
-#     α = (1.0 - c) / (T - t0)
-
-#     return s * max(0.0, abs(y) - 1.0 + α * max(0.0, x - t0))^2
-# end
 
 function V_wing(x, y)
     # s = 1e6
 
     # return s * abs(x-pi/2) + g((abs(x) - 0.5 * pi), y, s)
-    return PotentialGenerator.V_wing(Lx, x, y)
+    return 1e7 * ((abs(x) - Lx) + g(abs(x) - Lx, y))
 end
 
 function ∇V_wing(x, y)
-    return PotentialGenerator.∇V_wing(Lx, x, y)
+    return ForwardDiff.gradient(xy -> V_wing(xy[1], xy[2]), SVector(x, y))
 end
 
 xs = range(pi/2, 2*pi, length=128)
@@ -98,7 +88,13 @@ end
 function plot_g()
     xs = range(0.5*pi, 2*pi, length=32)
     ys = range(0.0, 1.0, length=32)
-    wireframe(xs, ys, (x, y) -> g((abs(x) - 0.5 * pi), y, 1e6), title="g(x,y)", xlabel="x", ylabel="y")
+    plt = wireframe(xs, ys, (x, y) -> g((abs(x) - 0.5 * pi), y),
+     xlabel="x", ylabel="y", camera=(-20, 30))
+
+    y0 = 2.0/3.0
+    zline = [g((abs(x) - 0.5*pi), y0) for x in xs]
+    plot!(plt, xs, fill(y0, length(xs)), zline;
+          color=:red, lw=2, seriestype=:path, label="y = 2/3")
 end
 
 plot_flow_lines()
@@ -107,7 +103,7 @@ plot_g()
 points = Iterators.product(xs, ys)
 
 for (x, y) in points
-    H = ForwardDiff.hessian((p) -> g(p[1], p[2], 1e6), [x, y])
+    H = ForwardDiff.hessian((p) -> g(p[1], p[2]), [x, y])
     λ = eigmin(Symmetric(H))
 
     if λ < 0
