@@ -36,99 +36,6 @@ analytical_mass(::AbstractBasis1D) = nothing
 analytical_stiffness(::AbstractBasis1D) = nothing
 
 # ─────────────────────────────────────────────
-# 3. Cosine Basis (Neumann BCs)
-# ─────────────────────────────────────────────
-
-"""
-    CosineBasis1D(n_modes, half_width)
-
-Cosine basis on [-half_width, half_width] with Neumann BCs:
-    φ_m(x) = cos(m π (x + half_width) / (2 half_width)),  m = 0, 1, ..., n_modes-1
-"""
-struct CosineBasis1D <: AbstractBasis1D
-    n_modes::Int
-    half_width::Float64
-end
-
-mode_indices(b::CosineBasis1D) = 0:(b.n_modes - 1)
-
-@inline function evaluate(b::CosineBasis1D, m::Int, x::Float64)
-    k = m * π / (2 * b.half_width)
-    return cos(k * (x + b.half_width))
-end
-
-@inline function evaluate_deriv(b::CosineBasis1D, m::Int, x::Float64)
-    k = m * π / (2 * b.half_width)
-    return -k * sin(k * (x + b.half_width))
-end
-
-function analytical_mass(b::CosineBasis1D)
-    M = zeros(b.n_modes, b.n_modes)
-    for (i, m) in enumerate(mode_indices(b))
-        M[i, i] = m == 0 ? 2 * b.half_width : b.half_width
-    end
-    return M
-end
-
-function analytical_stiffness(b::CosineBasis1D)
-    A = zeros(b.n_modes, b.n_modes)
-    for (i, m) in enumerate(mode_indices(b))
-        k = m * π / (2 * b.half_width)
-        A[i, i] = k^2 * (m == 0 ? 2 * b.half_width : b.half_width)
-    end
-    return A
-end
-
-# ─────────────────────────────────────────────
-# 4. Symmetric Cosine Basis (bespoke Y-direction)
-# ─────────────────────────────────────────────
-
-"""
-    SymmetricCosineBasis1D(n_modes, half_width)
-
-Symmetric cosine basis on [-half_width, half_width]:
-    Y_n(y) = cos(2nπy / (2 half_width)),  n = 0, 1, ..., n_modes-1
-"""
-struct SymmetricCosineBasis1D <: AbstractBasis1D
-    n_modes::Int
-    half_width::Float64
-end
-
-mode_indices(b::SymmetricCosineBasis1D) = 0:(b.n_modes - 1)
-
-@inline function evaluate(b::SymmetricCosineBasis1D, n::Int, y::Float64)
-    Ly = 2 * b.half_width
-    return cos(2 * n * π * y / Ly)
-end
-
-@inline function evaluate_deriv(b::SymmetricCosineBasis1D, n::Int, y::Float64)
-    Ly = 2 * b.half_width
-    k = 2 * n * π / Ly
-    return -k * sin(k * y)
-end
-
-function analytical_mass(b::SymmetricCosineBasis1D)
-    Ly = 2 * b.half_width
-    M = zeros(b.n_modes, b.n_modes)
-    M[1, 1] = Ly  # n = 0 mode
-    for i in 2:b.n_modes
-        M[i, i] = Ly / 2
-    end
-    return M
-end
-
-function analytical_stiffness(b::SymmetricCosineBasis1D)
-    Ly = 2 * b.half_width
-    A = zeros(b.n_modes, b.n_modes)
-    for i in 2:b.n_modes
-        n = i - 1  # 0-indexed mode number
-        k = 2 * n * π / Ly
-        A[i, i] = k^2 * Ly / 2
-    end
-    return A
-end
-
-# ─────────────────────────────────────────────
 # Mixed Sine Basis (X-direction, 1st quadrant)
 # ─────────────────────────────────────────────
 
@@ -217,91 +124,6 @@ function analytical_stiffness(b::HalfCosineBasis1D)
 end
 
 # ─────────────────────────────────────────────
-# 5. Sine-Wing Basis (bespoke X-direction)
-# ─────────────────────────────────────────────
-
-"""
-    SineWingBasis1D(n_modes, a, half_width)
-
-Antisymmetric sine basis with constant wings on [-half_width, half_width]:
-    X_m(x) = sin((2m-1)πx / 2a)   for |x| ≤ a
-    X_m(x) = ±1                     for |x| > a
-Mode indices: m = 1, 2, ..., n_modes
-"""
-struct SineWingBasis1D <: AbstractBasis1D
-    n_modes::Int
-    a::Float64
-    half_width::Float64
-
-    function SineWingBasis1D(n_modes, a, half_width)
-        @assert 0 < a < half_width "Need 0 < a < half_width"
-        new(n_modes, Float64(a), Float64(half_width))
-    end
-end
-
-mode_indices(b::SineWingBasis1D) = 1:b.n_modes
-
-@inline function evaluate(b::SineWingBasis1D, m::Int, x::Float64)
-    k = (2 * m - 1) * π / (2 * b.a)
-    if x < -b.a
-        return sin(k * (-b.a))
-    elseif x > b.a
-        return sin(k * b.a)
-    else
-        return sin(k * x)
-    end
-end
-
-@inline function evaluate_deriv(b::SineWingBasis1D, m::Int, x::Float64)
-    if abs(x) > b.a
-        return 0.0
-    else
-        k = (2 * m - 1) * π / (2 * b.a)
-        return k * cos(k * x)
-    end
-end
-
-function analytical_mass(b::SineWingBasis1D)
-    Lx = 2 * b.half_width
-    wing_contrib = Lx - 2 * b.a
-    M = fill(wing_contrib, b.n_modes, b.n_modes)
-    for m in 1:b.n_modes
-        M[m, m] += b.a
-    end
-    return M
-end
-
-function analytical_stiffness(b::SineWingBasis1D)
-    A = zeros(b.n_modes, b.n_modes)
-    for m in 1:b.n_modes
-        k = (2 * m - 1) * π / (2 * b.a)
-        A[m, m] = k^2 * b.a
-    end
-    return A
-end
-
-# ─────────────────────────────────────────────
-# 6. Custom Basis (user-provided closures)
-# ─────────────────────────────────────────────
-
-"""
-    CustomBasis1D(n_modes, indices, eval_fn, eval_deriv_fn)
-
-User-provided 1D basis. `eval_fn(m, x)` and `eval_deriv_fn(m, x)` are closures.
-`indices` is the range of mode indices (e.g., `0:N-1` or `1:N`).
-"""
-struct CustomBasis1D{F1,F2,I} <: AbstractBasis1D
-    n_modes::Int
-    indices::I
-    eval_fn::F1
-    eval_deriv_fn::F2
-end
-
-mode_indices(b::CustomBasis1D) = b.indices
-evaluate(b::CustomBasis1D, m::Int, x::Float64) = b.eval_fn(m, x)
-evaluate_deriv(b::CustomBasis1D, m::Int, x::Float64) = b.eval_deriv_fn(m, x)
-
-# ─────────────────────────────────────────────
 # 7. Tensor Product Basis
 # ─────────────────────────────────────────────
 
@@ -369,61 +191,8 @@ function _gl_points_weights(Nquad::Int, a::Float64, b::Float64)
     return pts, wts
 end
 
-function _assemble_mass_numerical(basis::TensorProductBasis, domain::RectangularDomain, Nquad::Int)
-    bx, by = basis.basis_x, basis.basis_y
-    Nx, Ny = n_modes(bx), n_modes(by)
-    N_basis = Nx * Ny
-
-    x_pts, x_wts = _gl_points_weights(Nquad, domain.x_min, domain.x_max)
-    y_pts, y_wts = _gl_points_weights(Nquad, domain.y_min, domain.y_max)
-
-    # Evaluate all basis values at quadrature points
-    Xvals = zeros(Nquad, Nx)
-    Yvals = zeros(Nquad, Ny)
-    for (i, x) in enumerate(x_pts), (mi, m) in enumerate(mode_indices(bx))
-        Xvals[i, mi] = evaluate(bx, m, x)
-    end
-    for (j, y) in enumerate(y_pts), (ni, n) in enumerate(mode_indices(by))
-        Yvals[j, ni] = evaluate(by, n, y)
-    end
-
-    # M_X[m, m'] = Σ_i X_m(x_i) X_{m'}(x_i) w_i
-    Mx = Xvals' * Diagonal(x_wts) * Xvals
-    My = Yvals' * Diagonal(y_wts) * Yvals
-    return kron(Mx, My)
-end
-
-function _assemble_stiffness_numerical(basis::TensorProductBasis, domain::RectangularDomain, Nquad::Int)
-    bx, by = basis.basis_x, basis.basis_y
-    Nx, Ny = n_modes(bx), n_modes(by)
-
-    x_pts, x_wts = _gl_points_weights(Nquad, domain.x_min, domain.x_max)
-    y_pts, y_wts = _gl_points_weights(Nquad, domain.y_min, domain.y_max)
-
-    Xvals = zeros(Nquad, Nx)
-    dXvals = zeros(Nquad, Nx)
-    Yvals = zeros(Nquad, Ny)
-    dYvals = zeros(Nquad, Ny)
-
-    for (i, x) in enumerate(x_pts), (mi, m) in enumerate(mode_indices(bx))
-        Xvals[i, mi] = evaluate(bx, m, x)
-        dXvals[i, mi] = evaluate_deriv(bx, m, x)
-    end
-    for (j, y) in enumerate(y_pts), (ni, n) in enumerate(mode_indices(by))
-        Yvals[j, ni] = evaluate(by, n, y)
-        dYvals[j, ni] = evaluate_deriv(by, n, y)
-    end
-
-    Mx = Xvals' * Diagonal(x_wts) * Xvals
-    Ax = dXvals' * Diagonal(x_wts) * dXvals
-    My = Yvals' * Diagonal(y_wts) * Yvals
-    Ay = dYvals' * Diagonal(y_wts) * dYvals
-
-    return kron(Ax, My) + kron(Mx, Ay)
-end
-
 function _assemble_advection(
-    basis::TensorProductBasis,
+    basis::TensorProductBasis{MixedSineBasis1D,HalfCosineBasis1D},
     domain::RectangularDomain,
     grad_V::Function,
     Nquad::Int,
@@ -434,58 +203,92 @@ function _assemble_advection(
 
     x_pts, x_wts = _gl_points_weights(Nquad, domain.x_min, domain.x_max)
     y_pts, y_wts = _gl_points_weights(Nquad, domain.y_min, domain.y_max)
-    N_pts = Nquad * Nquad
 
-    # Evaluate 1D basis functions at quadrature points
-    Xvals = zeros(Nquad, Nx)
-    dXvals = zeros(Nquad, Nx)
-    Yvals = zeros(Nquad, Ny)
-    dYvals = zeros(Nquad, Ny)
+    Xvals = Matrix{Float64}(undef, Nquad, Nx)
+    dXvals = Matrix{Float64}(undef, Nquad, Nx)
+    Yvals = Matrix{Float64}(undef, Nquad, Ny)
+    dYvals = Matrix{Float64}(undef, Nquad, Ny)
 
-    for (i, x) in enumerate(x_pts), (mi, m) in enumerate(mode_indices(bx))
-        Xvals[i, mi] = evaluate(bx, m, x)
-        dXvals[i, mi] = evaluate_deriv(bx, m, x)
-    end
-    for (j, y) in enumerate(y_pts), (ni, n) in enumerate(mode_indices(by))
-        Yvals[j, ni] = evaluate(by, n, y)
-        dYvals[j, ni] = evaluate_deriv(by, n, y)
-    end
+    kx = [((2 * m - 1) * π) / (2 * bx.width) for m in 1:Nx]
+    ky = [(n * π) / by.width for n in 0:(Ny - 1)]
 
-    # Build 2D basis, derivative, and weight arrays
-    # Flatten 2D grid: point index = (j-1)*Nquad + i  (y-major ordering)
-    Phi  = zeros(N_pts, N_basis)  # Φ_{m,n}(x_i, y_j)
-    dPhi_x = zeros(N_pts, N_basis)  # ∂_x Φ
-    dPhi_y = zeros(N_pts, N_basis)  # ∂_y Φ
-    W = zeros(N_pts)  # quadrature weights
-    Vx_vec = zeros(N_pts)
-    Vy_vec = zeros(N_pts)
-
-    pt = 1
-    for j in 1:Nquad
-        for i in 1:Nquad
-            W[pt] = x_wts[i] * y_wts[j]
-            gV = grad_V(x_pts[i], y_pts[j])
-            Vx_vec[pt] = gV[1]
-            Vy_vec[pt] = gV[2]
-
-            for mi in 1:Nx
-                for ni in 1:Ny
-                    b_idx = (mi - 1) * Ny + ni
-                    Phi[pt, b_idx]    = Xvals[i, mi] * Yvals[j, ni]
-                    dPhi_x[pt, b_idx] = dXvals[i, mi] * Yvals[j, ni]
-                    dPhi_y[pt, b_idx] = Xvals[i, mi] * dYvals[j, ni]
-                end
-            end
-            pt += 1
+    @inbounds for i in 1:Nquad
+        x = x_pts[i]
+        for mi in 1:Nx
+            s, c = sincos(kx[mi] * x)
+            Xvals[i, mi] = s
+            dXvals[i, mi] = kx[mi] * c
         end
     end
 
-    # B_ij = ∫ (∇V · ∇Φ_j) Φ_i dA
-    # = Σ_q [ (Vx * ∂_x Φ_j + Vy * ∂_y Φ_j) * Φ_i * w_q ]
-    Drift = Vx_vec .* dPhi_x .+ Vy_vec .* dPhi_y  # N_pts × N_basis
-    B = Phi' * Diagonal(W) * Drift  # N_basis × N_basis
+    @inbounds for j in 1:Nquad
+        y = y_pts[j]
+        for ni in 1:Ny
+            s, c = sincos(ky[ni] * y)
+            Yvals[j, ni] = c
+            dYvals[j, ni] = -ky[ni] * s
+        end
+    end
 
-    return B
+    Vx = Matrix{Float64}(undef, Nquad, Nquad)
+    Vy = Matrix{Float64}(undef, Nquad, Nquad)
+    @inbounds for i in 1:Nquad
+        x = x_pts[i]
+        for j in 1:Nquad
+            gx, gy = grad_V(x, y_pts[j])
+            Vx[i, j] = Float64(gx)
+            Vy[i, j] = Float64(gy)
+        end
+    end
+
+    # Contract the tensor-product form along y first, then finish with two GEMMs.
+    # This avoids building Phi/dPhi tables of size (Nquad^2) x (Nx*Ny).
+    XdX = Matrix{Float64}(undef, Nx * Nx, Nquad)
+    XX = Matrix{Float64}(undef, Nx * Nx, Nquad)
+    @inbounds for i in 1:Nquad
+        idx = 1
+        xw = x_wts[i]
+        for mj in 1:Nx
+            dxj = dXvals[i, mj]
+            xj = Xvals[i, mj]
+            for mi in 1:Nx
+                xi = xw * Xvals[i, mi]
+                XdX[idx, i] = xi * dxj
+                XX[idx, i] = xi * xj
+                idx += 1
+            end
+        end
+    end
+
+    YY = Matrix{Float64}(undef, Ny * Ny, Nquad)
+    YdY = Matrix{Float64}(undef, Ny * Ny, Nquad)
+    @views @inbounds for i in 1:Nquad
+        col_yy = YY[:, i]
+        col_ydy = YdY[:, i]
+        fill!(col_yy, 0.0)
+        fill!(col_ydy, 0.0)
+        for j in 1:Nquad
+            wyvx = y_wts[j] * Vx[i, j]
+            wyvy = y_wts[j] * Vy[i, j]
+            idx = 1
+            for nj in 1:Ny
+                yj = Yvals[j, nj]
+                dyj = dYvals[j, nj]
+                for ni in 1:Ny
+                    yi = Yvals[j, ni]
+                    col_yy[idx] = muladd(wyvx * yi, yj, col_yy[idx])
+                    col_ydy[idx] = muladd(wyvy * yi, dyj, col_ydy[idx])
+                    idx += 1
+                end
+            end
+        end
+    end
+
+    contracted = XdX * YY'
+    mul!(contracted, XX, YdY', 1.0, 1.0)
+
+    B_view = PermutedDimsArray(reshape(contracted, Nx, Nx, Ny, Ny), (3, 1, 4, 2))
+    return reshape(copy(B_view), N_basis, N_basis)
 end
 
 # ─────────────────────────────────────────────
