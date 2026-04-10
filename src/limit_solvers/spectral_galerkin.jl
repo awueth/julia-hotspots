@@ -140,9 +140,9 @@ stored as diagonal vectors. Advection is assembled numerically.
 function assemble_matrices(
     basis::TensorProductBasis{MixedSineBasis1D,HalfCosineBasis1D},
     domain::RectangularDomain,
-    grad_V::Function,
+    grad_V::F,
     Nquad::Int,
-)
+) where {F}
     bx, by = basis.basis_x, basis.basis_y
 
     # Mass matrix
@@ -173,9 +173,9 @@ end
 function _assemble_advection(
     basis::TensorProductBasis{MixedSineBasis1D,HalfCosineBasis1D},
     domain::RectangularDomain,
-    grad_V::Function,
+    grad_V::F,
     Nquad::Int,
-)
+) where {F}
     bx, by = basis.basis_x, basis.basis_y
     Nx, Ny = n_modes(bx), n_modes(by)
     N_basis = Nx * Ny
@@ -183,10 +183,10 @@ function _assemble_advection(
     x_pts, x_wts = _gl_points_weights(Nquad, domain.x_min, domain.x_max)
     y_pts, y_wts = _gl_points_weights(Nquad, domain.y_min, domain.y_max)
 
-    Xvals = Matrix{Float64}(undef, Nquad, Nx)
-    dXvals = Matrix{Float64}(undef, Nquad, Nx)
-    Yvals = Matrix{Float64}(undef, Nquad, Ny)
-    dYvals = Matrix{Float64}(undef, Nquad, Ny)
+    Xvals = Matrix{Float64}(undef, Nx, Nquad)
+    dXvals = Matrix{Float64}(undef, Nx, Nquad)
+    Yvals = Matrix{Float64}(undef, Ny, Nquad)
+    dYvals = Matrix{Float64}(undef, Ny, Nquad)
 
     kx = [((2 * m - 1) * π) / (2 * bx.width) for m in 1:Nx]
     ky = [(n * π) / by.width for n in 0:(Ny - 1)]
@@ -195,8 +195,8 @@ function _assemble_advection(
         x = x_pts[i]
         for mi in 1:Nx
             s, c = sincos(kx[mi] * x)
-            Xvals[i, mi] = s
-            dXvals[i, mi] = kx[mi] * c
+            Xvals[mi, i] = s
+            dXvals[mi, i] = kx[mi] * c
         end
     end
 
@@ -204,8 +204,8 @@ function _assemble_advection(
         y = y_pts[j]
         for ni in 1:Ny
             s, c = sincos(ky[ni] * y)
-            Yvals[j, ni] = c
-            dYvals[j, ni] = -ky[ni] * s
+            Yvals[ni, j] = c
+            dYvals[ni, j] = -ky[ni] * s
         end
     end
 
@@ -215,10 +215,10 @@ function _assemble_advection(
         idx = 1
         xw = x_wts[i]
         for mj in 1:Nx
-            dxj = dXvals[i, mj]
-            xj = Xvals[i, mj]
+            dxj = dXvals[mj, i]
+            xj = Xvals[mj, i]
             for mi in 1:Nx
-                xi = xw * Xvals[i, mi]
+                xi = xw * Xvals[mi, i]
                 XdX[idx, i] = xi * dxj
                 XX[idx, i] = xi * xj
                 idx += 1
@@ -240,10 +240,10 @@ function _assemble_advection(
             wyvy = y_wts[j] * Float64(gy)
             idx = 1
             for nj in 1:Ny
-                yj = Yvals[j, nj]
-                dyj = dYvals[j, nj]
+                yj = Yvals[nj, j]
+                dyj = dYvals[nj, j]
                 for ni in 1:Ny
-                    yi = Yvals[j, ni]
+                    yi = Yvals[ni, j]
                     col_yy[idx] = muladd(wyvx * yi, yj, col_yy[idx])
                     col_ydy[idx] = muladd(wyvy * yi, dyj, col_ydy[idx])
                     idx += 1
@@ -275,9 +275,9 @@ end
 function SpectralGalerkinProblem(
     basis::TensorProductBasis{MixedSineBasis1D,HalfCosineBasis1D},
     domain::RectangularDomain,
-    grad_V::Function,
+    grad_V::F,
     Nquad::Int,
-)
+) where {F}
     K, M, B = assemble_matrices(basis, domain, grad_V, Nquad)
     return SpectralGalerkinProblem(K, B, M, n_dof(basis), basis, domain)
 end
