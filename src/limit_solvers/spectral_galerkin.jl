@@ -3,6 +3,7 @@ module SpectralGalerkin
 using FastGaussQuadrature
 using KrylovKit
 using LinearAlgebra
+using Base.Threads
 
 export SpectralGalerkinProblem, solve_galerkin, reconstruct_field, reconstruct_full_field
 export evolve_coefficients, evaluate_solution
@@ -61,20 +62,15 @@ end
 end
 
 function analytical_mass(b::MixedSineBasis1D)
-    M = zeros(b.n_modes, b.n_modes)
-    for i in 1:b.n_modes
-        M[i, i] = b.width / 2.0
-    end
-    return M
+    diag = fill(b.width / 2.0, b.n_modes)
+    return Diagonal(diag)
 end
 
 function analytical_stiffness(b::MixedSineBasis1D)
-    A = zeros(b.n_modes, b.n_modes)
-    for (i, m) in enumerate(mode_indices(b))
-        k = (2 * m - 1) * π / (2 * b.width)
-        A[i, i] = k^2 * (b.width / 2.0)
-    end
-    return A
+    m = collect(1:b.n_modes)
+    k = ((2 .* m .- 1) .* π) ./ (2 * b.width)
+    diag = (k .^ 2) .* (b.width / 2.0)
+    return Diagonal(diag)
 end
 
 # ─────────────────────────────────────────────
@@ -105,20 +101,16 @@ end
 end
 
 function analytical_mass(b::HalfCosineBasis1D)
-    M = zeros(b.n_modes, b.n_modes)
-    for (i, m) in enumerate(mode_indices(b))
-        M[i, i] = m == 0 ? b.width : b.width / 2.0
-    end
-    return M
+    ms = collect(0:(b.n_modes - 1))
+    diag = (ms .== 0) .* b.width .+ (ms .!= 0) .* (b.width / 2.0)
+    return Diagonal(diag)
 end
 
 function analytical_stiffness(b::HalfCosineBasis1D)
-    A = zeros(b.n_modes, b.n_modes)
-    for (i, m) in enumerate(mode_indices(b))
-        k = m * π / b.width
-        A[i, i] = k^2 * (m == 0 ? b.width : b.width / 2.0)
-    end
-    return A
+    ms = collect(0:(b.n_modes - 1))
+    k = (ms .* π) ./ b.width
+    diag = (k .^ 2) .* ((ms .== 0) .* b.width .+ (ms .!= 0) .* (b.width / 2.0))
+    return Diagonal(diag)
 end
 
 # ─────────────────────────────────────────────
@@ -199,7 +191,7 @@ function _assemble_advection(
     kx = [((2 * m - 1) * π) / (2 * bx.width) for m in 1:Nx]
     ky = [(n * π) / by.width for n in 0:(Ny - 1)]
 
-    @inbounds for i in 1:Nquad
+    Threads.@threads for i in 1:Nquad
         x = x_pts[i]
         for mi in 1:Nx
             s, c = sincos(kx[mi] * x)
@@ -208,7 +200,7 @@ function _assemble_advection(
         end
     end
 
-    @inbounds for j in 1:Nquad
+    Threads.@threads for j in 1:Nquad
         y = y_pts[j]
         for ni in 1:Ny
             s, c = sincos(ky[ni] * y)
@@ -217,22 +209,9 @@ function _assemble_advection(
         end
     end
 
-    Vx = Matrix{Float64}(undef, Nquad, Nquad)
-    Vy = Matrix{Float64}(undef, Nquad, Nquad)
-    @inbounds for i in 1:Nquad
-        x = x_pts[i]
-        for j in 1:Nquad
-            gx, gy = grad_V(x, y_pts[j])
-            Vx[i, j] = Float64(gx)
-            Vy[i, j] = Float64(gy)
-        end
-    end
-
-    # Contract the tensor-product form along y first, then finish with two GEMMs.
-    # This avoids building Phi/dPhi tables of size (Nquad^2) x (Nx*Ny).
     XdX = Matrix{Float64}(undef, Nx * Nx, Nquad)
     XX = Matrix{Float64}(undef, Nx * Nx, Nquad)
-    @inbounds for i in 1:Nquad
+    Threads.@threads for i in 1:Nquad
         idx = 1
         xw = x_wts[i]
         for mj in 1:Nx
@@ -249,14 +228,16 @@ function _assemble_advection(
 
     YY = Matrix{Float64}(undef, Ny * Ny, Nquad)
     YdY = Matrix{Float64}(undef, Ny * Ny, Nquad)
-    @views @inbounds for i in 1:Nquad
-        col_yy = YY[:, i]
-        col_ydy = YdY[:, i]
+    Threads.@threads for i in 1:Nquad
+        @views col_yy = YY[:, i]
+        @views col_ydy = YdY[:, i]
         fill!(col_yy, 0.0)
         fill!(col_ydy, 0.0)
+        x = x_pts[i]
         for j in 1:Nquad
-            wyvx = y_wts[j] * Vx[i, j]
-            wyvy = y_wts[j] * Vy[i, j]
+            gx, gy = grad_V(x, y_pts[j])
+            wyvx = y_wts[j] * Float64(gx)
+            wyvy = y_wts[j] * Float64(gy)
             idx = 1
             for nj in 1:Ny
                 yj = Yvals[j, nj]
@@ -283,16 +264,16 @@ end
 # ─────────────────────────────────────────────
 
 struct SpectralGalerkinProblem{B<:TensorProductBasis}
-    K::Matrix{Float64}
+    K::Diagonal{Float64}
     B_adv::Matrix{Float64}
-    M::Matrix{Float64}
+    M::Diagonal{Float64}
     n_dof::Int
     basis::B
     domain::RectangularDomain
 end
 
 function SpectralGalerkinProblem(
-    basis::TensorProductBasis,
+    basis::TensorProductBasis{MixedSineBasis1D,HalfCosineBasis1D},
     domain::RectangularDomain,
     grad_V::Function,
     Nquad::Int,
@@ -300,7 +281,6 @@ function SpectralGalerkinProblem(
     K, M, B = assemble_matrices(basis, domain, grad_V, Nquad)
     return SpectralGalerkinProblem(K, B, M, n_dof(basis), basis, domain)
 end
-
 # ─────────────────────────────────────────────
 # 10. Eigenvalue Solver
 # ─────────────────────────────────────────────
@@ -315,7 +295,7 @@ Solve (K + B) u = λ M u for the smallest eigenvalues.
 function solve_galerkin(prob::SpectralGalerkinProblem; nev::Int=6, solver::Symbol=:dense, v0=prob.n_dof)
     A = prob.K + prob.B_adv
     M = prob.M
-
+    
     if solver == :krylov
         A_factored = lu(A)
         matvec(z) = A_factored \ (M * z)
