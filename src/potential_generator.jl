@@ -311,21 +311,21 @@ function ∇V(pot::PotentialFunctions, x::Real, y::Real)
 end
 
 function smooth_step(x)
-    # if x <= 0
-    #     return 0.0
-    # elseif x >= 1
-    #     return 1.0
-    # else
-    #     f(t) = exp(-1.0 / t)
-    #     return f(x) / (f(x) + f(1.0 - x))
-    # end
-    return max(0.0, x)^2
+    if x <= 0
+        return 0.0
+    elseif x >= 1
+        return 1.0
+    else
+        f(t) = exp(-1.0 / t)
+        return f(x) / (f(x) + f(1.0 - x))
+    end
+    # return max(0.0, x)^2
 end
 
 function g(x::Real, y::Real)
-    # y_min = 1/π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
-    # return 2.0 * s * smooth_step(0.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
-    return 0.5 * max(0.0, x + 3*abs(y)^2 - 6.0)^2 + max(0.0, x - 4.0)^2
+    y_min = 1/π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
+    return 2.0 * smooth_step(0.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
+    #return 0.5 * max(0.0, x + 3.0*abs(y)^2 - 5.0)^2 + 10.0*max(0.0, x - 4.0)^2
 end
 
 # function g(x::Real, y::Real, s::Real)

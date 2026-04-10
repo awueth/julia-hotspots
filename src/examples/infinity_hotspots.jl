@@ -286,7 +286,7 @@ ctx = build_context(pot;
 sol = solve_problem(ctx; nev=DEFAULT_NEV, solver=DEFAULT_SOLVER);
 
 hotspot = evaluate_hotspot(ctx, sol;
-    x_middle=ctx.data.Lx + 4.0,
+    x_middle=ctx.data.Lx + 2.0,
     t_final=DEFAULT_T_FINAL,
     ys_profile_count=DEFAULT_YS_PROFILE_COUNT,
     ts_trace_count=DEFAULT_TS_TRACE_COUNT,
