@@ -10,7 +10,7 @@ using .SpectralGalerkin
 
 begin
     const DEFAULT_EPSILON = 0.1
-    const DEFAULT_EXT_FACTOR = 4.0
+    const DEFAULT_WING_LENGTH = 6.0
     const DEFAULT_MX = 128
     const DEFAULT_NY = 32
     const DEFAULT_N_GRID = 256
@@ -20,8 +20,8 @@ begin
     const DEFAULT_T_FINAL = 1.0
     const DEFAULT_YS_PROFILE_COUNT = 200
     const DEFAULT_TS_TRACE_COUNT = 401
-    const DEFAULT_NX_PLOT = 100
-    const DEFAULT_NY_PLOT = 50
+    const DEFAULT_NX_PLOT = 32
+    const DEFAULT_NY_PLOT = 32
     const DEFAULT_OUTPUT_FILE = "eigenfunction_mixed_extended.png"
 end
 
@@ -59,21 +59,21 @@ struct InfinityHotspotAnalysis
 end
 
 """
-    build_context(; epsilon=0.1, ext_factor=4.0, Mx=128, Ny=32, N_grid=256, potential_kwargs...)
+    build_context(; epsilon=0.1, wing_length=6.0, Mx=128, Ny=32, N_grid=256, potential_kwargs...)
 
 Generate the current potential, build the mixed quarter-domain Galerkin problem,
 and return reusable solve context for interactive experiments.
 """
 function build_context(pot;
     epsilon::Float64=DEFAULT_EPSILON,
-    ext_factor::Float64=DEFAULT_EXT_FACTOR,
+    wing_length::Float64=DEFAULT_WING_LENGTH,
     Mx::Int=DEFAULT_MX,
     Ny::Int=DEFAULT_NY,
     N_grid::Int=DEFAULT_N_GRID)
 
     data = pot.data
 
-    diam_x = ext_factor * data.Lx
+    diam_x = data.Lx + wing_length
     basis_x = MixedSineBasis1D(Mx, diam_x)
     basis_y = HalfCosineBasis1D(Ny, data.Ly)
     basis = TensorProductBasis(basis_x, basis_y)
@@ -87,7 +87,7 @@ function build_context(pot;
     prob = SpectralGalerkinProblem(basis, domain, gradV_scaled, N_grid)
 
     println("Built context: epsilon = ", epsilon,
-        ", ext_factor = ", ext_factor,
+        ", wing_length = ", wing_length,
         ", diam_x = ", diam_x)
 
     return InfinityHotspotsContext(pot, data, prob, basis_x, basis_y, epsilon, diam_x)
@@ -218,7 +218,7 @@ function plot_results(ctx::InfinityHotspotsContext, sol::InfinityHotspotsSolutio
         ny=ny_plot,
     )
 
-    x_grid_pot = range(ctx.data.Lx, ctx.diam_x, length=nx_plot)
+    x_grid_pot = range(ctx.data.Lx-0.5, ctx.diam_x, length=nx_plot)
     y_grid_pot = range(-ctx.data.Ly, ctx.data.Ly, length=ny_plot)
     V_grid = [V_extended(ctx.pot, x, y) for x in x_grid_pot, y in y_grid_pot]
 
@@ -277,7 +277,7 @@ pot = generate_potential();
 
 ctx = build_context(pot;
     epsilon=DEFAULT_EPSILON,
-    ext_factor=DEFAULT_EXT_FACTOR,
+    wing_length=5.0, # 8.0
     Mx=DEFAULT_MX,
     Ny=DEFAULT_NY,
     N_grid=DEFAULT_N_GRID
