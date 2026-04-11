@@ -322,20 +322,17 @@ function smooth_step(x)
     # return max(0.0, x)^2
 end
 
+function smooth_max(x::Real, y::Real, strength::Real=10.0)
+    max_val = max(x, y)
+    min_val = min(x, y)
+    return max_val + (1.0 / strength) * log1p(exp(strength * (min_val - max_val)))
+end
+
 function g(x::Real, y::Real)
     y_min = 1/π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
     return 2.0 * smooth_step(2.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
-    #return 0.5 * max(0.0, x + 3.0*abs(y)^2 - 5.0)^2 + 10.0*max(0.0, x - 4.0)^2
+    # return 0.5 * max(0.0, x + 2*max(0, y-y_min) - 1.2)^2 + 2.0*max(0.0, x - 0.5)^2
 end
-
-# function g(x::Real, y::Real, s::Real)
-#     t0 = 4.0
-#     c = 0.6
-#     T = 2.0 * pi - 0.5 * pi
-#     α = (1.0 - c) / (T - t0)
-
-#     return 100.0 * s * max(0.0, abs(y) - 1.0 + α * max(0.0, x - t0))^2
-# end
 
 function V_wing(Lx::Real, x::Real, y::Real)
     Δx = abs(x) - Lx
@@ -347,9 +344,14 @@ function ∇V_wing(Lx::Real, x::Real, y::Real)
 end
 
 function V_extended(pot::PotentialFunctions, x::Real, y::Real)
-    if abs(x) <= pot.data.Lx
-        # Inside the core: exact evaluation
+    # We can't compute the maximum globally since the
+    # integrand for V₀ has singularities in the wing
+    # smooth_max instead of max also works but is even worse to
+    # compute in the wings. 
+    if abs(x) <= pot.data.Lx-0.5
         return V(pot, x, y)
+    elseif abs(x) <= pot.data.Lx+0.5
+        return max(V(pot, x, y), V(pot, pot.data.Lx, 1.0) + V_wing(pot.data.Lx, x, y))
     else
         return V(pot, pot.data.Lx, 1.0) + V_wing(pot.data.Lx, x, y)
     end
