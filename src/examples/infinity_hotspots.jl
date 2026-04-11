@@ -239,10 +239,10 @@ function plot_results(ctx::InfinityHotspotsContext, sol::InfinityHotspotsSolutio
         linewidth=2,
         label=middle_label)
 
-    p_pot = surface(x_grid_pot, y_grid_pot, V_grid';
+    p_pot = wireframe(x_grid_pot, y_grid_pot, V_grid';
         xlabel="x", ylabel="y", zlabel="V(x,y)",
         title="Potential in the wing region",
-        colorbar=true)
+        camera=(-20, 30))
 
     p2 = plot(hotspot.ys_profile, hotspot.u_inner_t0;
         xlabel="y", ylabel="u",
