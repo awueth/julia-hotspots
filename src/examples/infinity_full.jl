@@ -1,27 +1,31 @@
 using Revise
 
 includet("../solver.jl")
-includet("../potential_generator.jl")
+includet("../potential_interface.jl")
 
-using .PotentialGenerator
+using .PotentialInterface
 
 
-ε = 0.1
-pot = generate_potential()
+const DEFAULT_EPSILON = 0.1
+const DEFAULT_WING_LENGTH = 5.0
+const DEFAULT_LSE_CORE_CHECKPOINT_PATH = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_core_potential.chk")
+const DEFAULT_SMOOTH_MAX_STRENGTH = 10.0
+const DEFAULT_WING_SCALE = 5e6
+
+ε = DEFAULT_EPSILON
+core = load_lse_core_potential(checkpoint_path=DEFAULT_LSE_CORE_CHECKPOINT_PATH)
+domain = potential_domain(core)
+wing = HandmadeWingPotential(domain.Lx; scale=DEFAULT_WING_SCALE)
+pot = SmoothMaxPotential(core, wing; smooth_max_strength=DEFAULT_SMOOTH_MAX_STRENGTH)
+domain = potential_domain(pot)
 d = Inf
-diam_x = 4.0 * 2.0 * pot.data.Lx
-diam_y = 2.0 * pot.data.Ly
+diam_x = 2.0 * (domain.Lx + DEFAULT_WING_LENGTH)
+diam_y = 2.0 * domain.Ly
 n_boundary_points = 256^2
 n_modes = (128, 32)
-λ = 2.1375
+λ = 1.0567322328208268
 
-function V(x, y)
-    return ε * PotentialGenerator.V_extended(pot, x, y)
-end
-
-function gradV(x, y)
-    return ε * PotentialGenerator.∇V_extended(pot, x, y)
-end
+V, gradV = potential_functions(pot; scale=ε)
 
 geometry = make_geometry(d, diam_x, diam_y, V, gradV, n_boundary_points)
 
@@ -33,14 +37,19 @@ plot_u_edge_profile(geometry, coefficients, n_modes, λ; r=:boundary)
 plot_u_edge_profile(geometry, coefficients, n_modes, λ; r=:interior)
 
 #find_eigenvalue_dense(geometry, (128, 16), 2.0, 2.2)
-#optimize_eigenvalue(geometry, (128, 32), (2.0, 2.2))
-"""
-For d = 1e9
-Optimization Successful: true
-Optimal λ: 2.132804191873282
-Minimum Loss: 0.3071759118878363
-Iterations: 10
-(2.132804191873282, 0.3071759118878363)
-"""
+#optimize_eigenvalue(geometry, (128, 32), (1.0, 1.2))
 
-compute_infinity_norm(geometry, coefficients, n_modes, λ)
+println(compute_infinity_norm(geometry, coefficients, n_modes, λ))
+
+"""
+On euler with: 256 x modes and 512^2 boundary points, we obtain:
+
+command: julia --project=. -t auto src/examples/infinity_full.jl
+
+Running optimization...
+Optimization finished. Penalized objective: 5745.31659074317
+Sup norm of V₀: 356.4163407864109
+Unpenalized normalized min Hessian eigenvalue: -16.119670928660884
+Loss: 0.2830567629741757
+0.005259586590494071
+"""
