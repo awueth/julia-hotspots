@@ -275,3 +275,51 @@ function solve_dense(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ:
 
     return best_coefs, residual
 end
+
+function boundary_residual(
+    geometry::Geometry,
+    coefficients::AbstractVector{Float64},
+    λx::AbstractVector{Float64},
+    λy::AbstractVector{Float64},
+    λr::AbstractVector{Float64},
+    x::Float64,
+    y::Float64
+)
+    r = 1.0 - geometry.V(x, y) / geometry.d
+    ∂xV, ∂yV = geometry.gradV(x, y)
+    nr = 4.0
+    inv_len = inv(sqrt(∂xV^2 + ∂yV^2 + nr^2))
+    nx, ny, nr_scaled = ∂xV * inv_len, ∂yV * inv_len, nr * inv_len
+
+    residual = 0.0
+    @inbounds @simd for i in eachindex(coefficients)
+        av, (agx, agy) = axial_basis(λx[i], λy[i], x, y)
+        rv, rgrad = ϕ(geometry.d, λr[i], r)
+        residual += coefficients[i] * (nx * agx * rv + ny * agy * rv + nr_scaled * av * rgrad)
+    end
+
+    return residual
+end
+
+function boundary_residual(
+    geometry::Geometry,
+    coefficients::AbstractVector{Float64},
+    λ::Float64,
+    n_modes::Tuple{Int,Int},
+    grid_size::Tuple{Int,Int}
+)
+    xs = range(0, 0.5 * geometry.diam_x, length=grid_size[1])
+    ys = range(0, 0.5 * geometry.diam_y, length=grid_size[2])
+    residuals = zeros(Float64, length(xs), length(ys))
+
+    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+
+    Threads.@threads for j in eachindex(ys)
+        for i in eachindex(xs)
+            # Call the optimized, non-allocating version
+            residuals[i, j] = boundary_residual(geometry, coefficients, λx, λy, λr, xs[i], ys[j])
+        end
+    end
+
+    return residuals, xs, ys
+end
