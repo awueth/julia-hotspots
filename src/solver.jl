@@ -1,7 +1,7 @@
 include("functions/basis.jl")
+
 using KrylovKit
 using LinearAlgebra
-using GLMakie
 using Optim
 
 struct Geometry{F1,F2}
@@ -20,11 +20,11 @@ function make_geometry(
     diam_y::Float64, 
     V::F1, 
     gradV::F2,
-    n_points ::Int
+    n_points::Tuple{Int,Int}
 ) where {F1,F2}
-    n_side = round(Int, sqrt(n_points))
-    x_grid = range(0, 0.5 * diam_x, length=n_side)
-    y_grid = range(0, 0.5 * diam_y, length=n_side)
+    n_x, n_y = n_points
+    x_grid = range(0, 0.5 * diam_x, length=n_x)
+    y_grid = range(0, 0.5 * diam_y, length=n_y)
     grid = vec(collect(Iterators.product(x_grid, y_grid)))
     xs = [p[1] for p in grid]
     ys = [p[2] for p in grid]
@@ -41,30 +41,17 @@ function make_geometry(
     return Geometry(d, diam_x, diam_y, V, gradV, points, normals)
 end
 
-function normal_deriv_at_mode(geometry::Geometry, λx::Float64, λy::Float64, λr::Float64)
-    x, y, r = geometry.points
-    nx, ny, nr = geometry.normals
-    d = geometry.d
-
-    axial_vals, (axial_grads_x, axial_grads_y) = axial_basis(λx, λy, x, y)
-    radial_vals, radial_grads = ϕ(d, λr, r)
-
-    return (nx .* axial_grads_x .* radial_vals) .+
-           (ny .* axial_grads_y .* radial_vals) .+
-           (nr .* axial_vals .* radial_grads)
-end
-
 mode_counts(n_modes::Int) = (n_modes, n_modes)
 mode_counts(n_modes::Tuple{Int,Int}) = n_modes
 
-function get_eigenvalues(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
+function get_eigenvalues(diam_x::Float64, diam_y::Float64, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
     n_modes_x, n_modes_y = mode_counts(n_modes)
     modes_x = 1:2:(2 * n_modes_x - 1)
     modes_y = 0:2:(2 * n_modes_y - 2)
-    λx_ = (modes_x .* (π / geometry.diam_x)) .^ 2
-    λy_ = (modes_y .* (π / geometry.diam_y)) .^ 2
+    λx_modes = (modes_x .* (π / diam_x)) .^ 2
+    λy_modes = (modes_y .* (π / diam_y)) .^ 2
 
-    grid = vec(collect(Iterators.product(λx_, λy_)))
+    grid = vec(collect(Iterators.product(λx_modes, λy_modes)))
     λx = [g[1] for g in grid]
     λy = [g[2] for g in grid]
     λr = λ .- (λx .+ λy)
@@ -72,250 +59,192 @@ function get_eigenvalues(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}},
     return λx, λy, λr
 end
 
+function get_eigenvalues(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
+    return get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
+end
+
 function get_matrix(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
     total_modes = length(λx)
+    n_points = length(geometry.points.x)
 
-    M = zeros(Float64, length(geometry.points.x), total_modes)
-    for j in 1:total_modes
-        M[:, j] = normal_deriv_at_mode(geometry, λx[j], λy[j], λr[j])
+    M = zeros(Float64, n_points, total_modes)
+
+    xs, ys, rs = geometry.points
+    nxs, nys, nrs = geometry.normals
+    d = geometry.d
+
+    Threads.@threads for j in 1:total_modes
+        lx, ly, lr = λx[j], λy[j], λr[j]
+
+        @inbounds for i in 1:n_points
+            av, (agx, agy) = axial_basis(lx, ly, xs[i], ys[i])
+            rv, rgrad = ϕ(d, lr, rs[i])
+            
+            M[i, j] = (nxs[i] * agx * rv) + 
+                      (nys[i] * agy * rv) + 
+                      (nrs[i] * av * rgrad)
+        end
     end
+
     return M
 end
 
-function normalize_mode_columns(A::AbstractMatrix{Float64})
-    scales = vec(norm.(eachcol(A)))
-    scales = max.(scales, eps(Float64))
-
-    A_scaled = copy(A)
-    for j in axes(A_scaled, 2)
-        A_scaled[:, j] ./= scales[j]
-    end
-
-    return A_scaled, scales
-end
-
 function u(
-    geometry::Geometry, 
-    coefficients::AbstractVector{Float64}, 
-    λx::AbstractVector{Float64}, 
-    λy::AbstractVector{Float64}, 
-    λr::AbstractVector{Float64}, 
-    x::Float64, 
-    y::Float64, 
+    d::Float64,
+    coefficients::AbstractVector{Float64},
+    λx::AbstractVector{Float64},
+    λy::AbstractVector{Float64},
+    λr::AbstractVector{Float64},
+    x::Float64,
+    y::Float64,
     r::Float64
 )
     val = 0.0
     for i in eachindex(coefficients)
         av, _ = axial_basis(λx[i], λy[i], x, y)
-        rv, _ = ϕ(geometry.d, λr[i], r)
+        rv, _ = ϕ(d, λr[i], r)
         val += coefficients[i] * av * rv
     end
-
     return val
 end
 
-function plot_u(geometry::Geometry, coefficients::AbstractVector{Float64}, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
-    res = 64
-    xs = LinRange(-geometry.diam_x / 2, geometry.diam_x / 2, res)
-    ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
-    rs = LinRange(0.95, 1.0, res)
+function u(
+    geometry::Geometry,
+    coefficients::AbstractVector{Float64},
+    λx::AbstractVector{Float64},
+    λy::AbstractVector{Float64},
+    λr::AbstractVector{Float64},
+    x::Float64,
+    y::Float64,
+    r::Float64
+)
+    return u(geometry.d, coefficients, λx, λy, λr, x, y, r)
+end
 
-    r_boundary = [1.0 - geometry.V(x, y) / geometry.d for x in xs, y in ys]
+function u(
+    d::Float64,
+    diam_x::Float64,
+    diam_y::Float64,
+    coefficients::AbstractVector{Float64},
+    λ::Float64,
+    n_modes::Union{Int,Tuple{Int,Int}},
+    x::Float64,
+    y::Float64,
+    r::Float64
+)
+    λx, λy, λr = get_eigenvalues(diam_x, diam_y, n_modes, λ)
+    return u(d, coefficients, λx, λy, λr, x, y, r)
+end
 
-    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+function u(
+    geometry::Geometry,
+    coefficients::AbstractVector{Float64},
+    λ::Float64,
+    n_modes::Union{Int,Tuple{Int,Int}},
+    x::Float64,
+    y::Float64,
+    r::Float64
+)
+    return u(geometry.d, geometry.diam_x, geometry.diam_y, coefficients, λ, n_modes, x, y, r)
+end
 
-    vals = Array{Float64}(undef, length(xs), length(ys), length(rs))
-    for (ix, x) in enumerate(xs), (iy, y) in enumerate(ys), (ir, r) in enumerate(rs)
-        if r <= r_boundary[ix, iy]
-            vals[ix, iy, ir] = u(geometry, coefficients, λx, λy, λr, x, y, r)
-        else
-            vals[ix, iy, ir] = NaN
+function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64})
+    lower, upper = bounds
+
+    objective(λ) = svdvals(get_matrix(geometry, n_modes, λ))[end]
+
+    result = optimize(objective, lower, upper, Brent())
+    best_λ = Optim.minimizer(result)
+    best_loss = Optim.minimum(result)
+
+    println("Optimization Successful: ", Optim.converged(result))
+    println("Optimal λ: ", best_λ)
+    println("Minimum Loss: ", best_loss)
+    println("Iterations: ", Optim.iterations(result))
+
+    return best_λ, best_loss
+end
+
+function submatrix_initial_guess(A::AbstractMatrix{Float64}, n_modes::Union{Int,Tuple{Int,Int}})
+    n_modes_x, n_modes_y = mode_counts(n_modes)
+    seed_modes_x = min(16, n_modes_x)
+    seed_modes_y = min(32, n_modes_y)
+    seed_cols = [
+        ix + (iy - 1) * n_modes_x
+        for iy in 1:seed_modes_y
+        for ix in 1:seed_modes_x
+    ]
+
+    F_seed = svd(@view A[:, seed_cols]; full=false)
+    c₀ = zeros(Float64, size(A, 2))
+    c₀[seed_cols] .= F_seed.V[:, end]
+
+    return c₀ ./ norm(c₀)
+end
+
+function shifted_cholesky(A::Symmetric{Float64,<:AbstractMatrix{Float64}})
+    scale = max(opnorm(A, Inf), one(Float64))
+    shift = eps(Float64) * scale
+
+    for _ in 1:8
+        try
+            return cholesky(A + shift * I), shift
+        catch err
+            err isa PosDefException || rethrow()
+            shift *= 100.0
         end
     end
 
-    fig = Figure()
-    ax = Axis3(fig[1, 1],
-        xlabel="x",
-        ylabel="y",
-        zlabel="r",
-        #aspect = (1, 1, 5)
-    )
-
-    # --- THE FIX: Custom Split Colormap ---
-    valid_vals = filter(!isnan, vals)
-    vmin, vmax = extrema(valid_vals)
-    vdiff = vmax == vmin ? 1.0 : (vmax - vmin)
-
-    # 1. Map NaNs to a specific dummy value exactdiam_y one full range below vmin
-    dummy_val = vmin - vdiff
-    clean_vals = replace(vals, NaN => dummy_val)
-
-    # 2. Build a colormap: bottom half is transparent, top half is coolwarm
-    base_cmap = Makie.to_colormap(:coolwarm)
-    transparent_half = fill(RGBAf(0.0, 0.0, 0.0, 0.0), length(base_cmap))
-    custom_cmap = vcat(transparent_half, base_cmap)
-
-    # 3. Set the colorrange to exactdiam_y span from the dummy value to vmax.
-    # This mathematicaldiam_y maps `dummy_val` to the transparent half, 
-    # and valid values perfectdiam_y into the coolwarm half.
-    plt = volume!(ax, (xs[1], xs[end]), (ys[1], ys[end]), (rs[1], rs[end]), clean_vals;
-        algorithm=:absorption,
-        colormap=custom_cmap,
-        colorrange=(dummy_val, vmax)
-    )
-
-    # u_boundary = [u(geometry, coefficients, λ, x, y, one(T) - geometry.V(x, y) / geometry.d) for x in xs, y in ys]
-
-    # Keep the surface plot normal, as it respects nan_color properdiam_y
-    # GLMakie.surface!(ax, collect(xs), collect(ys), r_boundary;
-    #     color = u_boundary,
-    #     colormap = :coolwarm,
-    #     colorrange = (vmin, vmax),
-    # )
-
-    # Decouple the colorbar from the volume object so it ondiam_y shows the valid coolwarm limits
-    Colorbar(fig[1, 2], colormap=:coolwarm, limits=(vmin, vmax))
-
-    display(fig)
+    return cholesky(A + shift * I), shift
 end
 
-function plot_u_boundary(geometry::Geometry, coefficients::AbstractVector{Float64}, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
-    res = 128
-    xs = LinRange(-geometry.diam_x / 2, geometry.diam_x / 2, res)
-    ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
+function iterative_normal_solution(A::AbstractMatrix{Float64}, n_modes::Union{Int,Tuple{Int,Int}})
+    c₀ = submatrix_initial_guess(A, n_modes)
 
-    # 1. Calculate the r-coordinate of the boundary at each (x, y)
-    r_boundary = [1.0 - geometry.V(x, y) / geometry.d for x in xs, y in ys]
+    normal_matrix = Symmetric(A' * A)
+    factor, _ = shifted_cholesky(normal_matrix)
+    inverse_normal_matvec(c) = factor \ c
 
-    # 2. Get eigenvalues
-    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
-
-    # 3. Evaluate u at the boundary
-    u_boundary = [u(geometry, coefficients, λx, λy, λr, x, y, r_boundary[ix, iy]) 
-                  for (ix, x) in enumerate(xs), (iy, y) in enumerate(ys)]
-
-    # 4. Visualization: Map Z to u_boundary
-    fig = Figure()
-    ax = Axis3(fig[1, 1],
-        xlabel="x",
-        ylabel="y",
-        zlabel="u(x, y, r_boundary)",
-        title="Solution u on the boundary surface"
+    _, vecs, info = eigsolve(
+        inverse_normal_matvec,
+        c₀,
+        1,
+        :LM;
+        issymmetric=true,
+        krylovdim=min(length(c₀), 80),
+        maxiter=500,
+        tol=1e-10,
+        eager=true
     )
+    best_coefs = vecs[1] ./ norm(vecs[1])
+    best_coefs .*= iszero(best_coefs[1]) ? one(best_coefs[1]) : sign(best_coefs[1])
 
-    vmin, vmax = extrema(u_boundary)
+    normal_loss = dot(best_coefs, normal_matrix * best_coefs)
+    loss = sqrt(max(normal_loss, zero(normal_loss)))
 
-    # Note: We now use u_boundary as the height (3rd argument)
-    plt = GLMakie.surface!(ax, xs, ys, u_boundary;
-        color = u_boundary,
-        colormap = :coolwarm,
-        colorrange = (vmin, vmax),
-    )
-
-    Colorbar(fig[1, 2], plt, label="u value")
-
-    display(fig)
+    return best_coefs, loss, info
 end
 
-function plot_u_edge_profile(geometry::Geometry, coefficients::AbstractVector{Float64}, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64; r=:boundary)
-    res = 200
-    # 1. Fix x at the right boundary
-    x_boundary = geometry.diam_x / 2
-    x_interior = geometry.diam_x / 2 - 3.0
-    
-    # 2. Vary y across the full range
-    ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
-    
-    # 3. Calculate r_boundary at every y for the fixed x
-    if r == :boundary
-        rs_boundary = [1.0 - geometry.V(x_boundary, y) / geometry.d for y in ys]
-        rs_interior = [1.0 - geometry.V(x_interior, y) / geometry.d for y in ys]
-    else
-        rs_boundary = fill(0.00, length(ys))
-        rs_interior = fill(0.00, length(ys))
-    end
+function solve_iterative(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
+    A = get_matrix(geometry, n_modes, λ)
+    best_coefs, loss, info = iterative_normal_solution(A, n_modes)
 
-    # 4. Get basis eigenvalues
-    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+    println("Loss: ", loss)
+    println("Info: ", info)
 
-    # 5. Evaluate u along that line
-    u_vals = [u(geometry, coefficients, λx, λy, λr, x_boundary, y, rs_boundary[iy]) 
-              for (iy, y) in enumerate(ys)]
-    u_vals_interior = [u(geometry, coefficients, λx, λy, λr, x_interior, y, rs_interior[iy]) 
-                       for (iy, y) in enumerate(ys)]
+    residual = A * best_coefs
 
-    # 6. Plotting
-    fig = Figure()
-    ax = Axis(fig[1, 1],
-        xlabel = "y",
-        ylabel = "u(x_boundary, y, r_boundary)",
-        title = "Profile at x = $(round(x_boundary, digits=2))"
-    )
-
-    lines!(ax, ys, u_vals_interior, color = :red, linewidth = 2, label="Interior Profile")
-    lines!(ax, ys, u_vals, color = :blue, linewidth = 2, label="Boundary Profile")
-    axislegend(ax)
-    #GLMakie.ylims!(ax, extrema(u_vals) .+ (-0.001, 0.001))
-    
-    # Optional: Highlight boundary behavior
-    # hlines!(ax, [0], color = :black, linestyle = :dash) 
-
-    display(fig)
+    return best_coefs, residual
 end
 
-
-function find_eigenvalue(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, lower::Float64, upper::Float64)
-    n_modes_x, n_modes_y = mode_counts(n_modes)
-    c₀ = zeros(Float64, n_modes_x * n_modes_y)
-    c₀[1] = 1.0
-
-    λ_vals = collect(range(lower, upper, length=100))
-    losses = Vector{Float64}(undef, length(λ_vals))
-
-    for (i, λ) in enumerate(λ_vals)
-        A = get_matrix(geometry, n_modes, λ)
-        M = A'
-        vals, _, _, info = svdsolve(M, c₀, 1, :SR)
-        losses[i] = vals[1]
-    end
-
-    fig = Figure()
-    ax = Axis(fig[1, 1],
-        xlabel="λ",
-        ylabel="Singular value (loss)",
-        title="Loss vs Eigenvalue"
-    )
-    lines!(ax, λ_vals, losses)
-    display(fig)
-end
-
-function find_eigenvalue_dense(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, lower::Float64, upper::Float64)
-    λ_vals = collect(range(lower, upper, length=100))
-    losses = Vector{Float64}(undef, length(λ_vals))
-
-    for (i, λ) in enumerate(λ_vals)
-        A = get_matrix(geometry, n_modes, λ)
-        F = svd(A)
-        losses[i] = F.S[end] 
-    end
-
-    fig = Figure()
-    ax = Axis(fig[1, 1],
-        xlabel="λ",
-        ylabel="Singular value (loss)",
-        title="Loss vs Eigenvalue"
-    )
-    lines!(ax, λ_vals, losses)
-    display(fig)
-end
-
-function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64, Float64})
+function optimize_eigenvalue_iterative(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64})
     lower, upper = bounds
 
     function objective(λ)
         A = get_matrix(geometry, n_modes, λ)
-        return svdvals(A)[end]  
+        _, loss, _ = iterative_normal_solution(A, n_modes)
+        return loss
     end
 
     result = optimize(objective, lower, upper, Brent())
@@ -326,49 +255,23 @@ function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds
     println("Optimal λ: ", best_λ)
     println("Minimum Loss: ", best_loss)
     println("Iterations: ", Optim.iterations(result))
-    
+
     return best_λ, best_loss
-end
-
-
-function solve(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
-    A = get_matrix(geometry, n_modes, λ)
-    A_scaled, _ = normalize_mode_columns(A)
-    F_scaled = svd(A_scaled)
-    M = A'
-    c₀ = F_scaled.V[:, end]
-
-    vals, lvecs, rvecs, info = svdsolve(M, c₀, 1, :SR)
-    best_coefs = lvecs[1] ./ norm(lvecs[1])
-
-    println("Loss: ", vals[1])
-    println("Left most singular vector: ", best_coefs)
-    println("Info: ", info)
-
-    return best_coefs
 end
 
 function solve_dense(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
     A = get_matrix(geometry, n_modes, λ)
-
-    # Calculate the exact dense SVD (extremely robust, solves in ~0.2s)
-    F = svd(A)
-    
-    # LinearAlgebra.svd sorts singular values in descending order (largest to smallest)
-    # Since you want the equivalent of :SR (smallest real), we take the last index
+    F = svd!(A; full=false)
     loss = F.S[end]
-    
-    best_coefs = F.V[:, end] ./ norm(F.V[:, end])
+
+    v_norm = norm(F.V[:, end])
+    best_coefs = F.V[:, end] ./ v_norm
+    c_sign = sign(best_coefs[1])
+    best_coefs .*= c_sign
 
     println("Loss: ", loss)
-    # println("Left most singular vector: ", best_coefs)
+    
+    residual = F.U[:, end] .* (loss * c_sign / v_norm)
 
-    return best_coefs
-end
-
-function compute_infinity_norm(geometry::Geometry, coefficients, n_modes, λ)
-    A = get_matrix(geometry, n_modes, λ)
-    ∂ₙu = A * coefficients
-
-    return maximum(abs.(∂ₙu))
+    return best_coefs, residual
 end
