@@ -10,8 +10,8 @@ struct Geometry{F1,F2}
     diam_y::Float64
     V::F1
     gradV::F2
-    points::@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}
-    normals::@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}
+    points::@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Matrix{Float64}}
+    normals::@NamedTuple{x::Matrix{Float64}, y::Matrix{Float64}, r::Matrix{Float64}}
 end
 
 function make_geometry(
@@ -23,19 +23,20 @@ function make_geometry(
     n_points::Tuple{Int,Int}
 ) where {F1,F2}
     n_x, n_y = n_points
-    x_grid = range(0, 0.5 * diam_x, length=n_x)
-    y_grid = range(0, 0.5 * diam_y, length=n_y)
-    grid = vec(collect(Iterators.product(x_grid, y_grid)))
-    xs = [p[1] for p in grid]
-    ys = [p[2] for p in grid]
-    rs = 1.0 .- V.(xs, ys) ./ d
+    
+    xs = collect(range(0, 0.5 * diam_x, length=n_x))
+    push!(xs, 0.5 * pi)
+    ys = collect(range(0, 0.5 * diam_y, length=n_y))
+
+    rs = [1.0 - V(x, y) / d for x in xs, y in ys]
     points = (x=xs, y=ys, r=rs)
 
-    grads = gradV.(xs, ys)
+    grads = [gradV(x, y) for x in xs, y in ys]
     nx = [g[1] for g in grads]
     ny = [g[2] for g in grads]
-    nr = 4.0
-    inv_len = 1 ./ sqrt.(nx .^ 2 + ny .^ 2 .+ nr .^ 2)
+    nr = fill(4.0, size(nx)) 
+    
+    inv_len = 1 ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
     normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
 
     return Geometry(d, diam_x, diam_y, V, gradV, points, normals)
@@ -44,7 +45,7 @@ end
 mode_counts(n_modes::Int) = (n_modes, n_modes)
 mode_counts(n_modes::Tuple{Int,Int}) = n_modes
 
-function get_eigenvalues(diam_x::Float64, diam_y::Float64, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
+function get_eigenvalues(diam_x::Float64, diam_y::Float64, n_modes::Tuple{Int,Int}, λ::Float64)
     n_modes_x, n_modes_y = mode_counts(n_modes)
     modes_x = 1:2:(2 * n_modes_x - 1)
     modes_y = 0:2:(2 * n_modes_y - 2)
@@ -63,31 +64,50 @@ function get_eigenvalues(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}},
     return get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
 end
 
-function get_matrix(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
+function get_matrix(
+    xs::Vector{Float64},
+    ys::Vector{Float64},
+    rs::Matrix{Float64},
+    nxs::Matrix{Float64},
+    nys::Matrix{Float64},
+    nrs::Matrix{Float64},
+    λx::Vector{Float64},
+    λy::Vector{Float64},
+    λr::Vector{Float64},
+    d::Float64;
+    weights::Union{Nothing, Matrix{Float64}} = Nothing() # New optional argument
+)
+    n_x, n_y = length(xs), length(ys)
+    total_modes = length(λx)
+    M_tensor = zeros(Float64, n_x, n_y, total_modes)
+
+    Threads.@threads for j in eachindex(λx)
+        lx, ly, lr = λx[j], λy[j], λr[j]
+        @inbounds for iy in eachindex(ys), ix in eachindex(xs)
+            av, (agx, agy) = axial_basis(lx, ly, xs[ix], ys[iy])
+            rv, rgrad = ϕ(d, lr, rs[ix, iy])
+            
+            val = (nxs[ix, iy] * agx * rv) + 
+                  (nys[ix, iy] * agy * rv) + 
+                  (nrs[ix, iy] * av * rgrad)
+            
+            # Apply weight if provided
+            M_tensor[ix, iy, j] = isnothing(weights) ? val : val * weights[ix, iy]
+        end
+    end
+
+    return reshape(M_tensor, n_x * n_y, total_modes)
+end
+
+function get_matrix(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights::Union{Nothing, Matrix{Float64}} = Nothing())
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
     total_modes = length(λx)
-    n_points = length(geometry.points.x)
-
-    M = zeros(Float64, n_points, total_modes)
-
+    
     xs, ys, rs = geometry.points
     nxs, nys, nrs = geometry.normals
     d = geometry.d
 
-    Threads.@threads for j in 1:total_modes
-        lx, ly, lr = λx[j], λy[j], λr[j]
-
-        @inbounds for i in 1:n_points
-            av, (agx, agy) = axial_basis(lx, ly, xs[i], ys[i])
-            rv, rgrad = ϕ(d, lr, rs[i])
-            
-            M[i, j] = (nxs[i] * agx * rv) + 
-                      (nys[i] * agy * rv) + 
-                      (nrs[i] * av * rgrad)
-        end
-    end
-
-    return M
+    return get_matrix(xs, ys, rs, nxs, nys, nrs, λx, λy, λr, d; weights=weights)
 end
 
 function u(
@@ -149,10 +169,10 @@ function u(
     return u(geometry.d, geometry.diam_x, geometry.diam_y, coefficients, λ, n_modes, x, y, r)
 end
 
-function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64})
+function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64}; weights=nothing)
     lower, upper = bounds
 
-    objective(λ) = svdvals(get_matrix(geometry, n_modes, λ))[end]
+    objective(λ) = svdvals(get_matrix(geometry, n_modes, λ; weights=weights))[end]
 
     result = optimize(objective, lower, upper, Brent())
     best_λ = Optim.minimizer(result)
@@ -226,8 +246,8 @@ function iterative_normal_solution(A::AbstractMatrix{Float64}, n_modes::Union{In
     return best_coefs, loss, info
 end
 
-function solve_iterative(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
-    A = get_matrix(geometry, n_modes, λ)
+function solve_iterative(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64; weights=nothing)
+    A = get_matrix(geometry, n_modes, λ; weights=weights)
     best_coefs, loss, info = iterative_normal_solution(A, n_modes)
 
     println("Loss: ", loss)
@@ -238,11 +258,11 @@ function solve_iterative(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}},
     return best_coefs, residual
 end
 
-function optimize_eigenvalue_iterative(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64})
+function optimize_eigenvalue_iterative(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64}; weights=nothing)
     lower, upper = bounds
 
     function objective(λ)
-        A = get_matrix(geometry, n_modes, λ)
+        A = get_matrix(geometry, n_modes, λ; weights=weights)
         _, loss, _ = iterative_normal_solution(A, n_modes)
         return loss
     end
@@ -259,8 +279,8 @@ function optimize_eigenvalue_iterative(geometry::Geometry, n_modes::Tuple{Int,In
     return best_λ, best_loss
 end
 
-function solve_dense(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
-    A = get_matrix(geometry, n_modes, λ)
+function solve_dense(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64; weights=nothing)
+    A = get_matrix(geometry, n_modes, λ; weights=weights)
     F = svd!(A; full=false)
     loss = F.S[end]
 
