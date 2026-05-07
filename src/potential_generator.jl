@@ -31,6 +31,8 @@ struct PotentialData
     optimal_val::Float64
     fourier_chebyshev_coeffs::Matrix{Float64}  # C[m+1, n+1] for T_m(x/Lx) * cos(nπy)
     V0_sup_norm::Float64
+    Mx_convex::Float64
+    My_convex::Float64
     M_convex::Float64
 end
 
@@ -57,7 +59,7 @@ end
 # ==========================================
 const DEFAULT_Lx = 0.5 * pi
 const DEFAULT_Ly = 1.0
-const DEFAULT_q_coeffs = [0.5, 0.3, -0.2]
+const DEFAULT_q_coeffs = [0.1, 0.9, 0.0]
 const DEFAULT_J_HARMONICS = 7
 const DEFAULT_COEFFICIENT_PENALTY_WEIGHT = 5e-5
 const DEFAULT_PRIMITIVE_SAMPLE_COUNT = 65
@@ -492,7 +494,8 @@ function V₀(pot::PotentialFunctions, x::Real, y::Real)
 end
 
 function V(pot::PotentialFunctions, x::Real, y::Real)
-    return (V₀(pot, x, y) / pot.data.V0_sup_norm) + 0.5 * pot.data.M_convex * (x^2 + y^2)
+    return (V₀(pot, x, y) / pot.data.V0_sup_norm) +
+           0.5 * (pot.data.Mx_convex * x^2 + pot.data.My_convex * y^2)
 end
 
 function ∇V(pot::PotentialFunctions, x::Real, y::Real)
@@ -518,7 +521,8 @@ function smooth_max(x::Real, y::Real, strength::Real=10.0)
 end
 
 function g(x::Real, y::Real)
-    y_min = 1 / π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
+    #y_min = 1 / π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
+    y_min = 0.6
     return 2.0 * smooth_step(2.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
 end
 
@@ -649,6 +653,103 @@ function eval_normalized_Hessian_grid(
     end
 
     return V0_sup_norm < 1e-12 ? -Inf : (min_eig_global / V0_sup_norm)
+end
+
+function collect_normalized_hessian_samples(
+    mode_polys::AbstractVector,
+    V0_sup_norm::Float64,
+    xs::AbstractVector,
+    ys::AbstractVector,
+)
+    V0_sup_norm < 1e-12 && return Tuple{Float64, Float64, Float64}[]
+
+    modes = build_hessian_modes(collect(mode_polys))
+    samples = Tuple{Float64, Float64, Float64}[]
+
+    for x in xs
+        x_data_per_mode = precompute_mode_x_data(modes, x)
+        for y in ys
+            H11, H22, H12, _ = eval_unnormalized_Hessian_entries(modes, x_data_per_mode, y)
+            push!(samples, (H11 / V0_sup_norm, H22 / V0_sup_norm, H12 / V0_sup_norm))
+        end
+    end
+
+    return samples
+end
+
+function required_My_for_Mx(
+    hessian_samples::AbstractVector{<:Tuple{Float64, Float64, Float64}},
+    Mx::Float64;
+    tol::Float64=1e-12,
+)
+    My = 0.0
+
+    for (a, b, c) in hessian_samples
+        ax = a + Mx
+        if ax < -tol
+            return Inf
+        elseif ax <= tol
+            if abs(c) > tol
+                return Inf
+            end
+            My = max(My, -b)
+        else
+            My = max(My, (c^2 / ax) - b)
+        end
+    end
+
+    return max(My, 0.0)
+end
+
+function convexification_weighted_cost(
+    hessian_samples::AbstractVector{<:Tuple{Float64, Float64, Float64}},
+    Mx::Float64,
+    weight_x::Float64,
+    weight_y::Float64,
+)
+    My = required_My_for_Mx(hessian_samples, Mx)
+    return weight_x * Mx + weight_y * My
+end
+
+function solve_weighted_convexification(
+    hessian_samples::AbstractVector{<:Tuple{Float64, Float64, Float64}};
+    weight_x::Float64=1.0,
+    weight_y::Float64=1.0,
+)
+    weight_x > 0 || error("`weight_x` must be positive.")
+    weight_y > 0 || error("`weight_y` must be positive.")
+    isempty(hessian_samples) && return (Mx=0.0, My=0.0, cost=0.0)
+
+    lower = 0.0
+    for (a, _, c) in hessian_samples
+        candidate = -a + (abs(c) > 1e-12 ? 1e-12 : 0.0)
+        lower = max(lower, candidate)
+    end
+
+    objective = Mx -> convexification_weighted_cost(hessian_samples, Mx, weight_x, weight_y)
+
+    prev_x = lower
+    prev_f = objective(prev_x)
+    upper = max(lower + 1.0, 1.0)
+    upper_f = objective(upper)
+
+    for _ in 1:80
+        if isfinite(upper_f) && upper_f >= prev_f
+            break
+        end
+        prev_x = upper
+        prev_f = upper_f
+        upper = max(upper + 1.0, 2.0 * upper)
+        upper_f = objective(upper)
+    end
+
+    isfinite(upper_f) || error("Unable to bracket the weighted convexification problem.")
+    upper_f >= prev_f || error("Failed to bracket the weighted convexification minimum.")
+
+    res = optimize(objective, lower, upper)
+    Mx = Optim.minimizer(res)
+    My = required_My_for_Mx(hessian_samples, Mx)
+    return (Mx=Mx, My=My, cost=weight_x * Mx + weight_y * My)
 end
 
 # ==========================================
@@ -803,6 +904,8 @@ function generate_potential(;
     q_coeffs::Vector{Float64}=DEFAULT_q_coeffs,
     J_HARMONICS::Int=DEFAULT_J_HARMONICS,
     M::Int=default_fourier_chebyshev_degree(J_HARMONICS),
+    convexification_weight_x::Float64=1.0,
+    convexification_weight_y::Float64=1.0,
 )
     println("Running optimization...")
     penalized_objective, raw_min_hessian_eig, source_polys, fourier_chebyshev_coeffs = run_optimization(
@@ -814,7 +917,7 @@ function generate_potential(;
     )
     println("Optimization finished. Penalized objective: ", penalized_objective)
 
-    tmp_data = PotentialData(Lx, Ly, q_coeffs, J_HARMONICS, 0.0, fourier_chebyshev_coeffs, 1.0, 0.0)
+    tmp_data = PotentialData(Lx, Ly, q_coeffs, J_HARMONICS, 0.0, fourier_chebyshev_coeffs, 1.0, 0.0, 0.0, 0.0)
     tmp_pot = build_potential_functions(tmp_data; source_polys=source_polys)
 
     xs_fine = range(-Lx, Lx, length=100)
@@ -825,8 +928,30 @@ function generate_potential(;
     optimal_val = V0_sup_norm < 1e-12 ? -Inf : (raw_min_hessian_eig / V0_sup_norm)
     println("Unpenalized normalized min Hessian eigenvalue: ", optimal_val)
 
-    M_convex = optimal_val < 0 ? ceil(abs(optimal_val)) : 0.0
-    data = PotentialData(Lx, Ly, q_coeffs, J_HARMONICS, optimal_val, fourier_chebyshev_coeffs, V0_sup_norm, M_convex)
+    xs_convex = range(0.0, Lx - 1e-4, length=32)
+    ys_convex = range(0.0, Ly, length=32)
+    hessian_samples = collect_normalized_hessian_samples(tmp_pot.mode_polys, V0_sup_norm, xs_convex, ys_convex)
+    convexification = solve_weighted_convexification(
+        hessian_samples;
+        weight_x=convexification_weight_x,
+        weight_y=convexification_weight_y,
+    )
+    println("Weighted convexification: Mx = ", convexification.Mx, ", My = ", convexification.My,
+        ", cost = ", convexification.cost)
+
+    M_convex = max(convexification.Mx, convexification.My)
+    data = PotentialData(
+        Lx,
+        Ly,
+        q_coeffs,
+        J_HARMONICS,
+        optimal_val,
+        fourier_chebyshev_coeffs,
+        V0_sup_norm,
+        convexification.Mx,
+        convexification.My,
+        M_convex,
+    )
 
     return build_potential_functions(data; source_polys=source_polys)
 end
