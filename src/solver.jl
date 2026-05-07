@@ -60,7 +60,7 @@ function get_eigenvalues(diam_x::Float64, diam_y::Float64, n_modes::Tuple{Int,In
     return λx, λy, λr
 end
 
-function get_eigenvalues(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
+function get_eigenvalues(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64)
     return get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
 end
 
@@ -148,7 +148,7 @@ function u(
     diam_y::Float64,
     coefficients::AbstractVector{Float64},
     λ::Float64,
-    n_modes::Union{Int,Tuple{Int,Int}},
+    n_modes::Tuple{Int,Int},
     x::Float64,
     y::Float64,
     r::Float64
@@ -161,7 +161,7 @@ function u(
     geometry::Geometry,
     coefficients::AbstractVector{Float64},
     λ::Float64,
-    n_modes::Union{Int,Tuple{Int,Int}},
+    n_modes::Tuple{Int,Int},
     x::Float64,
     y::Float64,
     r::Float64
@@ -186,7 +186,7 @@ function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds
     return best_λ, best_loss
 end
 
-function submatrix_initial_guess(A::AbstractMatrix{Float64}, n_modes::Union{Int,Tuple{Int,Int}})
+function submatrix_initial_guess(A::AbstractMatrix{Float64}, n_modes::Tuple{Int,Int})
     n_modes_x, n_modes_y = mode_counts(n_modes)
     seed_modes_x = min(16, n_modes_x)
     seed_modes_y = min(32, n_modes_y)
@@ -219,7 +219,7 @@ function shifted_cholesky(A::Symmetric{Float64,<:AbstractMatrix{Float64}})
     return cholesky(A + shift * I), shift
 end
 
-function iterative_normal_solution(A::AbstractMatrix{Float64}, n_modes::Union{Int,Tuple{Int,Int}})
+function iterative_normal_solution(A::AbstractMatrix{Float64}, n_modes::Tuple{Int,Int})
     c₀ = submatrix_initial_guess(A, n_modes)
 
     normal_matrix = Symmetric(A' * A)
@@ -246,7 +246,7 @@ function iterative_normal_solution(A::AbstractMatrix{Float64}, n_modes::Union{In
     return best_coefs, loss, info
 end
 
-function solve_iterative(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64; weights=nothing)
+function solve_iterative(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)
     A = get_matrix(geometry, n_modes, λ; weights=weights)
     best_coefs, loss, info = iterative_normal_solution(A, n_modes)
 
@@ -279,7 +279,7 @@ function optimize_eigenvalue_iterative(geometry::Geometry, n_modes::Tuple{Int,In
     return best_λ, best_loss
 end
 
-function solve_dense(geometry::Geometry, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64; weights=nothing)
+function solve_dense(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)
     A = get_matrix(geometry, n_modes, λ; weights=weights)
     F = svd!(A; full=false)
     loss = F.S[end]
