@@ -29,9 +29,10 @@ function smooth_step(x)
 end
 
 function g(x::Real, y::Real)
-    return 0.5 * max(0.0, x + 2*max(0, y-0.6) - 1.2)^2 + 2.0*max(0.0, x - 0.5)^2
-    # y_min = 1/π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
-    # return 2.0 * smooth_step(2.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
+    return 0.5 * max(0.0, x + 2 * max(0, y - 0.42) - 1.2)^2 +
+           0.1 * max(0.0, x - 0.5)^2
+    #y_min = 1/π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
+    #return 2.0 * smooth_step(2.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
 end
 
 function V_wing(x, y)
@@ -53,33 +54,45 @@ end
 function plot_flow_lines()
     x0 = Lx + 5.0
     x1 = Lx + 4.0
-    x2 = Lx + 2.0
+    x2 = Lx + 3.0
+    x3 = Lx + 2.0
+    x4 = Lx + 1.0
     y0s = LinRange(0.0, 1.0, 10)
 
-    sols = Vector{Any}(undef, length(y0s) * 3)
+    sols = Vector{Any}(undef, length(y0s) * 5)
 
     Threads.@threads for i in eachindex(y0s)
         y0 = y0s[i]
         
-        prob0 = ODEProblem(flow_field!, [x0, y0], (0.0, 10.0))
-        sols[(i-1)*3 + 1] = solve(prob0, Tsit5())
+        prob0 = ODEProblem(flow_field!, [x0, y0], (0.0, 2.0))
+        sols[(i-1)*5 + 1] = solve(prob0, Tsit5())
 
-        prob1 = ODEProblem(flow_field!, [x1, y0], (0.0, 8.0))
-        sols[(i-1)*3 + 2] = solve(prob1, Tsit5())
+        prob1 = ODEProblem(flow_field!, [x1, y0], (0.0, 2.0))
+        sols[(i-1)*5 + 2] = solve(prob1, Tsit5())
 
-        prob2 = ODEProblem(flow_field!, [x2, y0], (0.0, 4.0))
-        sols[(i-1)*3 + 3] = solve(prob2, Tsit5())
+        prob2 = ODEProblem(flow_field!, [x2, y0], (0.0, 2.0))
+        sols[(i-1)*5 + 3] = solve(prob2, Tsit5())
+
+        prob3 = ODEProblem(flow_field!, [x3, y0], (0.0, 2.0))
+        sols[(i-1)*5 + 4] = solve(prob3, Tsit5())
+
+        prob4 = ODEProblem(flow_field!, [x4, y0], (0.0, 2.0))
+        sols[(i-1)*5 + 5] = solve(prob4, Tsit5())
     end
 
     plt = plot(title="Flow Lines in Wing Potential", xlabel="x", ylabel="y", xlims=(Lx, Lx + 5.0), ylims=(-1.1, 1.1))
     
     for (i, sol) in enumerate(sols)
-        # Determine color based on which starting point it was
-        col = (i % 3 == 1) ? :green : (i % 3 == 2) ? :blue : :orange
+        col = (i % 5 == 1) ? :green : 
+              (i % 5 == 2) ? :blue : 
+              (i % 5 == 3) ? :orange :
+              (i % 5 == 4) ? :purple : :cyan
         plot!(plt, sol[1, :], sol[2, :], label="", color=col)
     end
 
-    hline!(plt, [2.0/3.0, -2.0/3.0], color=:red, linestyle=:dash, label="y = ±2/3")
+    y_min = 0.6 #1 / π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
+
+    hline!(plt, [-y_min, y_min], color=:red, linestyle=:dash, label="y = ±2/3")
 
     return plt
 end
@@ -100,7 +113,7 @@ plot_flow_lines()
 plot_g()
 surface(xs, ys, V_wing)
 
-points = Iterators.product(xs, ys)
+points = Iterators.product(range(0.0, 1.0, length=64), range(0.0, 1.0, length=64))
 
 for (x, y) in points
     H = ForwardDiff.hessian((p) -> g(p[1], p[2]), [x, y])
