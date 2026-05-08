@@ -2,125 +2,108 @@ if !isdefined(@__MODULE__, :Geometry)
     include("solver.jl")
 end
 
-import GLMakie as Makie
+import Plots
 
-function plot_u(geometry::Geometry, coefficients::AbstractVector{Float64}, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
-    res = 64
-    xs = LinRange(-geometry.diam_x / 2, geometry.diam_x / 2, res)
-    ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
-    rs = LinRange(0.95, 1.0, res)
-
-    r_boundary = [1.0 - geometry.V(x, y) / geometry.d for x in xs, y in ys]
-    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
-
-    vals = Array{Float64}(undef, length(xs), length(ys), length(rs))
-    for (ix, x) in enumerate(xs), (iy, y) in enumerate(ys), (ir, r) in enumerate(rs)
-        vals[ix, iy, ir] = r <= r_boundary[ix, iy] ? u(geometry, coefficients, λx, λy, λr, x, y, r) : NaN
-    end
-
-    valid_vals = filter(!isnan, vals)
-    vmin, vmax = extrema(valid_vals)
-    vdiff = vmax == vmin ? 1.0 : vmax - vmin
-    dummy_val = vmin - vdiff
-    clean_vals = replace(vals, NaN => dummy_val)
-
-    base_cmap = Makie.to_colormap(:coolwarm)
-    transparent_half = fill(Makie.RGBAf(0.0, 0.0, 0.0, 0.0), length(base_cmap))
-    custom_cmap = vcat(transparent_half, base_cmap)
-
-    fig = Makie.Figure()
-    ax = Makie.Axis3(fig[1, 1], xlabel="x", ylabel="y", zlabel="r")
-    Makie.volume!(
-        ax,
-        (xs[1], xs[end]),
-        (ys[1], ys[end]),
-        (rs[1], rs[end]),
-        clean_vals;
-        algorithm=:absorption,
-        colormap=custom_cmap,
-        colorrange=(dummy_val, vmax)
-    )
-    Makie.Colorbar(fig[1, 2], colormap=:coolwarm, limits=(vmin, vmax))
-
-    display(fig)
-end
-
-function plot_u_boundary(geometry::Geometry, coefficients::AbstractVector{Float64}, n_modes::Union{Int,Tuple{Int,Int}}, λ::Float64)
+function plot_u_boundary(
+    geometry::Geometry,
+    coefficients::AbstractVector{Float64},
+    n_modes::Tuple{Int,Int},
+    λ::Float64
+)
     res = 128
     xs = LinRange(-geometry.diam_x / 2, geometry.diam_x / 2, res)
     ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
-    r_boundary = [1.0 - geometry.V(x, y) / geometry.d for x in xs, y in ys]
 
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
     u_boundary = [
-        u(geometry, coefficients, λx, λy, λr, x, y, r_boundary[ix, iy])
-        for (ix, x) in enumerate(xs), (iy, y) in enumerate(ys)
+        u(geometry, coefficients, λx, λy, λr, x, y, 1.0 - geometry.V(x, y) / geometry.d)
+        for y in ys, x in xs
     ]
 
-    vmin, vmax = extrema(u_boundary)
-
-    fig = Makie.Figure()
-    ax = Makie.Axis3(
-        fig[1, 1],
-        xlabel="x",
-        ylabel="y",
-        zlabel="u(x, y, r_boundary)",
-        title="Solution u on the boundary surface"
-    )
-    plt = Makie.surface!(
-        ax,
+    plt = Plots.surface(
         xs,
         ys,
         u_boundary;
-        color=u_boundary,
-        colormap=:coolwarm,
-        colorrange=(vmin, vmax)
+        xlabel="x",
+        ylabel="y",
+        zlabel="u(x, y, r_boundary)",
+        title="Solution u on the boundary surface",
+        color=:coolwarm
     )
-    Makie.Colorbar(fig[1, 2], plt, label="u value")
 
-    display(fig)
+    display(plt)
 end
 
 function plot_u_edge_profile(
     geometry::Geometry,
     coefficients::AbstractVector{Float64},
-    n_modes::Union{Int,Tuple{Int,Int}},
-    λ::Float64;
-    r=:boundary
+    n_modes::Tuple{Int,Int},
+    λ::Float64
 )
     res = 200
     x_boundary = geometry.diam_x / 2
-    x_interior = geometry.diam_x / 2 - 2.9
+    xs = LinRange(-geometry.diam_x / 2, geometry.diam_x / 2, res)
     ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
-
-    if r == :boundary
-        rs_boundary = [1.0 - geometry.V(x_boundary, y) / geometry.d for y in ys]
-        rs_interior = [1.0 - geometry.V(x_interior, y) / geometry.d for y in ys]
-    else
-        rs_boundary = fill(0.0, length(ys))
-        rs_interior = fill(0.0, length(ys))
-    end
-
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
-    u_vals = [
-        u(geometry, coefficients, λx, λy, λr, x_boundary, y, rs_boundary[iy])
-        for (iy, y) in enumerate(ys)
-    ]
-    u_vals_interior = [
-        u(geometry, coefficients, λx, λy, λr, x_interior, y, rs_interior[iy])
-        for (iy, y) in enumerate(ys)
+
+    x0 = xs[argmax([
+        u(geometry, coefficients, λx, λy, λr, x, 0.0, 0.0)
+        for x in xs
+    ])]
+
+    r_boundary(x, y) = 1.0 - geometry.V(x, y) / geometry.d
+    profile(x, r_at) = [
+        u(geometry, coefficients, λx, λy, λr, x, y, r_at(x, y))
+        for y in ys
     ]
 
-    fig = Makie.Figure()
-    ax = Makie.Axis(
-        fig[1, 1],
+    boundary_outer = profile(x_boundary, r_boundary)
+    interior_outer = profile(x0, r_boundary)
+    boundary_inner = profile(x_boundary, (_, _) -> 0.0)
+    interior_inner = profile(x0, (_, _) -> 0.0)
+    interface_outer = profile(0.5*pi, r_boundary)
+    inner_center_difference =
+        u(geometry, coefficients, λx, λy, λr, x0, 0.0, 0.0) -
+        u(geometry, coefficients, λx, λy, λr, x_boundary, 0.0, 0.0)
+
+    outer_plot = Plots.plot(
+        ys,
+        interior_outer;
+        color=:red,
+        linewidth=2,
+        label="Interior Profile",
         xlabel="y",
-        ylabel="u(x_boundary, y, r_boundary)",
-        title="Profile at x = $(round(x_boundary, digits=2))"
+        ylabel="u(x, y, r_boundary)",
+        title="Profiles on the boundary surface"
     )
-    Makie.lines!(ax, ys, u_vals_interior, color=:red, linewidth=2, label="Interior Profile")
-    Makie.lines!(ax, ys, u_vals, color=:blue, linewidth=2, label="Boundary Profile")
-    Makie.axislegend(ax)
+    Plots.plot!(outer_plot, ys, boundary_outer; color=:blue, linewidth=2, label="Boundary Profile")
+    Plots.plot!(outer_plot, ys, interface_outer; color=:green, linewidth=2, label="Interface Profile")
 
-    display(fig)
+    inner_plot = Plots.plot(
+        ys,
+        interior_inner;
+        color=:red,
+        linewidth=2,
+        label="Interior Profile",
+        xlabel="y",
+        ylabel="u(x, y, 0)",
+        title="Profiles at r = 0"
+    )
+    Plots.plot!(inner_plot, ys, boundary_inner; color=:blue, linewidth=2, label="Boundary Profile")
+    Plots.annotate!(
+        inner_plot,
+        -0.5,
+        u(geometry, coefficients, λx, λy, λr, x0, 0.0, 0.0),
+        Plots.text("Δ(y=0) = $(round(inner_center_difference, sigdigits=6))")
+    )
+
+    plt = Plots.plot(
+        outer_plot,
+        inner_plot;
+        layout=(2, 1),
+        size=(900, 700),
+        plot_title="Profiles at x = $(round(x_boundary, digits=2)) and x0 = $(round(x0, digits=2))"
+    )
+
+    display(plt)
 end
