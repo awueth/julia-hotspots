@@ -328,8 +328,13 @@ function boundary_residual(
     n_modes::Tuple{Int,Int},
     grid_size::Tuple{Int,Int}
 )
-    xs = range(0, 0.5 * geometry.diam_x, length=grid_size[1])
-    ys = range(0, 0.5 * geometry.diam_y, length=grid_size[2])
+    nx, ny = grid_size
+    dx = (0.5 * geometry.diam_x) / nx
+    dy = (0.5 * geometry.diam_y) / ny
+
+    xs = [ (i-1)*dx + rand()*dx for i in 1:nx ]
+    ys = [ (j-1)*dy + rand()*dy for j in 1:ny ]
+
     residuals = zeros(Float64, length(xs), length(ys))
 
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
