@@ -83,6 +83,70 @@ end
     end
 end
 
+@testset "LSE wing potential adapter" begin
+    model = LSEModel(
+        [1.0 0.0; 0.0 1.0],
+        [0.0, 0.2],
+        0.5,
+    )
+    wing = LSEWingPotential(model; Lx=3.0, Ly=4.0, scale=7.0)
+
+    @test wing_value(wing, 3.25, -0.5) == 7.0 * predict(model, 3.25, -0.5)
+    gx, gy = wing_gradient(wing, 3.25, -0.5)
+    expected_gx, expected_gy = gradient(model, 3.25, -0.5)
+    @test (gx, gy) == (7.0 * expected_gx, 7.0 * expected_gy)
+    @test potential_domain(wing) == (Lx=3.0, Ly=4.0)
+
+    mktempdir() do dir
+        path = joinpath(dir, "lse_wing.chk")
+        save_lse_model(path, model)
+
+        loaded = load_lse_wing_potential(checkpoint_path=path, Lx=3.0, Ly=4.0, scale=7.0)
+        @test loaded isa LSEWingPotential
+        @test potential_domain(loaded) == (Lx=3.0, Ly=4.0)
+        @test wing_value(loaded, 3.25, -0.5) == wing_value(wing, 3.25, -0.5)
+        @test wing_gradient(loaded, 3.25, -0.5) == wing_gradient(wing, 3.25, -0.5)
+    end
+end
+
+@testset "Joined LSE potential" begin
+    core_model = LSEModel(
+        [1.0 0.0; 0.0 1.0],
+        [0.0, 0.2],
+        0.5,
+    )
+    wing_model = LSEModel(
+        [2.0 -1.0; 3.0 4.0],
+        [0.1, -0.3],
+        0.5,
+    )
+    core = LSECorePotential(core_model; Lx=3.0, Ly=4.0)
+    wing = LSEWingPotential(wing_model; Lx=3.0, Ly=4.0, scale=7.0)
+    joined = join_lse_potentials(core, wing)
+
+    expected_model = LSEModel(
+        hcat(core_model.A, 7.0 .* wing_model.A),
+        vcat(core_model.b, 7.0 .* wing_model.b),
+        core_model.temperature,
+    )
+
+    @test joined isa JoinedLSEPotential
+    @test joined.model.A == expected_model.A
+    @test joined.model.b == expected_model.b
+    @test joined.model.temperature == expected_model.temperature
+    @test potential_value(joined, 0.25, -0.5) == predict(expected_model, 0.25, -0.5)
+    @test potential_gradient(joined, 0.25, -0.5) == gradient(expected_model, 0.25, -0.5)
+    @test potential_domain(joined) == (Lx=3.0, Ly=4.0)
+
+    mismatched_wing = LSEWingPotential(
+        LSEModel(wing_model.A, wing_model.b, 0.25);
+        Lx=3.0,
+        Ly=4.0,
+        scale=7.0,
+    )
+    @test_throws ArgumentError join_lse_potentials(core, mismatched_wing)
+end
+
 @testset "Wing potential adapters" begin
     handmade = HandmadeWingPotential(1.0; scale=10.0)
     nonconvex = NonConvexWingPotential(1.0; anchor=0.5, scale=10.0)
