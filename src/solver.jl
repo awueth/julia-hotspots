@@ -3,6 +3,7 @@ include("functions/basis.jl")
 using KrylovKit
 using LinearAlgebra
 using Optim
+using Random
 
 struct Geometry{F1,F2}
     d::Float64
@@ -74,6 +75,8 @@ function get_matrix(
     λx::Vector{Float64},
     λy::Vector{Float64},
     λr::Vector{Float64},
+    diam_x::Float64,
+    diam_y::Float64,
     d::Float64;
     weights::Union{Nothing, Matrix{Float64}} = Nothing() # New optional argument
 )
@@ -84,7 +87,7 @@ function get_matrix(
     Threads.@threads for j in eachindex(λx)
         lx, ly, lr = λx[j], λy[j], λr[j]
         @inbounds for iy in eachindex(ys), ix in eachindex(xs)
-            av, (agx, agy) = axial_basis(lx, ly, xs[ix], ys[iy])
+            av, (agx, agy) = axial_basis(lx, ly, diam_x, diam_y, xs[ix], ys[iy])
             rv, rgrad = ϕ(d, lr, rs[ix, iy])
             
             val = (nxs[ix, iy] * agx * rv) + 
@@ -101,13 +104,14 @@ end
 
 function get_matrix(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights::Union{Nothing, Matrix{Float64}} = Nothing())
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+    diam_x, diam_y = geometry.diam_x, geometry.diam_y
     total_modes = length(λx)
     
     xs, ys, rs = geometry.points
     nxs, nys, nrs = geometry.normals
     d = geometry.d
 
-    return get_matrix(xs, ys, rs, nxs, nys, nrs, λx, λy, λr, d; weights=weights)
+    return get_matrix(xs, ys, rs, nxs, nys, nrs, λx, λy, λr, diam_x, diam_y, d; weights=weights)
 end
 
 function u(
@@ -116,13 +120,15 @@ function u(
     λx::AbstractVector{Float64},
     λy::AbstractVector{Float64},
     λr::AbstractVector{Float64},
+    diam_x::Float64,
+    diam_y::Float64,
     x::Float64,
     y::Float64,
     r::Float64
 )
     val = 0.0
     for i in eachindex(coefficients)
-        av, _ = axial_basis(λx[i], λy[i], x, y)
+        av, _ = axial_basis(λx[i], λy[i], diam_x, diam_y, x, y)
         rv, _ = ϕ(d, λr[i], r)
         val += coefficients[i] * av * rv
     end
@@ -139,7 +145,8 @@ function u(
     y::Float64,
     r::Float64
 )
-    return u(geometry.d, coefficients, λx, λy, λr, x, y, r)
+    diam_x, diam_y = geometry.diam_x, geometry.diam_y
+    return u(geometry.d, coefficients, λx, λy, λr, diam_x, diam_y, x, y, r)
 end
 
 function u(
@@ -154,7 +161,7 @@ function u(
     r::Float64
 )
     λx, λy, λr = get_eigenvalues(diam_x, diam_y, n_modes, λ)
-    return u(d, coefficients, λx, λy, λr, x, y, r)
+    return u(d, coefficients, λx, λy, λr, diam_x, diam_y, x, y, r)
 end
 
 function u(
@@ -310,10 +317,11 @@ function boundary_residual(
     nr = 4.0
     inv_len = inv(sqrt(∂xV^2 + ∂yV^2 + nr^2))
     nx, ny, nr_scaled = ∂xV * inv_len, ∂yV * inv_len, nr * inv_len
+    diam_x, diam_y = geometry.diam_x, geometry.diam_y
 
     residual = 0.0
     @inbounds @simd for i in eachindex(coefficients)
-        av, (agx, agy) = axial_basis(λx[i], λy[i], x, y)
+        av, (agx, agy) = axial_basis(λx[i], λy[i], diam_x, diam_y, x, y)
         rv, rgrad = ϕ(geometry.d, λr[i], r)
         residual += coefficients[i] * (nx * agx * rv + ny * agy * rv + nr_scaled * av * rgrad)
     end
@@ -341,7 +349,6 @@ function boundary_residual(
 
     Threads.@threads for j in eachindex(ys)
         for i in eachindex(xs)
-            # Call the optimized, non-allocating version
             residuals[i, j] = boundary_residual(geometry, coefficients, λx, λy, λr, xs[i], ys[j])
         end
     end
