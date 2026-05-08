@@ -6,7 +6,7 @@ using LinearAlgebra
 using Base.Threads
 
 export SpectralGalerkinProblem, solve_galerkin, reconstruct_field, reconstruct_full_field
-export evolve_coefficients, evaluate_solution
+export evolve_coefficients, evaluate_solution, compute_residual
 export TensorProductBasis, MixedSineBasis1D, HalfCosineBasis1D
 export RectangularDomain
 
@@ -450,6 +450,62 @@ function reconstruct_field(
     u_grid = X_vals * C * Y_vals'
 
     return collect(x_grid), collect(y_grid), u_grid
+end
+
+"""
+Compute the residual -Δu + grad_V ⋅ grad u - λ u on a grid for the given coefficients.
+"""
+function compute_residual(
+    prob::SpectralGalerkinProblem,
+    grad_V::Function,
+    coeffs::AbstractVector,
+    λ::Real;
+    nx::Int=64,
+    ny::Int=64,
+)
+    bx, by = prob.basis.basis_x, prob.basis.basis_y
+    Nx, Ny = n_modes(bx), n_modes(by)
+    C = _reshape_coefficients(prob, coeffs)  # C[m, n]
+
+    x_grid = range(prob.domain.x_min, prob.domain.x_max, length=nx)
+    y_grid = range(prob.domain.y_min, prob.domain.y_max, length=ny)
+
+    residual = zeros(nx, ny)
+
+    for (i, x) in enumerate(x_grid)
+        for (j, y) in enumerate(y_grid)
+            gx, gy = grad_V(x, y)
+            r_val = 0.0
+
+            for (mi, m) in enumerate(mode_indices(bx))
+                kx = (2 * m - 1) * π / (2 * bx.width)
+                X     = evaluate(bx, m, x)
+                dX    = kx * cos(kx * x)
+                # d2X = -kx^2 * X
+
+                for (ni, n) in enumerate(mode_indices(by))
+                    ky = n * π / by.width
+                    Y     = evaluate(by, n, y)
+                    dY    = -ky * sin(ky * y)
+                    # d2Y = -ky^2 * Y
+
+                    # -Δu component (since -Δ(XY) = -(X''Y + XY'') = (kx^2 + ky^2)XY)
+                    laplacian_term = (kx^2 + ky^2) * X * Y 
+                    
+                    # -∇V ⋅ ∇u component
+                    advection_term = gx * dX * Y + gy * X * dY
+                    
+                    # -λu component
+                    lambda_term = -λ * X * Y
+
+                    r_val += C[mi, ni] * (laplacian_term + advection_term + lambda_term)
+                end
+            end
+            residual[i, j] = r_val
+        end
+    end
+
+    return collect(x_grid), collect(y_grid), residual
 end
 
 """

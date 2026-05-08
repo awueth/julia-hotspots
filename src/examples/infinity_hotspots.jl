@@ -10,7 +10,7 @@ using .SpectralGalerkin
 
 begin
     const DEFAULT_EPSILON = 0.1
-    const DEFAULT_WING_LENGTH = 5.0
+    const DEFAULT_WING_LENGTH = 1.5*pi
     const DEFAULT_MX = 128
     const DEFAULT_NY = 32
     const DEFAULT_N_GRID = 256
@@ -22,7 +22,7 @@ begin
     const DEFAULT_NX_PLOT = 32
     const DEFAULT_NY_PLOT = 32
     const DEFAULT_OUTPUT_FILE = "eigenfunction_mixed_extended.png"
-    const DEFAULT_WING_POTENTIAL = :handmade
+    const DEFAULT_WING_POTENTIAL = :nonconvex
     const DEFAULT_SMOOTH_MAX_STRENGTH = 10.0
     const DEFAULT_WING_SCALE = 5e6
     const DEFAULT_LSE_CORE_CHECKPOINT_PATH = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_core_potential.chk")
