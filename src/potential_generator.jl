@@ -29,7 +29,7 @@ struct PotentialData
     q_coeffs::Vector{Float64}
     J_HARMONICS::Int
     optimal_val::Float64
-    fourier_chebyshev_coeffs::Matrix{Float64}  # C[m+1, n+1] for T_m(x/Lx) * cos(nπy)
+    fourier_chebyshev_coeffs::Matrix{Float64}  # C[m+1, n+1] for T_m(x/Lx) * cos(nπy/Ly)
     V0_sup_norm::Float64
     Mx_convex::Float64
     My_convex::Float64
@@ -52,6 +52,7 @@ end
 struct HessianMode{P}
     n::Int
     poly::Tuple{P, P, P}
+    Ly::Float64
 end
 
 # ==========================================
@@ -59,7 +60,7 @@ end
 # ==========================================
 const DEFAULT_Lx = 0.5 * pi
 const DEFAULT_Ly = 1.0
-const DEFAULT_q_coeffs = [0.1, 0.9, 0.0]
+const DEFAULT_q_coeffs = [0.2, 1.0, 0.0]
 const DEFAULT_J_HARMONICS = 7
 const DEFAULT_COEFFICIENT_PENALTY_WEIGHT = 5e-5
 const DEFAULT_PRIMITIVE_SAMPLE_COUNT = 65
@@ -78,11 +79,11 @@ Build constraint operators for mode n.
 fₙ(x) = Σ_j a_(n, j) T_(2j+1)(x / Lx) with constraints:
 1. ∑_j a_(n, j) = 1
 2. fₙ'(Lx) = 0
-3. fₙ''(Lx) = (n²π² - 1)fₙ(Lx)
+3. fₙ''(Lx) = ((nπ/Ly)² - 1)fₙ(Lx)
 
 We solve for the first 3 coefficients in terms of the remaining free coefficients.
 """
-function build_constraint_operators(n::Int, J_HARMONICS::Int; Lx::Float64=DEFAULT_Lx)
+function build_constraint_operators(n::Int, J_HARMONICS::Int; Lx::Float64=DEFAULT_Lx, Ly::Float64=DEFAULT_Ly)
     s = 1.0 / Lx
     M = zeros(3, J_HARMONICS + 1)
 
@@ -96,7 +97,7 @@ function build_constraint_operators(n::Int, J_HARMONICS::Int; Lx::Float64=DEFAUL
     A = M[:, 1:3]
     B = M[:, 4:end]
 
-    target = [1.0, 0.0, (n * pi)^2 - 1.0]
+    target = [1.0, 0.0, (n * pi / Ly)^2 - 1.0]
     return A \ target, A \ B
 end
 
@@ -284,23 +285,23 @@ end
     eval_integrand(n, x, p, ddp)
 
 Compute the modal integrand for the base potential V₀, representing
-(-(Δ + 1)β₀,ₙ) / cos(x). For a mode β₀,ₙ(x,y) = fₙ(x)cos(nπy), this
-evaluates [(n²π² - 1)fₙ(x) - fₙ''(x)] / cos(x).
+(-(Δ + 1)β₀,ₙ) / cos(x). For a mode β₀,ₙ(x,y) = fₙ(x)cos(nπy/Ly), this
+evaluates [((nπ/Ly)² - 1)fₙ(x) - fₙ''(x)] / cos(x).
 """
-function eval_integrand(n::Int, x::Real, p, ddp)
-    K2 = n^2 * pi^2 - 1.0
+function eval_integrand(n::Int, x::Real, p, ddp, Ly::Real=DEFAULT_Ly)
+    K2 = (n * pi / Ly)^2 - 1.0
     return (K2 * p(x) - ddp(x)) / cos(x)
 end
 
-function eval_integrand_boundary_limit(n::Int, x::Real, p, dp, ddp, dddp)
-    K2 = n^2 * pi^2 - 1.0
+function eval_integrand_boundary_limit(n::Int, x::Real, p, dp, ddp, dddp, Ly::Real=DEFAULT_Ly)
+    K2 = (n * pi / Ly)^2 - 1.0
     N_prime = K2 * dp(x) - dddp(x)
     sin_x = sin(x)
     abs(sin_x) < 1e-12 && error("Boundary limit for the integrand is singular because sin(x) vanished.")
     return -N_prime / sin_x
 end
 
-function V₀_integral_reference(source_polys::AbstractVector, q_coeffs::Vector{Float64}, x::Real, y::Real)
+function V₀_integral_reference(source_polys::AbstractVector, q_coeffs::Vector{Float64}, x::Real, y::Real, Ly::Real=DEFAULT_Ly)
     n_modes = length(q_coeffs)
     zero_poly, positive_polys = split_polys(source_polys, n_modes)
     T = promote_type(typeof(x), typeof(y))
@@ -308,14 +309,14 @@ function V₀_integral_reference(source_polys::AbstractVector, q_coeffs::Vector{
 
     if zero_poly !== nothing
         p, _, ddp, _ = zero_poly
-        S0 = integrate_zero_to_x(t -> eval_integrand(0, t, p, ddp), x)
+        S0 = integrate_zero_to_x(t -> eval_integrand(0, t, p, ddp, Ly), x)
         val += (-0.5 * pi) * S0
     end
 
     for n in 1:n_modes
         p, _, ddp, _ = positive_polys[n]
-        Sn = integrate_zero_to_x(t -> eval_integrand(n, t, p, ddp), x)
-        val += (-0.5 * pi * q_coeffs[n]) * Sn * cos(n * pi * y)
+        Sn = integrate_zero_to_x(t -> eval_integrand(n, t, p, ddp, Ly), x)
+        val += (-0.5 * pi * q_coeffs[n]) * Sn * cos(n * pi * y / Ly)
     end
 
     return val
@@ -388,14 +389,15 @@ function fit_mode_primitive(
     mode_n::Int,
     source_poly,
     Lx::Float64,
+    Ly::Float64,
     fit_degree::Int;
     sample_count::Int=DEFAULT_PRIMITIVE_SAMPLE_COUNT,
 )
     p, dp, ddp, dddp = source_poly
     xs = primitive_sample_grid(Lx, fit_degree; sample_count=sample_count)
-    values = [integrate_zero_to_x(t -> eval_integrand(mode_n, t, p, ddp), x) for x in xs]
+    values = [integrate_zero_to_x(t -> eval_integrand(mode_n, t, p, ddp, Ly), x) for x in xs]
     boundary_value = values[end]
-    boundary_slope = eval_integrand_boundary_limit(mode_n, Lx, p, dp, ddp, dddp)
+    boundary_slope = eval_integrand_boundary_limit(mode_n, Lx, p, dp, ddp, dddp, Ly)
     coeffs = fit_even_chebyshev_primitive(xs, values, Lx, fit_degree, boundary_value, boundary_slope)
     return coeffs, (; xs, values, boundary_value, boundary_slope)
 end
@@ -439,6 +441,7 @@ function build_fourier_chebyshev_coeffs(
     source_polys::AbstractVector,
     q_coeffs::Vector{Float64},
     Lx::Float64,
+    Ly::Float64,
     fit_degree::Int;
     sample_count::Int=DEFAULT_PRIMITIVE_SAMPLE_COUNT,
 )
@@ -448,7 +451,7 @@ function build_fourier_chebyshev_coeffs(
 
     coeffs = zeros(Float64, fit_degree + 1, n_modes + 1)
     for mode_n in 0:n_modes
-        mode_coeffs, _ = fit_mode_primitive(mode_n, source_polys[mode_n + 1], Lx, fit_degree; sample_count=sample_count)
+        mode_coeffs, _ = fit_mode_primitive(mode_n, source_polys[mode_n + 1], Lx, Ly, fit_degree; sample_count=sample_count)
         coeffs[:, mode_n + 1] .= primitive_amplitude(mode_n, q_coeffs) .* mode_coeffs
     end
 
@@ -476,7 +479,7 @@ end
 """
 Compute the base potential V₀(x, y) from the stored Fourier-Chebyshev expansion
 
-    V₀(x, y) = ∑ₙ S̃ₙ(x) cos(nπy),
+    V₀(x, y) = ∑ₙ S̃ₙ(x) cos(nπy/Ly),
 
 where `S̃ₙ` already includes the modal amplitude.
 """
@@ -487,7 +490,7 @@ function V₀(pot::PotentialFunctions, x::Real, y::Real)
     for (mode_n, poly) in enumerate(pot.mode_polys)
         p, _, _ = poly
         n = mode_n - 1
-        val += p(x) * cos(n * pi * y)
+        val += p(x) * cos(n * pi * y / pot.data.Ly)
     end
 
     return val
@@ -539,9 +542,9 @@ function V_extended(pot::PotentialFunctions, x::Real, y::Real)
     if abs(x) <= pot.data.Lx - 0.5
         return V(pot, x, y)
     elseif abs(x) <= pot.data.Lx + 0.5
-        return max(V(pot, x, y), V(pot, pot.data.Lx, 1.0) + V_wing(pot.data.Lx, x, y))
+        return max(V(pot, x, y), V(pot, pot.data.Lx, pot.data.Ly) + V_wing(pot.data.Lx, x, y))
     else
-        return V(pot, pot.data.Lx, 1.0) + V_wing(pot.data.Lx, x, y)
+        return V(pot, pot.data.Lx, pot.data.Ly) + V_wing(pot.data.Lx, x, y)
     end
 end
 
@@ -554,8 +557,8 @@ end
 # Hessian Evaluation
 # ==========================================
 
-function build_hessian_modes(mode_polys::Vector)
-    return [HessianMode(i - 1, mode_polys[i]) for i in eachindex(mode_polys)]
+function build_hessian_modes(mode_polys::Vector, Ly::Float64)
+    return [HessianMode(i - 1, mode_polys[i], Ly) for i in eachindex(mode_polys)]
 end
 
 function eval_mode_x_data(mode::HessianMode, x::Real)
@@ -564,14 +567,14 @@ function eval_mode_x_data(mode::HessianMode, x::Real)
 end
 
 function accumulate_mode_hessian(mode::HessianMode, x_data, y::Real)
-    n_pi = mode.n * pi
-    cos_npy = cos(n_pi * y)
-    sin_npy = sin(n_pi * y)
+    n_pi_over_Ly = mode.n * pi / mode.Ly
+    cos_npy = cos(n_pi_over_Ly * y)
+    sin_npy = sin(n_pi_over_Ly * y)
 
     return (
         H11 = cos_npy * x_data.ddS,
-        H22 = (-(n_pi^2)) * cos_npy * x_data.S,
-        H12 = (-n_pi) * sin_npy * x_data.dS,
+        H22 = (-(n_pi_over_Ly^2)) * cos_npy * x_data.S,
+        H12 = (-n_pi_over_Ly) * sin_npy * x_data.dS,
         V0 = cos_npy * x_data.S,
     )
 end
@@ -616,6 +619,7 @@ function eval_normalized_Hessian_grid(
     xs_coarse,
     ys_coarse,
     Lx::Float64,
+    Ly::Float64,
     fit_degree::Int;
     normalize::Bool=true,
 )
@@ -629,8 +633,8 @@ function eval_normalized_Hessian_grid(
         params_per_mode,
     )
     source_polys = build_source_polys(source_coeffs, Lx)
-    fourier_chebyshev_coeffs = build_fourier_chebyshev_coeffs(source_polys, q_coeffs, Lx, fit_degree)
-    modes = build_hessian_modes(build_runtime_mode_polys(fourier_chebyshev_coeffs, Lx))
+    fourier_chebyshev_coeffs = build_fourier_chebyshev_coeffs(source_polys, q_coeffs, Lx, Ly, fit_degree)
+    modes = build_hessian_modes(build_runtime_mode_polys(fourier_chebyshev_coeffs, Lx), Ly)
 
     min_eig_global = Inf
     V0_sup_norm = normalize ? 0.0 : 1.0
@@ -658,12 +662,13 @@ end
 function collect_normalized_hessian_samples(
     mode_polys::AbstractVector,
     V0_sup_norm::Float64,
+    Ly::Float64,
     xs::AbstractVector,
     ys::AbstractVector,
 )
     V0_sup_norm < 1e-12 && return Tuple{Float64, Float64, Float64}[]
 
-    modes = build_hessian_modes(collect(mode_polys))
+    modes = build_hessian_modes(collect(mode_polys), Ly)
     samples = Tuple{Float64, Float64, Float64}[]
 
     for x in xs
@@ -801,7 +806,7 @@ function run_optimization(;
     ys_coarse = range(0.0, Ly, length=32)
 
     zero_constraint_base, zero_constraint_mult = build_zero_mode_constraint_operators(J_HARMONICS; Lx=Lx)
-    constraint_data = [build_constraint_operators(n, J_HARMONICS; Lx=Lx) for n in 1:n_modes]
+    constraint_data = [build_constraint_operators(n, J_HARMONICS; Lx=Lx, Ly=Ly) for n in 1:n_modes]
     constraint_bases = [d[1] for d in constraint_data]
     constraint_mults = [d[2] for d in constraint_data]
 
@@ -818,6 +823,7 @@ function run_optimization(;
             xs_coarse,
             ys_coarse,
             Lx,
+            Ly,
             M;
             normalize=false,
         )
@@ -850,6 +856,7 @@ function run_optimization(;
         xs_coarse,
         ys_coarse,
         Lx,
+        Ly,
         M;
         normalize=false,
     )
@@ -864,7 +871,7 @@ function run_optimization(;
         params_per_mode,
     )
     source_polys = build_source_polys(source_coeffs, Lx)
-    fourier_chebyshev_coeffs = build_fourier_chebyshev_coeffs(source_polys, q_coeffs, Lx, M)
+    fourier_chebyshev_coeffs = build_fourier_chebyshev_coeffs(source_polys, q_coeffs, Lx, Ly, M)
 
     return penalized_objective, raw_min_hessian_eig, source_polys, fourier_chebyshev_coeffs
 end
@@ -930,7 +937,7 @@ function generate_potential(;
 
     xs_convex = range(0.0, Lx - 1e-4, length=32)
     ys_convex = range(0.0, Ly, length=32)
-    hessian_samples = collect_normalized_hessian_samples(tmp_pot.mode_polys, V0_sup_norm, xs_convex, ys_convex)
+    hessian_samples = collect_normalized_hessian_samples(tmp_pot.mode_polys, V0_sup_norm, Ly, xs_convex, ys_convex)
     convexification = solve_weighted_convexification(
         hessian_samples;
         weight_x=convexification_weight_x,
