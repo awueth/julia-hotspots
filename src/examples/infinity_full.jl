@@ -1,8 +1,8 @@
 using Revise
 
-includet("../solver.jl")
-includet("../eigenfunction_visualization.jl")
-includet("../potential_interface.jl")
+includet("../solver/solver.jl")
+includet("../solver/eigenfunction_visualization.jl")
+includet("../potentials/potential_interface.jl")
 
 using .PotentialInterface
 

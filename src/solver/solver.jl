@@ -1,4 +1,4 @@
-include("functions/basis.jl")
+include("../functions/basis.jl")
 
 using KrylovKit
 using LinearAlgebra

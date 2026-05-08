@@ -1,5 +1,5 @@
-include("../src/potential_generator.jl")
-include("../src/potential_interface.jl")
+include("../src/potentials/potential_generator.jl")
+include("../src/potentials/potential_interface.jl")
 
 using .PotentialGenerator
 using .PotentialInterface

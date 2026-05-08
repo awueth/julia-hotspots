@@ -3,7 +3,7 @@ using Printf
 using Revise
 
 includet("../limit_solvers/spectral_galerkin.jl")
-includet("../potential_interface.jl")
+includet("../potentials/potential_interface.jl")
 
 using .PotentialInterface
 using .SpectralGalerkin

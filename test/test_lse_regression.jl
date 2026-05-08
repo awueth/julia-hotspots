@@ -1,4 +1,4 @@
-include("../src/lse_regression.jl")
+include("../src/potentials/lse_regression.jl")
 
 using Test
 using Statistics

@@ -1,4 +1,4 @@
-include("../src/potential_generator.jl")
+include("../src/potentials/potential_generator.jl")
 
 using .PotentialGenerator
 using ForwardDiff
