@@ -176,10 +176,18 @@ function u(
     return u(geometry.d, geometry.diam_x, geometry.diam_y, coefficients, λ, n_modes, x, y, r)
 end
 
-function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64}; weights=nothing)
+function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64}; weights=nothing, solver=:iterative)
     lower, upper = bounds
 
-    objective(λ) = svdvals(get_matrix(geometry, n_modes, λ; weights=weights))[end]
+    if solver == :iterative
+        function objective(λ)
+        A = get_matrix(geometry, n_modes, λ; weights=weights)
+        _, loss, _ = iterative_normal_solution(A, n_modes)
+        return loss
+    end
+    elseif solver == :dense
+        objective(λ) = svdvals(get_matrix(geometry, n_modes, λ; weights=weights))[end]
+    end
 
     result = optimize(objective, lower, upper, Brent())
     best_λ = Optim.minimizer(result)
@@ -263,27 +271,6 @@ function solve_iterative(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float6
     residual = A * best_coefs
 
     return best_coefs, residual
-end
-
-function optimize_eigenvalue_iterative(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64}; weights=nothing)
-    lower, upper = bounds
-
-    function objective(λ)
-        A = get_matrix(geometry, n_modes, λ; weights=weights)
-        _, loss, _ = iterative_normal_solution(A, n_modes)
-        return loss
-    end
-
-    result = optimize(objective, lower, upper, Brent())
-    best_λ = Optim.minimizer(result)
-    best_loss = Optim.minimum(result)
-
-    println("Optimization Successful: ", Optim.converged(result))
-    println("Optimal λ: ", best_λ)
-    println("Minimum Loss: ", best_loss)
-    println("Iterations: ", Optim.iterations(result))
-
-    return best_λ, best_loss
 end
 
 function solve_dense(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)

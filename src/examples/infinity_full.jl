@@ -39,11 +39,11 @@ V, gradV = potential_functions(pot; scale=ε)
 
 geometry = make_geometry(d, diam_x, diam_y, V, gradV, n_boundary_points)
 
+λ, _ = optimize_eigenvalue(geometry, n_modes, (3.85, 4.0))
 coefficients, residual = solve_iterative(geometry, n_modes, λ)
 
 #plot_u_boundary(geometry, coefficients, n_modes, λ)
 plot_u_edge_profile(geometry, coefficients, n_modes, λ)
-# optimize_eigenvalue_iterative(geometry, n_modes, (3.85, 4.0))
 
 println("Infinity norm of boundary residual: ", maximum(abs.(residual)))
 
