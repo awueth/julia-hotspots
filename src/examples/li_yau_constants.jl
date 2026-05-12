@@ -1,253 +1,286 @@
 using Revise
 using Integrals
+using Optim
 using Printf
-using Random
-import StochasticDiffEq as SDE
 
 includet("../potentials/potential_interface.jl")
 
 using .PotentialInterface
 
-t1 = 1.0
-t2 = 1.0
-epsilon = 10.0
-c2_mode = :reflected_core # :reflected_core or :soft_wall
+t1_initial = 0.25
+t2_initial = 0.25
+t = t1_initial + t2_initial
 
+epsilon = 10.0
 wing_length = 1.5 * pi
 reltol = 1e-6
 abstol = 1e-9
-sde_reltol = 1e-3
-sde_abstol = 1e-6
-sde_dt = 1e-2
-nx_start = 11
-ny_start = 11
-ntrajectories = 128
-seed = 1234
 
 smooth_max_strength = 10.0
 wing_scale = 5e6
+Mx = 0.6872455106751706
 checkpoint_path = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_core_potential.chk")
 
-function build_potential()
+function build_potential(;
+    checkpoint_path::AbstractString,
+    wing_scale::Real,
+    smooth_max_strength::Real,
+)
     core = load_lse_core_potential(checkpoint_path=checkpoint_path)
-    core_domain = potential_domain(core)
+    domain = potential_domain(core)
     wing = NonConvexWingPotential(
-        core_domain.Lx;
-        anchor=core_value(core, core_domain.Lx, core_domain.Ly),
+        domain.Lx;
+        anchor=core_value(core, domain.Lx, domain.Ly),
         scale=wing_scale,
     )
     pot = SmoothMaxPotential(core, wing; smooth_max_strength=smooth_max_strength)
     return core, pot
 end
 
-function compute_C1(pot)
+function compute_normalization(
+    pot;
+    epsilon::Real,
+    wing_length::Real,
+    reltol::Real,
+    abstol::Real,
+)
     domain = potential_domain(pot)
     diam_x = domain.Lx + wing_length
+    lower = [0.0, 0.0]
+    upper = [diam_x, domain.Ly]
 
     integrand(u, _) = begin
         x, y = u
         # Factor of 4 because the numerical integral is over the first quadrant.
-        return 4.0 * exp(-(x^2 + y^2) / t1 - epsilon * potential_value(pot, x, y))
+        return 4.0 * exp(-epsilon * potential_value(pot, x, y))
     end
 
-    prob = IntegralProblem(integrand, [0.0, 0.0], [diam_x, domain.Ly])
+    prob = IntegralProblem(integrand, lower, upper)
     sol = solve(prob, HCubatureJL(); reltol=reltol, abstol=abstol)
 
     return (
-        C1=inv(sol.u),
-        integral=sol.u,
+        Z=sol.u,
         domain=(diam_x, domain.Ly),
     )
 end
 
-function compute_core_weighted_initial_integral(core)
-    domain = potential_domain(core)
+function compute_C1(
+    pot;
+    t1::Real,
+    epsilon::Real,
+    wing_length::Real,
+    Z::Real,
+    reltol::Real,
+    abstol::Real,
+)
+    t1 > 0 || return (C1=Inf, normalized_integral=NaN, domain=(NaN, NaN))
+    Z > 0 || return (C1=Inf, normalized_integral=NaN, domain=(NaN, NaN))
+
+    domain = potential_domain(pot)
+    diam_x = domain.Lx + wing_length
+    lower = [0.0, 0.0]
+    upper = [diam_x, domain.Ly]
 
     integrand(u, _) = begin
         x, y = u
-        return 4.0 * exp((x^2 + y^2) / (4.0 * t1) - epsilon * core_value(core, x, y))
+        # Factor of 4 because the numerical integral is over the first quadrant.
+        return 4.0 * exp(-(x^2 + y^2) / t1 - epsilon * potential_value(pot, x, y)) / Z
     end
 
-    prob = IntegralProblem(integrand, [0.0, 0.0], [domain.Lx, domain.Ly])
+    prob = IntegralProblem(integrand, lower, upper)
     sol = solve(prob, HCubatureJL(); reltol=reltol, abstol=abstol)
 
     return (
-        integral=sol.u,
-        domain=(domain.Lx, domain.Ly),
+        C1=1/sol.u,
+        normalized_integral=sol.u,
+        domain=(diam_x, domain.Ly),
     )
 end
 
-function reflect_coordinate(z, upper)
-    period = 2.0 * upper
-    r = mod(z, period)
-    return r <= upper ? r : period - r
+# Weighted convexification: Mx = 0.6872455106751706, My = 2.4678490408651026, cost = 3.155094551540273
+function compute_C2(
+    pot;
+    t1::Real,
+    t2::Real,
+    epsilon::Real,
+    wing_length::Real,
+    Mx::Real,
+)
+    if t1 <= 0 || t2 < 0 || epsilon <= 0 || Mx <= 0
+        return Inf
+    end
+
+    domain = potential_domain(pot)
+    diam_x = domain.Lx + wing_length
+
+    alpha = 1.0 / (4.0 * t1)
+    epsilon_Mx = epsilon * Mx
+    denominator = 2.0 + (epsilon_Mx / alpha - 2.0) * exp(2.0 * epsilon_Mx * t2)
+
+    if !isfinite(denominator) || denominator <= 0
+        return Inf
+    end
+
+    a = epsilon_Mx / denominator
+    if !isfinite(a) || a <= 0
+        return Inf
+    end
+
+    b = epsilon_Mx * t2 + 0.5 * log(a / alpha)
+    exponent = a * (0.5 * diam_x)^2 + b
+    return isfinite(exponent) ? exp(exponent) : Inf
 end
 
-function reflect_y!(u, Ly)
-    u[2] = reflect_coordinate(u[2], Ly)
-    return u
+function compute_C(
+    pot;
+    t1::Real,
+    t2::Real,
+    epsilon::Real,
+    wing_length::Real,
+    Mx::Real,
+    Z::Real,
+    reltol::Real,
+    abstol::Real,
+)
+    C1_result = compute_C1(
+        pot;
+        t1=t1,
+        epsilon=epsilon,
+        wing_length=wing_length,
+        Z=Z,
+        reltol=reltol,
+        abstol=abstol,
+    )
+    C2 = compute_C2(
+        pot;
+        t1=t1,
+        t2=t2,
+        epsilon=epsilon,
+        wing_length=wing_length,
+        Mx=Mx,
+    )
+
+    C = C1_result.C1 * C2
+    return (
+        C=C,
+        C1=C1_result.C1,
+        C2=C2,
+        C1_result=C1_result,
+        t1=Float64(t1),
+        t2=Float64(t2),
+    )
 end
 
-function reflect_core!(u, core_domain)
-    u[1] = reflect_coordinate(u[1], core_domain.Lx)
-    u[2] = reflect_coordinate(u[2], core_domain.Ly)
-    return u
-end
+function optimize_C_over_split(
+    pot;
+    t::Real,
+    epsilon::Real,
+    wing_length::Real,
+    Mx::Real,
+    Z::Real,
+    reltol::Real,
+    abstol::Real,
+)
+    t > 0 || throw(ArgumentError("t must be positive."))
 
-function smooth_max_gradient(pot::SmoothMaxPotential, x, y)
-    core_val = core_value(pot.core, x, y)
-    wing_val = wing_value(pot.wing, x, y)
-    strength = pot.smooth_max_strength
+    lower = 1e-6 * t
+    upper = (1.0 - 1e-6) * t
 
-    z_core = strength * core_val
-    z_wing = strength * wing_val
-    z_max = max(z_core, z_wing)
-    core_weight = exp(z_core - z_max)
-    wing_weight = exp(z_wing - z_max)
-    total_weight = core_weight + wing_weight
+    objective(t1) = begin
+        result = compute_C(
+            pot;
+            t1=t1,
+            t2=t - t1,
+            epsilon=epsilon,
+            wing_length=wing_length,
+            Mx=Mx,
+            Z=Z,
+            reltol=reltol,
+            abstol=abstol,
+        )
+        return result.C
+    end
 
-    core_weight /= total_weight
-    wing_weight /= total_weight
-
-    core_gx, core_gy = core_gradient(pot.core, x, y)
-    wing_gx, wing_gy = wing_gradient(pot.wing, x, y)
+    opt = optimize(objective, lower, upper, Brent())
+    best_t1 = Optim.minimizer(opt)
+    best = compute_C(
+        pot;
+        t1=best_t1,
+        t2=t - best_t1,
+        epsilon=epsilon,
+        wing_length=wing_length,
+        Mx=Mx,
+        Z=Z,
+        reltol=reltol,
+        abstol=abstol,
+    )
 
     return (
-        core_weight * core_gx + wing_weight * wing_gx,
-        core_weight * core_gy + wing_weight * wing_gy,
+        result=opt,
+        t1=best.t1,
+        t2=best.t2,
+        C=best.C,
+        C1=best.C1,
+        C2=best.C2,
+        C1_result=best.C1_result,
     )
 end
 
-function compute_C2(core, pot; mode::Symbol=c2_mode)
-    core_domain = potential_domain(core)
-    start_points = [
-        (x0, y0)
-        for x0 in range(0.0, core_domain.Lx; length=nx_start)
-        for y0 in range(0.0, core_domain.Ly; length=ny_start)
-    ]
+_, pot = build_potential(
+    checkpoint_path=checkpoint_path,
+    wing_scale=wing_scale,
+    smooth_max_strength=smooth_max_strength,
+)
 
-    if mode == :reflected_core
-        gradient = (x, y) -> core_gradient(core, x, y)
-        reflect! = u -> reflect_core!(u, core_domain)
-    elseif mode == :soft_wall
-        gradient = (x, y) -> smooth_max_gradient(pot, x, reflect_coordinate(y, core_domain.Ly))
-        reflect! = u -> reflect_y!(u, core_domain.Ly)
-    else
-        throw(ArgumentError("Unknown C2 mode `$mode`. Use :reflected_core or :soft_wall."))
-    end
+normalization = compute_normalization(
+    pot;
+    epsilon=epsilon,
+    wing_length=wing_length,
+    reltol=reltol,
+    abstol=abstol,
+)
 
-    sqrt2 = sqrt(2.0)
+reference = compute_C(
+    pot;
+    t1=t1_initial,
+    t2=t2_initial,
+    epsilon=epsilon,
+    wing_length=wing_length,
+    Mx=Mx,
+    Z=normalization.Z,
+    reltol=reltol,
+    abstol=abstol,
+)
 
-    function drift!(du, u, _, _)
-        gx, gy = gradient(u[1], u[2])
-        du[1] = -epsilon * gx
-        du[2] = -epsilon * gy
-        return nothing
-    end
+optimized = optimize_C_over_split(
+    pot;
+    t=t,
+    epsilon=epsilon,
+    wing_length=wing_length,
+    Mx=Mx,
+    Z=normalization.Z,
+    reltol=reltol,
+    abstol=abstol,
+)
 
-    function diffusion!(du, _, _, _)
-        du[1] = sqrt2
-        du[2] = sqrt2
-        return nothing
-    end
-
-    reflect_callback = SDE.DiscreteCallback(
-        (_, _, _) -> true,
-        integrator -> reflect!(integrator.u);
-        save_positions=(false, false),
-    )
-
-    terminal_weight(x) = begin
-        reflect!(x)
-        return exp((x[1]^2 + x[2]^2) / (4.0 * t1))
-    end
-
-    base_prob = SDE.SDEProblem(drift!, diffusion!, collect(start_points[1]), (0.0, t2))
-    ensemble_prob = SDE.EnsembleProblem(
-        base_prob;
-        prob_func=(prob, i, _) -> begin
-            point_idx = fld(i - 1, ntrajectories) + 1
-            return remake(prob; u0=collect(start_points[point_idx]))
-        end,
-        output_func=(sol, i) -> begin
-            point_idx = fld(i - 1, ntrajectories) + 1
-            return ((point_idx, terminal_weight(sol.u[end])), false)
-        end,
-    )
-
-    Random.seed!(seed)
-    ensemble_sol = SDE.solve(
-        ensemble_prob,
-        SDE.SOSRA(),
-        SDE.EnsembleThreads();
-        trajectories=length(start_points) * ntrajectories,
-        adaptive=false,
-        dt=sde_dt,
-        abstol=sde_abstol,
-        reltol=sde_reltol,
-        callback=reflect_callback,
-        save_everystep=false,
-        verbose=false,
-    )
-
-    sums = zeros(length(start_points))
-    sumsq = zeros(length(start_points))
-    counts = zeros(Int, length(start_points))
-    failed_samples = 0
-
-    for (point_idx, value) in ensemble_sol.u
-        if !isfinite(value)
-            failed_samples += 1
-            continue
-        end
-
-        sums[point_idx] += value
-        sumsq[point_idx] += value^2
-        counts[point_idx] += 1
-    end
-
-    estimates = fill(-Inf, length(start_points))
-    stderrs = fill(NaN, length(start_points))
-    for i in eachindex(start_points)
-        if counts[i] > 0
-            estimates[i] = sums[i] / counts[i]
-            variance = max(sumsq[i] / counts[i] - estimates[i]^2, 0.0)
-            stderrs[i] = sqrt(variance / counts[i])
-        end
-    end
-
-    C2_idx = argmax(estimates)
-    return (
-        C2=estimates[C2_idx],
-        stderr=stderrs[C2_idx],
-        maximizer=start_points[C2_idx],
-        bound=exp((core_domain.Lx^2 + core_domain.Ly^2) / (4.0 * t1)),
-        finite_samples=sum(counts),
-        total_samples=length(start_points) * ntrajectories,
-        failed_samples=failed_samples,
-        core_domain=(core_domain.Lx, core_domain.Ly),
-        mode=mode,
-    )
-end
-
-core, pot = build_potential()
-C1_result = compute_C1(pot)
-core_initial_integral = compute_core_weighted_initial_integral(core)
-C2_result = compute_C2(core, pot; mode=c2_mode)
-
-@printf("t1 = %.12g\n", t1)
-@printf("t2 = %.12g\n", t2)
 @printf("epsilon = %.12g\n", epsilon)
-@printf("C2 mode = %s\n", string(C2_result.mode))
-@printf("C1 domain = [0, %.12g] x [0, %.12g]\n", C1_result.domain...)
-@printf("C2 core domain = [0, %.12g] x [0, %.12g]\n", C2_result.core_domain...)
-@printf("SDE grid = %d x %d, trajectories per point = %d, dt = %.12g, seed = %d\n", nx_start, ny_start, ntrajectories, sde_dt, seed)
-@printf("integral = %.16e\n", C1_result.integral)
-@printf("C1 = %.16e\n", C1_result.C1)
-@printf("core weighted initial integral = %.16e\n", core_initial_integral.integral)
-@printf("C2 ≈ %.16e\n", C2_result.C2)
-@printf("C2 maximum-principle bound = %.16e\n", C2_result.bound)
-@printf("C2 maximizer ≈ (%.12g, %.12g)\n", C2_result.maximizer...)
-@printf("C2 Monte Carlo stderr ≈ %.16e\n", C2_result.stderr)
-@printf("C2 finite samples = %d / %d\n", C2_result.finite_samples, C2_result.total_samples)
-@printf("C2 failed samples = %d\n", C2_result.failed_samples)
+@printf("total t = %.12g\n", t)
+@printf("Mx = %.16g\n", Mx)
+@printf("integration domain = [0, %.12g] x [0, %.12g]\n", normalization.domain...)
+
+@printf("\nReference split:\n")
+@printf("  t1 = %.16e\n", reference.t1)
+@printf("  t2 = %.16e\n", reference.t2)
+@printf("  C1 = %.16e\n", reference.C1)
+@printf("  C2 = %.16e\n", reference.C2)
+@printf("  C = %.16e\n", reference.C)
+
+@printf("\nOptimized split:\n")
+@printf("  t1 = %.16e\n", optimized.t1)
+@printf("  t2 = %.16e\n", optimized.t2)
+@printf("  t1 + t2 = %.16e\n", optimized.t1 + optimized.t2)
+@printf("  C1 = %.16e\n", optimized.C1)
+@printf("  C2 = %.16e\n", optimized.C2)
+@printf("  C = %.16e\n", optimized.C)
+@printf("  converged = %s\n", string(Optim.converged(optimized.result)))
+@printf("  iterations = %d\n", Optim.iterations(optimized.result))
