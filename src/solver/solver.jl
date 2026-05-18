@@ -13,6 +13,34 @@ struct Geometry{F1,F2}
     gradV::F2
     points::@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Matrix{Float64}}
     normals::@NamedTuple{x::Matrix{Float64}, y::Matrix{Float64}, r::Matrix{Float64}}
+    interior_points::@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}
+end
+
+boundary_radius(d::Float64, V, x::Float64, y::Float64) = isinf(d) ? 1.0 : 1.0 - V(x, y) / d
+
+function sample_interior_points(
+    d::Float64,
+    diam_x::Float64,
+    diam_y::Float64,
+    V,
+    n_interior_points::Int,
+    rng::AbstractRNG
+)
+    xs = Vector{Float64}(undef, n_interior_points)
+    ys = Vector{Float64}(undef, n_interior_points)
+    rs = Vector{Float64}(undef, n_interior_points)
+
+    for i in 1:n_interior_points
+        x = rand(rng) * 0.5 * diam_x
+        y = rand(rng) * 0.5 * diam_y
+        r = rand(rng) * boundary_radius(d, V, x, y)
+
+        xs[i] = x
+        ys[i] = y
+        rs[i] = r
+    end
+
+    return (x=xs, y=ys, r=rs)
 end
 
 function make_geometry(
@@ -21,7 +49,9 @@ function make_geometry(
     diam_y::Float64, 
     V::F1, 
     gradV::F2,
-    n_points::Tuple{Int,Int}
+    n_points::Tuple{Int,Int};
+    n_interior_points::Int=prod(n_points),
+    rng::AbstractRNG=MersenneTwister(0)
 ) where {F1,F2}
     n_x, n_y = n_points
     
@@ -29,7 +59,7 @@ function make_geometry(
     push!(xs, 0.5 * pi)
     ys = collect(range(0, 0.5 * diam_y, length=n_y))
 
-    rs = [1.0 - V(x, y) / d for x in xs, y in ys]
+    rs = [boundary_radius(d, V, x, y) for x in xs, y in ys]
     points = (x=xs, y=ys, r=rs)
 
     grads = [gradV(x, y) for x in xs, y in ys]
@@ -39,8 +69,9 @@ function make_geometry(
     
     inv_len = 1 ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
     normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
+    interior_points = sample_interior_points(d, diam_x, diam_y, V, n_interior_points, rng)
 
-    return Geometry(d, diam_x, diam_y, V, gradV, points, normals)
+    return Geometry(d, diam_x, diam_y, V, gradV, points, normals, interior_points)
 end
 
 mode_counts(n_modes::Int) = (n_modes, n_modes)
@@ -78,7 +109,7 @@ function get_matrix(
     diam_x::Float64,
     diam_y::Float64,
     d::Float64;
-    weights::Union{Nothing, Matrix{Float64}} = Nothing() # New optional argument
+    weights::Union{Nothing, Matrix{Float64}} = nothing
 )
     n_x, n_y = length(xs), length(ys)
     total_modes = length(λx)
@@ -102,16 +133,56 @@ function get_matrix(
     return reshape(M_tensor, n_x * n_y, total_modes)
 end
 
-function get_matrix(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights::Union{Nothing, Matrix{Float64}} = Nothing())
+function get_matrix(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights::Union{Nothing, Matrix{Float64}} = nothing)
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
     diam_x, diam_y = geometry.diam_x, geometry.diam_y
-    total_modes = length(λx)
     
     xs, ys, rs = geometry.points
     nxs, nys, nrs = geometry.normals
     d = geometry.d
 
     return get_matrix(xs, ys, rs, nxs, nys, nrs, λx, λy, λr, diam_x, diam_y, d; weights=weights)
+end
+
+function get_interior_matrix(
+    xs::Vector{Float64},
+    ys::Vector{Float64},
+    rs::Vector{Float64},
+    λx::Vector{Float64},
+    λy::Vector{Float64},
+    λr::Vector{Float64},
+    diam_x::Float64,
+    diam_y::Float64,
+    d::Float64
+)
+    n_points = length(xs)
+    total_modes = length(λx)
+    M = zeros(Float64, n_points, total_modes)
+
+    Threads.@threads for j in eachindex(λx)
+        lx, ly, lr = λx[j], λy[j], λr[j]
+        @inbounds for i in eachindex(xs)
+            av, _ = axial_basis(lx, ly, diam_x, diam_y, xs[i], ys[i])
+            rv, _ = ϕ(d, lr, rs[i])
+            M[i, j] = av * rv
+        end
+    end
+
+    return M
+end
+
+function get_interior_matrix(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64)
+    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+    xs, ys, rs = geometry.interior_points
+
+    return get_interior_matrix(xs, ys, rs, λx, λy, λr, geometry.diam_x, geometry.diam_y, geometry.d)
+end
+
+function get_mps_matrices(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)
+    A_boundary = get_matrix(geometry, n_modes, λ; weights=weights)
+    A_interior = get_interior_matrix(geometry, n_modes, λ)
+
+    return A_boundary, A_interior, vcat(A_boundary, A_interior)
 end
 
 function u(
@@ -176,18 +247,43 @@ function u(
     return u(geometry.d, geometry.diam_x, geometry.diam_y, coefficients, λ, n_modes, x, y, r)
 end
 
-function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64}; weights=nothing, solver=:iterative)
+function qr_mps_solution(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)
+    A_boundary, A_interior, A = get_mps_matrices(geometry, n_modes, λ; weights=weights)
+
+    size(A, 1) >= size(A, 2) || error(
+        "QR-MPS needs at least as many sampled rows as modes; got $(size(A, 1)) rows and $(size(A, 2)) modes."
+    )
+
+    F = qr(A)
+    Q = Matrix(F.Q)
+    Q_boundary = @view Q[1:size(A_boundary, 1), :]
+    S = svd(Q_boundary; full=false)
+    loss = S.S[end]
+
+    v = S.V[:, end]
+    best_coefs = F.R \ v
+    c_sign = iszero(best_coefs[1]) ? one(best_coefs[1]) : sign(best_coefs[1])
+    best_coefs .*= c_sign
+
+    boundary_residual = A_boundary * best_coefs
+    interior_values = A_interior * best_coefs
+
+    return (
+        coefficients=best_coefs,
+        boundary_residual=boundary_residual,
+        interior_values=interior_values,
+        loss=loss,
+    )
+end
+
+qr_mps_loss(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing) =
+    qr_mps_solution(geometry, n_modes, λ; weights=weights).loss
+
+function optimize_eigenvalue(geometry::Geometry, n_modes::Tuple{Int,Int}, bounds::Tuple{Float64,Float64}; weights=nothing, solver=:qr_mps)
     lower, upper = bounds
 
-    if solver == :iterative
-        function objective(λ)
-        A = get_matrix(geometry, n_modes, λ; weights=weights)
-        _, loss, _ = iterative_normal_solution(A, n_modes)
-        return loss
-    end
-    elseif solver == :dense
-        objective(λ) = svdvals(get_matrix(geometry, n_modes, λ; weights=weights))[end]
-    end
+    solver in (:qr_mps, :iterative, :dense) || error("Unknown solver: $solver")
+    objective(λ) = qr_mps_loss(geometry, n_modes, λ; weights=weights)
 
     result = optimize(objective, lower, upper, Brent())
     best_λ = Optim.minimizer(result)
@@ -261,33 +357,20 @@ function iterative_normal_solution(A::AbstractMatrix{Float64}, n_modes::Tuple{In
     return best_coefs, loss, info
 end
 
+function solve_qr_mps(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)
+    sol = qr_mps_solution(geometry, n_modes, λ; weights=weights)
+
+    println("QR-MPS Loss: ", sol.loss)
+
+    return sol.coefficients, sol.boundary_residual
+end
+
 function solve_iterative(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)
-    A = get_matrix(geometry, n_modes, λ; weights=weights)
-    best_coefs, loss, info = iterative_normal_solution(A, n_modes)
-
-    println("Loss: ", loss)
-    println("Info: ", info)
-
-    residual = A * best_coefs
-
-    return best_coefs, residual
+    return solve_qr_mps(geometry, n_modes, λ; weights=weights)
 end
 
 function solve_dense(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float64; weights=nothing)
-    A = get_matrix(geometry, n_modes, λ; weights=weights)
-    F = svd!(A; full=false)
-    loss = F.S[end]
-
-    v_norm = norm(F.V[:, end])
-    best_coefs = F.V[:, end] ./ v_norm
-    c_sign = sign(best_coefs[1])
-    best_coefs .*= c_sign
-
-    println("Loss: ", loss)
-    
-    residual = F.U[:, end] .* (loss * c_sign / v_norm)
-
-    return best_coefs, residual
+    return solve_qr_mps(geometry, n_modes, λ; weights=weights)
 end
 
 function boundary_residual(
@@ -299,7 +382,7 @@ function boundary_residual(
     x::Float64,
     y::Float64
 )
-    r = 1.0 - geometry.V(x, y) / geometry.d
+    r = boundary_radius(geometry.d, geometry.V, x, y)
     ∂xV, ∂yV = geometry.gradV(x, y)
     nr = 4.0
     inv_len = inv(sqrt(∂xV^2 + ∂yV^2 + nr^2))
