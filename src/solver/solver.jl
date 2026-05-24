@@ -1,6 +1,7 @@
 include("../functions/basis.jl")
 
 using KrylovKit
+using AppleAccelerate
 using LinearAlgebra
 using Optim
 using Random
