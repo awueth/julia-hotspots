@@ -255,9 +255,8 @@ function qr_mps_solution(geometry::Geometry, n_modes::Tuple{Int,Int}, λ::Float6
     )
 
     F = qr(A)
-    Q = Matrix(F.Q)
-    Q_boundary = @view Q[1:size(A_boundary, 1), :]
-    S = svd(Q_boundary; full=false)
+    Q_boundary = F.Q[1:size(A_boundary, 1), 1:size(A, 2)]
+    S = svd!(Q_boundary; full=false)
     loss = S.S[end]
 
     v = S.V[:, end]
