@@ -26,7 +26,7 @@ d = Inf
 wing_length = DEFAULT_WING_LENGTH
 diam_x = 2.0 * (domain.Lx + wing_length)
 diam_y = 2.0 * domain.Ly
-n_boundary_points = (448, 64)
+n_boundary_points = 28_672
 n_modes = (320, 32)
 λ = 1.0539350209179175
 
