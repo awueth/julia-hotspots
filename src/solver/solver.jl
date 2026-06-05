@@ -12,8 +12,8 @@ struct Geometry{F1,F2}
     diam_y::Float64
     V::F1
     gradV::F2
-    points::@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}
-    normals::@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}
+    points::Union{@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Matrix{Float64}}, @NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}}
+    normals::Union{@NamedTuple{x::Matrix{Float64}, y::Matrix{Float64}, r::Matrix{Float64}}, @NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}}
 end
 
 function fibonacci_lattice_points(diam_x::Float64, diam_y::Float64, n_samples::Int)
@@ -32,6 +32,36 @@ function fibonacci_lattice_points(diam_x::Float64, diam_y::Float64, n_samples::I
     return xs, ys
 end
 
+# If n_points is a tuple, sample from a uniform grid. 
+function make_geometry(
+    d::Float64, 
+    diam_x::Float64, 
+    diam_y::Float64, 
+    V::F1, 
+    gradV::F2,
+    n_points::Tuple{Int,Int}
+) where {F1,F2}
+    n_x, n_y = n_points
+    
+    xs = collect(range(0, 0.5 * diam_x, length=n_x))
+    push!(xs, 0.5 * pi)
+    ys = collect(range(0, 0.5 * diam_y, length=n_y))
+
+    rs = [1.0 - V(x, y) / d for x in xs, y in ys]
+    points = (x=xs, y=ys, r=rs)
+
+    grads = [gradV(x, y) for x in xs, y in ys]
+    nx = [g[1] for g in grads]
+    ny = [g[2] for g in grads]
+    nr = fill(4.0, size(nx)) 
+    
+    inv_len = 1 ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
+    normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
+
+    return Geometry(d, diam_x, diam_y, V, gradV, points, normals)
+end
+
+# If n_points is an integer, use Fibonacci sampling
 function make_geometry(
     d::Float64, 
     diam_x::Float64, 
@@ -81,6 +111,43 @@ end
 function get_matrix(
     xs::Vector{Float64},
     ys::Vector{Float64},
+    rs::Matrix{Float64},
+    nxs::Matrix{Float64},
+    nys::Matrix{Float64},
+    nrs::Matrix{Float64},
+    λx::Vector{Float64},
+    λy::Vector{Float64},
+    λr::Vector{Float64},
+    diam_x::Float64,
+    diam_y::Float64,
+    d::Float64;
+    weights::Union{Nothing, Matrix{Float64}} = Nothing() # New optional argument
+)
+    n_x, n_y = length(xs), length(ys)
+    total_modes = length(λx)
+    M_tensor = zeros(Float64, n_x, n_y, total_modes)
+
+    Threads.@threads for j in eachindex(λx)
+        lx, ly, lr = λx[j], λy[j], λr[j]
+        @inbounds for iy in eachindex(ys), ix in eachindex(xs)
+            av, (agx, agy) = axial_basis(lx, ly, diam_x, diam_y, xs[ix], ys[iy])
+            rv, rgrad = ϕ(d, lr, rs[ix, iy])
+            
+            val = (nxs[ix, iy] * agx * rv) + 
+                  (nys[ix, iy] * agy * rv) + 
+                  (nrs[ix, iy] * av * rgrad)
+            
+            # Apply weight if provided
+            M_tensor[ix, iy, j] = isnothing(weights) ? val : val * weights[ix, iy]
+        end
+    end
+
+    return reshape(M_tensor, n_x * n_y, total_modes)
+end
+
+function get_matrix(
+    xs::Vector{Float64},
+    ys::Vector{Float64},
     rs::Vector{Float64},
     nxs::Vector{Float64},
     nys::Vector{Float64},
@@ -119,7 +186,7 @@ end
 
 function get_matrix(
     geometry::Geometry,
-    n_modes::Tuple{Int,Int},
+    n_modes::Tuple{Int, Int},
     λ::Float64;
     weights::Union{Nothing, AbstractVector{<:Real}, AbstractMatrix{<:Real}} = nothing
 )
