@@ -69,3 +69,66 @@ Plots.scatter!(
     markerstrokewidth=0,
 )
 display(residual_plot)
+
+lx, ly, lr = get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
+u_star(x, y, r) = u(geometry.d, coefficients, lx, ly, lr, geometry.diam_x, geometry.diam_y, x, y, r)
+
+xp = range(0.5 * pi + 0.75, 0.5 * diam_x, 128)
+yp = range(-1.0, 1.0, 128)
+tp = [ones(20)..., (1.0 .- logrange(0.02, 1.0, 20))..., zeros(20)...]
+#tp = 1.0 .- logrange(0.02, 1.0, 20)
+
+surface(range(-0.5 * diam_x, 0.5 * diam_x, 64), yp, (x, y) -> u_star(x, y, 1.0))
+heatmap(range(-0.5 * diam_x, 0.5 * diam_x, 128), yp, (x, y) -> u_star(x, y, 1.0))
+
+heatmap_anim = @animate for t in tp
+    i_max = argmax(u_star.(xp, 0.0, t))
+    heatmap(xp, yp, (x, y) -> u_star(x, y, t), color=:jet, colorbar=false)
+    annotate!(xp[i_max], 0.0, text("×", :white, 12))
+end
+gif(heatmap_anim, "eigenfunction_heatmap.mp4", fps=10)
+
+
+using Printf
+
+begin
+    x_minimap = range(-0.5 * diam_x, 0.5 * diam_x, 60)
+    cam = (30, 30)
+
+    surface_anim = @animate for t in tp
+        title_str = @sprintf("Zoomed Detail (r = %.3f)", t)
+        
+        # 1. MINIMAP / CONTEXT
+        p_left = surface(
+            x_minimap, yp, (x, y) -> u_star(x, y, t),
+            alpha = 0.3, 
+            color = :lightgray,
+            camera = cam,
+            colorbar = false, 
+            title = "Full Domain",
+            zlims = (-0.4, 0.4),
+            margin = 5Plots.mm,
+        )
+        surface!(p_left, xp, yp, (x, y) -> u_star(x, y, t), 
+                 color = :lightgreen,  # Set to a single color
+                 alpha = 0.8,           # Slightly transparent to see the gray mesh
+                 label = "")
+
+        # 2. MAIN DETAIL PLOT
+        p_right = surface(
+            xp, yp, (x, y) -> u_star(x, y, t), 
+            zaxis=false, grid=false, colorbar=false, color=:jet,
+            title = title_str,
+            camera = cam,
+            margin = 5Plots.mm,
+            zticks = false,
+        )
+        
+        i_max = argmax(u_star.(xp, 0.0, t))
+        scatter!(p_right, [xp[i_max]], [0.0], [u_star(xp[i_max], 0.0, t)], 
+                label="", markercolor=:white)
+
+        plot(p_left, p_right, layout=grid(1, 2, widths=[0.4, 0.6]), size=(1000, 500))
+    end
+end
+gif(surface_anim, "eigenfunction_surface.mp4", fps=10)
