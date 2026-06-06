@@ -6,14 +6,14 @@ using LinearAlgebra
 using Optim
 using Random
 
-struct Geometry{F1,F2}
+struct Geometry{F1, F2, P, N}
     d::Float64
     diam_x::Float64
     diam_y::Float64
     V::F1
     gradV::F2
-    points::Union{@NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Matrix{Float64}}, @NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}}
-    normals::Union{@NamedTuple{x::Matrix{Float64}, y::Matrix{Float64}, r::Matrix{Float64}}, @NamedTuple{x::Vector{Float64}, y::Vector{Float64}, r::Vector{Float64}}}
+    points::P
+    normals::N
 end
 
 function fibonacci_lattice_points(diam_x::Float64, diam_y::Float64, n_samples::Int)
@@ -121,7 +121,7 @@ function get_matrix(
     diam_x::Float64,
     diam_y::Float64,
     d::Float64;
-    weights::Union{Nothing, Matrix{Float64}} = Nothing() # New optional argument
+    weights::Union{Nothing, Matrix{Float64}} = nothing
 )
     n_x, n_y = length(xs), length(ys)
     total_modes = length(λx)
