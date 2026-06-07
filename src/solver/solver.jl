@@ -355,19 +355,86 @@ function u(
     return u(geometry.d, geometry.diam_x, geometry.diam_y, coefficients, λ, n_modes, x, y, r)
 end
 
-function optimize_eigenvalue(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, bounds::Tuple{T,T}; weights=nothing, solver=:iterative) where {T <: AbstractFloat}
+abstract type AbstractSolver end
+struct DenseSolver <: AbstractSolver end
+struct IterativeSolver <: AbstractSolver end
+
+function solve_coefficients(A, n_modes, solver::DenseSolver; weights=nothing)
+    F = svd!(A; full=false)
+    loss = F.S[end]
+
+    v_norm = norm(F.V[:, end])
+    best_coefs = F.V[:, end] ./ v_norm
+    c_sign = sign(best_coefs[1])
+    best_coefs .*= c_sign
+
+    println("Loss: ", loss)
+    
+    residual = F.U[:, end] .* (loss * c_sign / v_norm)
+
+    return best_coefs, residual
+end
+
+function solve_coefficients(A, n_modes, solver::IterativeSolver; weights=nothing)
+    c₀ = submatrix_initial_guess(A, n_modes)
+
+    normal_matrix = Symmetric(A' * A)
+    factor, _ = shifted_cholesky(normal_matrix)
+    inverse_normal_matvec(c) = factor \ c
+
+    _, vecs, info = eigsolve(
+        inverse_normal_matvec,
+        c₀,
+        1,
+        :LM;
+        issymmetric=true,
+        krylovdim=min(length(c₀), 80),
+        maxiter=500,
+        tol=1e-10,
+        eager=true
+    )
+    best_coefs = vecs[1] ./ norm(vecs[1])
+    best_coefs .*= sign(best_coefs[1])
+
+    normal_loss = dot(best_coefs, normal_matrix * best_coefs)
+    loss = sqrt(normal_loss)
+
+    return best_coefs, loss # , info
+end
+
+function solve(
+    geometry::Geometry{<:Any, T},
+    n_modes::Tuple{Int,Int},
+    λ::T, 
+    solver::AbstractSolver;
+    weights=nothing
+) where {T <: AbstractFloat}
+    A = get_matrix(geometry, n_modes, λ; weights=weights)
+    return solve_coefficients(A, n_modes, solver; weights=weights)
+end
+
+function solver_loss(A, n_modes, solver::IterativeSolver)
+    _, loss = solve_coefficients(A, n_modes, solver)
+    return loss
+end
+
+function solver_loss(A, n_modes, solver::DenseSolver)
+    return svdvals(A)[end]
+end
+
+function optimize_eigenvalue(
+    geometry::Geometry{<:Any, T}, 
+    n_modes::Tuple{Int,Int}, 
+    bounds::Tuple{T,T},
+    solver::AbstractSolver; 
+    weights=nothing, 
+) where {T <: AbstractFloat}
+
     lower, upper = bounds
 
-    if solver == :iterative
-        objective = λ -> begin
-            A = get_matrix(geometry, n_modes, λ; weights=weights)
-            _, loss, _ = iterative_normal_solution(A, n_modes)
-            return loss
-        end
-    elseif solver == :dense
-        objective = λ -> svdvals(get_matrix(geometry, n_modes, λ; weights=weights))[end]
-    else
-        throw(ArgumentError("unknown solver: $solver"))
+    objective = λ -> begin
+        A = get_matrix(geometry, n_modes, λ; weights=weights)
+        return solver_loss(A, n_modes, solver)
     end
 
     result = optimize(objective, lower, upper, Brent())
@@ -413,62 +480,6 @@ function shifted_cholesky(A::Symmetric{T,<:AbstractMatrix}) where {T}
     end
 
     return cholesky(A + shift * I), shift
-end
-
-function iterative_normal_solution(A::AbstractMatrix{T}, n_modes::Tuple{Int,Int}) where {T}
-    c₀ = submatrix_initial_guess(A, n_modes)
-
-    normal_matrix = Symmetric(A' * A)
-    factor, _ = shifted_cholesky(normal_matrix)
-    inverse_normal_matvec(c) = factor \ c
-
-    _, vecs, info = eigsolve(
-        inverse_normal_matvec,
-        c₀,
-        1,
-        :LM;
-        issymmetric=true,
-        krylovdim=min(length(c₀), 80),
-        maxiter=500,
-        tol=T(1e-10),
-        eager=true
-    )
-    best_coefs = vecs[1] ./ norm(vecs[1])
-    best_coefs .*= iszero(best_coefs[1]) ? one(T) : sign(best_coefs[1])
-
-    normal_loss = dot(best_coefs, normal_matrix * best_coefs)
-    loss = sqrt(max(normal_loss, zero(T)))
-
-    return best_coefs, loss, info
-end
-
-function solve_iterative(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, λ::T; weights=nothing) where {T <: AbstractFloat}
-    A = get_matrix(geometry, n_modes, λ; weights=weights)
-    best_coefs, loss, info = iterative_normal_solution(A, n_modes)
-
-    println("Loss: ", loss)
-    println("Info: ", info)
-
-    residual = A * best_coefs
-
-    return best_coefs, residual
-end
-
-function solve_dense(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, λ::T; weights=nothing) where {T <: AbstractFloat}
-    A = get_matrix(geometry, n_modes, λ; weights=weights)
-    F = svd!(A; full=false)
-    loss = F.S[end]
-
-    v_norm = norm(F.V[:, end])
-    best_coefs = F.V[:, end] ./ v_norm
-    c_sign = sign(best_coefs[1])
-    best_coefs .*= c_sign
-
-    println("Loss: ", loss)
-    
-    residual = F.U[:, end] .* (loss * c_sign / v_norm)
-
-    return best_coefs, residual
 end
 
 function boundary_residual(
