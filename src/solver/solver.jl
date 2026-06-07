@@ -6,8 +6,8 @@ using LinearAlgebra
 using Optim
 using Random
 
-struct Geometry{T <: AbstractFloat, F1, F2, P, N}
-    d::T
+struct Geometry{DT, T <: AbstractFloat, F1, F2, P, N}
+    d::DT
     diam_x::T
     diam_y::T
     V::F1
@@ -47,7 +47,7 @@ function make_geometry(
     push!(xs, T(0.5) * π)
     ys = collect(range(zero(T), T(0.5) * diam_y, length=n_y))
 
-    rs = [one(T) - V(x, y) / d for x in xs, y in ys]
+    rs = isinf(d) ? nothing : [one(T) - V(x, y) / d for x in xs, y in ys]
     points = (x=xs, y=ys, r=rs)
 
     grads = [gradV(x, y) for x in xs, y in ys]
@@ -58,7 +58,7 @@ function make_geometry(
     inv_len = one(T) ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
     normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
 
-    return Geometry(d, diam_x, diam_y, V, gradV, points, normals)
+    return Geometry(isinf(d) ? nothing : d, diam_x, diam_y, V, gradV, points, normals)
 end
 
 # If n_points is an integer, use Fibonacci sampling
@@ -72,7 +72,7 @@ function make_geometry(
 ) where {T <: AbstractFloat, F1, F2}
     xs, ys = fibonacci_lattice_points(diam_x, diam_y, n_points)
 
-    rs = [one(T) - V(xs[i], ys[i]) / d for i in eachindex(xs)]
+    rs = isinf(d) ? nothing : [one(T) - V(xs[i], ys[i]) / d for i in eachindex(xs)]
     points = (x=xs, y=ys, r=rs)
 
     grads = [gradV(xs[i], ys[i]) for i in eachindex(xs)]
@@ -83,7 +83,7 @@ function make_geometry(
     inv_len = one(T) ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
     normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
 
-    return Geometry(d, diam_x, diam_y, V, gradV, points, normals)
+    return Geometry(isinf(d) ? nothing : d, diam_x, diam_y, V, gradV, points, normals)
 end
 
 mode_counts(n_modes::Int) = (n_modes, n_modes)
@@ -104,8 +104,84 @@ function get_eigenvalues(diam_x::T, diam_y::T, n_modes::Tuple{Int,Int}, λ::T) w
     return λx, λy, λr
 end
 
-function get_eigenvalues(geometry::Geometry{T}, n_modes::Tuple{Int,Int}, λ::T) where {T <: AbstractFloat}
+function get_eigenvalues(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, λ::T) where {T <: AbstractFloat}
     return get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
+end
+
+function get_matrix(
+    xs::AbstractVector{T},
+    ys::AbstractVector{T},
+    rs::Nothing,
+    nxs::AbstractMatrix{T},
+    nys::AbstractMatrix{T},
+    nrs::AbstractMatrix{T},
+    λx::AbstractVector{T},
+    λy::AbstractVector{T},
+    λr::AbstractVector{T},
+    diam_x::T,
+    diam_y::T,
+    d::Nothing;
+    weights::Union{Nothing, AbstractMatrix{T}} = nothing
+) where {T <: AbstractFloat}
+    n_x, n_y = length(xs), length(ys)
+    total_modes = length(λx)
+    M_tensor = zeros(T, n_x, n_y, total_modes)
+
+    Threads.@threads for j in eachindex(λx)
+        lx, ly, lr = λx[j], λy[j], λr[j]
+        rv, rgrad = (one(T), T(-0.25) * lr)
+        @inbounds for iy in eachindex(ys), ix in eachindex(xs)
+            av, (agx, agy) = axial_basis(lx, ly, diam_x, diam_y, xs[ix], ys[iy])
+            
+            val = (nxs[ix, iy] * agx * rv) + 
+                  (nys[ix, iy] * agy * rv) + 
+                  (nrs[ix, iy] * av * rgrad)
+            
+            # Apply weight if provided
+            M_tensor[ix, iy, j] = isnothing(weights) ? val : val * weights[ix, iy]
+        end
+    end
+
+    return reshape(M_tensor, n_x * n_y, total_modes)
+end
+
+function get_matrix(
+    xs::AbstractVector{T},
+    ys::AbstractVector{T},
+    rs::Nothing,
+    nxs::AbstractVector{T},
+    nys::AbstractVector{T},
+    nrs::AbstractVector{T},
+    λx::AbstractVector{T},
+    λy::AbstractVector{T},
+    λr::AbstractVector{T},
+    diam_x::T,
+    diam_y::T,
+    d::Nothing;
+    weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
+) where {T <: AbstractFloat}
+    n_samples = length(xs)
+
+    total_modes = length(λx)
+    weights_vec = isnothing(weights) ? nothing : vec(weights)
+
+    M = zeros(T, n_samples, total_modes)
+
+    Threads.@threads for j in eachindex(λx)
+        lx, ly, lr = λx[j], λy[j], λr[j]
+        rv, rgrad = (one(T), T(-0.25) * lr)
+        @inbounds for i in eachindex(xs)
+            av, (agx, agy) = axial_basis(lx, ly, diam_x, diam_y, xs[i], ys[i])
+            
+            val = (nxs[i] * agx * rv) +
+                  (nys[i] * agy * rv) +
+                  (nrs[i] * av * rgrad)
+            
+            M[i, j] = isnothing(weights_vec) ? val : val * weights_vec[i]
+        end
+    end
+
+    return M
 end
 
 function get_matrix(
@@ -185,7 +261,7 @@ function get_matrix(
 end
 
 function get_matrix(
-    geometry::Geometry{T},
+    geometry::Geometry{<:Any, T},
     n_modes::Tuple{Int, Int},
     λ::T;
     weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
@@ -198,6 +274,27 @@ function get_matrix(
     d = geometry.d
 
     return get_matrix(xs, ys, rs, nxs, nys, nrs, λx, λy, λr, diam_x, diam_y, d; weights=weights)
+end
+
+function u(
+    d::Nothing,
+    coefficients::AbstractVector{T},
+    λx::AbstractVector{T},
+    λy::AbstractVector{T},
+    λr::AbstractVector{T},
+    diam_x::T,
+    diam_y::T,
+    x::T,
+    y::T,
+    r::T
+) where {T <: AbstractFloat}
+    val = zero(T)
+    for i in eachindex(coefficients)
+        av, _ = axial_basis(λx[i], λy[i], diam_x, diam_y, x, y)
+        rv, _ = ϕ(T(Inf), λr[i], r)
+        val += coefficients[i] * av * rv
+    end
+    return val
 end
 
 function u(
@@ -222,7 +319,7 @@ function u(
 end
 
 function u(
-    geometry::Geometry{T},
+    geometry::Geometry{<:Any, T},
     coefficients::AbstractVector{T},
     λx::AbstractVector{T},
     λy::AbstractVector{T},
@@ -251,7 +348,7 @@ function u(
 end
 
 function u(
-    geometry::Geometry{T},
+    geometry::Geometry{<:Any, T},
     coefficients::AbstractVector{T},
     λ::T,
     n_modes::Tuple{Int,Int},
@@ -262,7 +359,7 @@ function u(
     return u(geometry.d, geometry.diam_x, geometry.diam_y, coefficients, λ, n_modes, x, y, r)
 end
 
-function optimize_eigenvalue(geometry::Geometry{T}, n_modes::Tuple{Int,Int}, bounds::Tuple{T,T}; weights=nothing, solver=:iterative) where {T <: AbstractFloat}
+function optimize_eigenvalue(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, bounds::Tuple{T,T}; weights=nothing, solver=:iterative) where {T <: AbstractFloat}
     lower, upper = bounds
 
     if solver == :iterative
@@ -349,7 +446,7 @@ function iterative_normal_solution(A::AbstractMatrix{T}, n_modes::Tuple{Int,Int}
     return best_coefs, loss, info
 end
 
-function solve_iterative(geometry::Geometry{T}, n_modes::Tuple{Int,Int}, λ::T; weights=nothing) where {T <: AbstractFloat}
+function solve_iterative(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, λ::T; weights=nothing) where {T <: AbstractFloat}
     A = get_matrix(geometry, n_modes, λ; weights=weights)
     best_coefs, loss, info = iterative_normal_solution(A, n_modes)
 
@@ -361,7 +458,7 @@ function solve_iterative(geometry::Geometry{T}, n_modes::Tuple{Int,Int}, λ::T; 
     return best_coefs, residual
 end
 
-function solve_dense(geometry::Geometry{T}, n_modes::Tuple{Int,Int}, λ::T; weights=nothing) where {T <: AbstractFloat}
+function solve_dense(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, λ::T; weights=nothing) where {T <: AbstractFloat}
     A = get_matrix(geometry, n_modes, λ; weights=weights)
     F = svd!(A; full=false)
     loss = F.S[end]
@@ -379,7 +476,7 @@ function solve_dense(geometry::Geometry{T}, n_modes::Tuple{Int,Int}, λ::T; weig
 end
 
 function boundary_residual(
-    geometry::Geometry{T},
+    geometry::Geometry{T, T},
     coefficients::AbstractVector{T},
     λx::AbstractVector{T},
     λy::AbstractVector{T},
@@ -405,7 +502,7 @@ function boundary_residual(
 end
 
 function boundary_residual(
-    geometry::Geometry{T},
+    geometry::Geometry{T, T},
     coefficients::AbstractVector{T},
     λ::T,
     n_modes::Tuple{Int,Int},
@@ -425,6 +522,78 @@ function boundary_residual(
     Threads.@threads for j in eachindex(ys)
         for i in eachindex(xs)
             residuals[i, j] = boundary_residual(geometry, coefficients, λx, λy, λr, xs[i], ys[j])
+        end
+    end
+
+    return residuals, xs, ys
+end
+
+function boundary_residual(
+    geometry::Geometry{Nothing, T},
+    coefficients::AbstractVector{T},
+    λ::T,
+    n_modes::Tuple{Int,Int},
+    grid_size::Tuple{Int,Int}
+) where {T <: AbstractFloat}
+    nx_grid, ny_grid = grid_size
+    mx, my = n_modes
+    dx = (T(0.5) * geometry.diam_x) / nx_grid
+    dy = (T(0.5) * geometry.diam_y) / ny_grid
+
+    # 1. Create Cartesian grid coordinates
+    xs = [ (i-1)*dx + T(rand())*dx for i in 1:nx_grid ]
+    ys = [ (j-1)*dy + T(rand())*dy for j in 1:ny_grid ]
+
+    # 2. Reshape modal parameters into (mx, my) matrices
+    λx_vec, λy_vec, λr_vec = get_eigenvalues(geometry, n_modes, λ)
+    C = reshape(coefficients, mx, my)
+    Lx = reshape(λx_vec, mx, my)
+    Ly = reshape(λy_vec, mx, my)
+    Lr = reshape(λr_vec, mx, my)
+
+    # 3. Precompute k-vectors and normalization factors
+    Kx_vec = sqrt.(Lx[:, 1]) # kx only depends on the x-mode index
+    Ky_vec = sqrt.(Ly[1, :]) # ky only depends on the y-mode index
+    
+    norm_x_sq = T(0.5) * geometry.diam_x
+    # norm_y_sq depends on whether λy is 0
+    norm_y_sq = [ (ly == zero(T)) ? geometry.diam_y : (geometry.diam_y / T(2.0)) for ly in Ly[1, :] ]
+    InvNorm = one(T) ./ sqrt.(norm_x_sq .* norm_y_sq') # (1, my) broadcasting
+
+    # 4. Construct Weight Matrices (combining coefficients with basis constants)
+    # W1 for nx terms (∂x), W2 for ny terms (∂y), W3 for nr terms (value * rgrad)
+    W1 = C .* InvNorm .* Kx_vec
+    W2 = C .* InvNorm .* (-Ky_vec')
+    W3 = C .* InvNorm .* (T(-0.25) .* Lr)
+
+    # 5. Evaluate 1D basis functions on the grid
+    Sx_grid = sin.(xs .* Kx_vec')  # (nx_grid, mx)
+    Cx_grid = cos.(xs .* Kx_vec')  # (nx_grid, mx)
+    Sy_grid = sin.(ys .* Ky_vec')  # (ny_grid, my)
+    Cy_grid = cos.(ys .* Ky_vec')  # (ny_grid, my)
+
+    # 6. High-performance Matrix Multiplications (GEMM)
+    # T1[i, j] = Σ_jx,jy W1[jx,jy] * cos(kx*xi) * cos(ky*yj)
+    T1 = Cx_grid * (W1 * Cy_grid') 
+    # T2[i, j] = Σ_jx,jy W2[jx,jy] * sin(kx*xi) * sin(ky*yj)
+    T2 = Sx_grid * (W2 * Sy_grid')
+    # T3[i, j] = Σ_jx,jy W3[jx,jy] * sin(kx*xi) * cos(ky*yj)
+    T3 = Sx_grid * (W3 * Cy_grid')
+
+    # 7. Final assembly with point-dependent normals
+    residuals = zeros(T, nx_grid, ny_grid)
+    gradV = geometry.gradV
+    nr_base = T(4.0)
+    
+    Threads.@threads for j in 1:ny_grid
+        for i in 1:nx_grid
+            gx, gy = gradV(xs[i], ys[j])
+            inv_len = inv(sqrt(T(gx^2 + gy^2 + nr_base^2)))
+            nx = T(gx) * inv_len
+            ny = T(gy) * inv_len
+            nr = nr_base * inv_len
+            
+            residuals[i, j] = nx * T1[i, j] + ny * T2[i, j] + nr * T3[i, j]
         end
     end
 

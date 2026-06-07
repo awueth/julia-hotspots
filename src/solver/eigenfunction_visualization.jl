@@ -4,19 +4,27 @@ end
 
 import Plots
 
+function r_boundary(geometry::Geometry{T, T}, x::T, y::T) where T<:AbstractFloat
+    return one(T) - geometry.V(x, y) / geometry.d
+end
+
+function r_boundary(geometry::Geometry{Nothing, T}, x::T, y::T) where T<:AbstractFloat
+    return one(T)
+end
+
 function plot_u_boundary(
-    geometry::Geometry,
-    coefficients::AbstractVector{Float64},
+    geometry::Geometry{<:Any, T},
+    coefficients::AbstractVector{T},
     n_modes::Tuple{Int,Int},
-    λ::Float64
-)
+    λ::T
+) where {T <: AbstractFloat}
     res = 128
-    xs = LinRange(-geometry.diam_x / 2, geometry.diam_x / 2, res)
-    ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
+    xs = LinRange(-geometry.diam_x / T(2), geometry.diam_x / T(2), res)
+    ys = LinRange(-geometry.diam_y / T(2), geometry.diam_y / T(2), res)
 
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
     u_boundary = [
-        u(geometry, coefficients, λx, λy, λr, x, y, 1.0 - geometry.V(x, y) / geometry.d)
+        u(geometry, coefficients, λx, λy, λr, x, y, r_boundary(geometry, x, y))
         for y in ys, x in xs
     ]
 
@@ -35,36 +43,35 @@ function plot_u_boundary(
 end
 
 function plot_u_edge_profile(
-    geometry::Geometry,
-    coefficients::AbstractVector{Float64},
+    geometry::Geometry{<:Any, T},
+    coefficients::AbstractVector{T},
     n_modes::Tuple{Int,Int},
-    λ::Float64
-)
+    λ::T
+) where {T <: AbstractFloat}
     res = 200
-    x_boundary = geometry.diam_x / 2
-    xs = LinRange(-geometry.diam_x / 2, geometry.diam_x / 2, res)
-    ys = LinRange(-geometry.diam_y / 2, geometry.diam_y / 2, res)
+    x_boundary = geometry.diam_x / T(2)
+    xs = LinRange(-geometry.diam_x / T(2), geometry.diam_x / T(2), res)
+    ys = LinRange(-geometry.diam_y / T(2), geometry.diam_y / T(2), res)
     λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
 
     x0 = xs[argmax([
-        u(geometry, coefficients, λx, λy, λr, x, 0.0, 0.0)
+        u(geometry, coefficients, λx, λy, λr, x, zero(T), zero(T))
         for x in xs
     ])]
 
-    r_boundary(x, y) = 1.0 - geometry.V(x, y) / geometry.d
     profile(x, r_at) = [
         u(geometry, coefficients, λx, λy, λr, x, y, r_at(x, y))
         for y in ys
     ]
 
-    boundary_outer = profile(x_boundary, r_boundary)
-    interior_outer = profile(x0, r_boundary)
-    boundary_inner = profile(x_boundary, (_, _) -> 0.0)
-    interior_inner = profile(x0, (_, _) -> 0.0)
-    interface_outer = profile(0.5*pi, r_boundary)
+    boundary_outer = profile(x_boundary, (x, y) -> r_boundary(geometry, x, y))
+    interior_outer = profile(x0, (x, y) -> r_boundary(geometry, x, y))
+    boundary_inner = profile(x_boundary, (_, _) -> zero(T))
+    interior_inner = profile(x0, (_, _) -> zero(T))
+    interface_outer = profile(T(0.5*pi), (x, y) -> r_boundary(geometry, x, y))
     inner_center_difference =
-        u(geometry, coefficients, λx, λy, λr, x0, 0.0, 0.0) -
-        u(geometry, coefficients, λx, λy, λr, x_boundary, 0.0, 0.0)
+        u(geometry, coefficients, λx, λy, λr, x0, zero(T), zero(T)) -
+        u(geometry, coefficients, λx, λy, λr, x_boundary, zero(T), zero(T))
 
     outer_plot = Plots.plot(
         ys,
@@ -92,8 +99,8 @@ function plot_u_edge_profile(
     Plots.plot!(inner_plot, ys, boundary_inner; color=:blue, linewidth=2, label="Boundary Profile")
     Plots.annotate!(
         inner_plot,
-        -0.5,
-        u(geometry, coefficients, λx, λy, λr, x0, 0.0, 0.0),
+        T(-0.5),
+        u(geometry, coefficients, λx, λy, λr, x0, zero(T), zero(T)),
         Plots.text("Δ(y=0) = $(round(inner_center_difference, sigdigits=6))")
     )
 
