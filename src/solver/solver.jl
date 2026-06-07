@@ -6,9 +6,14 @@ using LinearAlgebra
 using Optim
 using Random
 
-const CartesianPoints{T} = NamedTuple{
+const InfiniteCartesianPoints{T} = NamedTuple{
     (:x, :y, :r),
     <:Tuple{AbstractVector{T}, AbstractVector{T}, Nothing}
+}
+
+const FiniteCartesianPoints{T} = NamedTuple{
+    (:x, :y, :r),
+    <:Tuple{AbstractVector{T}, AbstractVector{T}, <:AbstractMatrix{T}}
 }
 
 const CartesianNormals{T} = NamedTuple{
@@ -115,63 +120,31 @@ function get_eigenvalues(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, 
     return get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
 end
 
-# Tensor product sampling of collocation points
-function get_matrix(
-    xs::AbstractVector{T},
-    ys::AbstractVector{T},
-    rs::Nothing,
-    nxs::AbstractMatrix{T},
-    nys::AbstractMatrix{T},
-    nrs::AbstractMatrix{T},
-    λx::AbstractVector{T},
-    λy::AbstractVector{T},
-    λr::AbstractVector{T},
-    diam_x::T,
-    diam_y::T,
-    d::Nothing;
-    weights::Union{Nothing, AbstractMatrix{T}} = nothing
-) where {T <: AbstractFloat}
-    n_x, n_y = length(xs), length(ys)
-    total_modes = length(λx)
-    M_tensor = zeros(T, n_x, n_y, total_modes)
-
-    Threads.@threads for j in eachindex(λx)
-        lx, ly, lr = λx[j], λy[j], λr[j]
-        rv, rgrad = (one(T), T(-0.25) * lr)
-        @inbounds for iy in eachindex(ys), ix in eachindex(xs)
-            av, (agx, agy) = axial_basis(lx, ly, diam_x, diam_y, xs[ix], ys[iy])
-            
-            val = (nxs[ix, iy] * agx * rv) + 
-                  (nys[ix, iy] * agy * rv) + 
-                  (nrs[ix, iy] * av * rgrad)
-            
-            # Apply weight if provided
-            M_tensor[ix, iy, j] = isnothing(weights) ? val : val * weights[ix, iy]
-        end
+function _weights_vector(weights, n_rows::Int)
+    weights_vec = isnothing(weights) ? nothing : vec(weights)
+    if !isnothing(weights_vec) && length(weights_vec) != n_rows
+        throw(DimensionMismatch("weights must contain $n_rows entries, got $(length(weights_vec))"))
     end
-
-    return reshape(M_tensor, n_x * n_y, total_modes)
+    return weights_vec
 end
 
 function get_matrix(
-    xs::AbstractVector{T},
-    ys::AbstractVector{T},
-    rs::Nothing,
-    nxs::AbstractVector{T},
-    nys::AbstractVector{T},
-    nrs::AbstractVector{T},
-    λx::AbstractVector{T},
-    λy::AbstractVector{T},
-    λr::AbstractVector{T},
-    diam_x::T,
-    diam_y::T,
-    d::Nothing;
+    geometry::Geometry{Nothing, T}, 
+    n_modes::Tuple{Int, Int},
+    λ::T;
     weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
 ) where {T <: AbstractFloat}
+    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+    diam_x, diam_y = geometry.diam_x, geometry.diam_y
+    
+    xs, ys, rs = geometry.points
+    nxs, nys, nrs = geometry.normals
+    d = geometry.d
+
     n_samples = length(xs)
 
     total_modes = length(λx)
-    weights_vec = isnothing(weights) ? nothing : vec(weights)
+    weights_vec = _weights_vector(weights, n_samples)
 
     M = zeros(T, n_samples, total_modes)
 
@@ -193,22 +166,21 @@ function get_matrix(
 end
 
 function get_matrix(
-    xs::AbstractVector{T},
-    ys::AbstractVector{T},
-    rs::AbstractMatrix{T},
-    nxs::AbstractMatrix{T},
-    nys::AbstractMatrix{T},
-    nrs::AbstractMatrix{T},
-    λx::AbstractVector{T},
-    λy::AbstractVector{T},
-    λr::AbstractVector{T},
-    diam_x::T,
-    diam_y::T,
-    d::T;
-    weights::Union{Nothing, AbstractMatrix{T}} = nothing
-) where {T <: AbstractFloat}
+    geometry::Geometry{T, T, F1, F2, P, N}, 
+    n_modes::Tuple{Int, Int},
+    λ::T;
+    weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
+) where {T <: AbstractFloat, F1, F2, P <: FiniteCartesianPoints{T}, N <: CartesianNormals{T}}
+    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+    diam_x, diam_y = geometry.diam_x, geometry.diam_y
+    
+    xs, ys, rs = geometry.points
+    nxs, nys, nrs = geometry.normals
+    d = geometry.d
+    
     n_x, n_y = length(xs), length(ys)
     total_modes = length(λx)
+    weights_vec = _weights_vector(weights, n_x * n_y)
     M_tensor = zeros(T, n_x, n_y, total_modes)
 
     Threads.@threads for j in eachindex(λx)
@@ -222,7 +194,8 @@ function get_matrix(
                   (nrs[ix, iy] * av * rgrad)
             
             # Apply weight if provided
-            M_tensor[ix, iy, j] = isnothing(weights) ? val : val * weights[ix, iy]
+            row = ix + (iy - 1) * n_x
+            M_tensor[ix, iy, j] = isnothing(weights_vec) ? val : val * weights_vec[row]
         end
     end
 
@@ -230,24 +203,22 @@ function get_matrix(
 end
 
 function get_matrix(
-    xs::AbstractVector{T},
-    ys::AbstractVector{T},
-    rs::AbstractVector{T},
-    nxs::AbstractVector{T},
-    nys::AbstractVector{T},
-    nrs::AbstractVector{T},
-    λx::AbstractVector{T},
-    λy::AbstractVector{T},
-    λr::AbstractVector{T},
-    diam_x::T,
-    diam_y::T,
-    d::T;
+    geometry::Geometry{T, T}, 
+    n_modes::Tuple{Int, Int},
+    λ::T;
     weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
-) where {T <: AbstractFloat}
+) where {T <: AbstractFloat} # Non-Cartesian collocation points
+    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
+    diam_x, diam_y = geometry.diam_x, geometry.diam_y
+    
+    xs, ys, rs = geometry.points
+    nxs, nys, nrs = geometry.normals
+    d = geometry.d
+
     n_samples = length(xs)
 
     total_modes = length(λx)
-    weights_vec = isnothing(weights) ? nothing : vec(weights)
+    weights_vec = _weights_vector(weights, n_samples)
 
     M = zeros(T, n_samples, total_modes)
 
@@ -273,7 +244,7 @@ function get_matrix(
     n_modes::Tuple{Int, Int},
     λ::T;
     weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
-) where {T <: AbstractFloat, F1, F2, P <: CartesianPoints{T}, N <: CartesianNormals{T}}
+) where {T <: AbstractFloat, F1, F2, P <: InfiniteCartesianPoints{T}, N <: CartesianNormals{T}}
     xs, ys = geometry.points.x, geometry.points.y
     nxs, nys, nrs = geometry.normals.x, geometry.normals.y, geometry.normals.r
     n_x, n_y = length(xs), length(ys)
@@ -281,7 +252,7 @@ function get_matrix(
     mx, my = n_modes
     total_modes = mx * my
 
-    weights_vec = isnothing(weights) ? nothing : vec(weights)
+    weights_vec = _weights_vector(weights, n_x * n_y)
     tables = axial_basis_tables(xs, ys, n_modes, diam_x, diam_y)
 
      M = Matrix{T}(undef, n_x * n_y, total_modes)
@@ -305,22 +276,6 @@ function get_matrix(
     end
 
     return M
-end
-
-function get_matrix(
-    geometry::Geometry{<:Any, T},
-    n_modes::Tuple{Int, Int},
-    λ::T;
-    weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
-) where {T <: AbstractFloat}
-    λx, λy, λr = get_eigenvalues(geometry, n_modes, λ)
-    diam_x, diam_y = geometry.diam_x, geometry.diam_y
-    
-    xs, ys, rs = geometry.points
-    nxs, nys, nrs = geometry.normals
-    d = geometry.d
-
-    return get_matrix(xs, ys, rs, nxs, nys, nrs, λx, λy, λr, diam_x, diam_y, d; weights=weights)
 end
 
 function u(
