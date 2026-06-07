@@ -86,11 +86,8 @@ function make_geometry(
     return Geometry(isinf(d) ? nothing : d, diam_x, diam_y, V, gradV, points, normals)
 end
 
-mode_counts(n_modes::Int) = (n_modes, n_modes)
-mode_counts(n_modes::Tuple{Int,Int}) = n_modes
-
 function get_eigenvalues(diam_x::T, diam_y::T, n_modes::Tuple{Int,Int}, λ::T) where {T <: AbstractFloat}
-    n_modes_x, n_modes_y = mode_counts(n_modes)
+    n_modes_x, n_modes_y = n_modes
     modes_x = T.(1:2:(2 * n_modes_x - 1))
     modes_y = T.(0:2:(2 * n_modes_y - 2))
     λx_modes = (modes_x .* (T(π) / diam_x)) .^ 2
@@ -387,7 +384,7 @@ function optimize_eigenvalue(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,In
 end
 
 function submatrix_initial_guess(A::AbstractMatrix{T}, n_modes::Tuple{Int,Int}) where {T}
-    n_modes_x, n_modes_y = mode_counts(n_modes)
+    n_modes_x, n_modes_y = n_modes
     seed_modes_x = min(16, n_modes_x)
     seed_modes_y = min(32, n_modes_y)
     seed_cols = [
