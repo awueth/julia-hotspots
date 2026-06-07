@@ -16,9 +16,9 @@ function Λ_i(v::T, x::T) where T<:AbstractFloat
     rd = one(T)
     x2_4 = T(0.25) * x * x
 
-    for i in T(1):T(50)
+    for i in 1:50
         rb *= x2_4 / (i * (i + v))
-        rd *= x2_4 / (i * (i + v + 1))
+        rd *= x2_4 / (i * (i + v + one(T)))
         bl += rb
         dl += rd
         if abs(rb) < abs(bl) * eps(T)
@@ -26,7 +26,7 @@ function Λ_i(v::T, x::T) where T<:AbstractFloat
         end
     end 
 
-    dl *= 0.5 * x / (v + 1)
+    dl *= T(0.5) * x / (v + one(T))
 
     return (bl, dl)
 end
@@ -55,7 +55,7 @@ function Λ_j(v::T, x::T) where T<:AbstractFloat
 
     for i in 1:500
         r *= -x2_4 / (i * (i + v))
-        rp *= -x2_4 / (i * (i + v + 1))
+        rp *= -x2_4 / (i * (i + v + one(T)))
         s += r
         sp += rp
         if abs(r) < abs(s) * eps(T)
@@ -63,7 +63,7 @@ function Λ_j(v::T, x::T) where T<:AbstractFloat
         end
     end 
 
-    sp *= -0.5 * x / (v + 1)
+    sp *= T(-0.5) * x / (v + one(T))
 
     return (s, sp)
 end
