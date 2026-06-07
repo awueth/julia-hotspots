@@ -6,6 +6,16 @@ using LinearAlgebra
 using Optim
 using Random
 
+const CartesianPoints{T} = NamedTuple{
+    (:x, :y, :r),
+    <:Tuple{AbstractVector{T}, AbstractVector{T}, Nothing}
+}
+
+const CartesianNormals{T} = NamedTuple{
+    (:x, :y, :r),
+    <:Tuple{<:AbstractMatrix{T}, <:AbstractMatrix{T}, <:AbstractMatrix{T}}
+}
+
 struct Geometry{DT, T <: AbstractFloat, F1, F2, P, N}
     d::DT
     diam_x::T
@@ -105,6 +115,7 @@ function get_eigenvalues(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, 
     return get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
 end
 
+# Tensor product sampling of collocation points
 function get_matrix(
     xs::AbstractVector{T},
     ys::AbstractVector{T},
@@ -251,6 +262,45 @@ function get_matrix(
                   (nrs[i] * av * rgrad)
             
             M[i, j] = isnothing(weights_vec) ? val : val * weights_vec[i]
+        end
+    end
+
+    return M
+end
+
+function get_matrix(
+    geometry::Geometry{Nothing, T, F1, F2, P, N}, 
+    n_modes::Tuple{Int, Int},
+    λ::T;
+    weights::Union{Nothing, AbstractVector{T}, AbstractMatrix{T}} = nothing
+) where {T <: AbstractFloat, F1, F2, P <: CartesianPoints{T}, N <: CartesianNormals{T}}
+    xs, ys = geometry.points.x, geometry.points.y
+    nxs, nys, nrs = geometry.normals.x, geometry.normals.y, geometry.normals.r
+    n_x, n_y = length(xs), length(ys)
+    diam_x, diam_y = geometry.diam_x, geometry.diam_y
+    mx, my = n_modes
+    total_modes = mx * my
+
+    weights_vec = isnothing(weights) ? nothing : vec(weights)
+    tables = axial_basis_tables(xs, ys, n_modes, diam_x, diam_y)
+
+     M = Matrix{T}(undef, n_x * n_y, total_modes)
+
+    Threads.@threads for col in 1:total_modes
+        p = ((col - 1) % mx) + 1
+        q = ((col - 1) ÷ mx) + 1
+        rgrad = T(-0.25) * (λ - tables.λx_modes[p] - tables.λy_modes[q])
+
+        @inbounds for iy in eachindex(ys), ix in eachindex(xs)
+            row = ix + (iy - 1) * n_x
+
+            av, (agx, agy) = axial_basis(tables, ix, iy, p, q)
+
+            val = nxs[ix, iy] * agx +
+                nys[ix, iy] * agy +
+                nrs[ix, iy] * av * rgrad
+
+            M[row, col] = isnothing(weights_vec) ? val : val * weights_vec[row]
         end
     end
 
