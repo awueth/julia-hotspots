@@ -31,7 +31,12 @@ struct Geometry{DT, T <: AbstractFloat, F1, F2, P, N}
     normals::N
 end
 
-function fibonacci_lattice_points(diam_x::T, diam_y::T, n_samples::Int) where {T <: AbstractFloat}
+struct FibonacciSampler
+    n::Int
+end
+
+function (sampler::FibonacciSampler)(diam_x::T, diam_y::T) where {T <: AbstractFloat}
+    n_samples = sampler.n
     half_x = T(0.5) * diam_x
     half_y = T(0.5) * diam_y
     golden_ratio = (one(T) + sqrt(T(5.0))) / T(2.0)
@@ -44,57 +49,46 @@ function fibonacci_lattice_points(diam_x::T, diam_y::T, n_samples::Int) where {T
         ys[i] = mod(k / golden_ratio, one(T)) * half_y
     end
 
-    return xs, ys
+    return xs, ys, false
 end
 
-# If n_points is a tuple, sample from a uniform grid. 
+struct GridSampler
+    nx::Int
+    ny::Int
+end
+
+function (sampler::GridSampler)(diam_x::T, diam_y::T) where {T <: AbstractFloat}
+    n_x, n_y = sampler.nx, sampler.ny
+    xs = collect(range(zero(T), T(0.5) * diam_x, length=n_x))
+    push!(xs, T(0.5) * diam_x)
+    ys = collect(range(zero(T), T(0.5) * diam_y, length=n_y))
+
+    return xs, ys, true
+end
+ 
 function make_geometry(
     d::T, 
     diam_x::T, 
     diam_y::T, 
     V::F1, 
     gradV::F2,
-    n_points::Tuple{Int,Int}
-) where {T <: AbstractFloat, F1, F2}
-    n_x, n_y = n_points
-    
-    xs = collect(range(zero(T), T(0.5) * diam_x, length=n_x))
-    push!(xs, T(0.5) * π)
-    ys = collect(range(zero(T), T(0.5) * diam_y, length=n_y))
+    sampler
+) where {T <: AbstractFloat, F1, F2}    
+    xs, ys, is_grid = sampler(diam_x, diam_y)
 
-    rs = isinf(d) ? nothing : [one(T) - V(x, y) / d for x in xs, y in ys]
+    if is_grid
+        rs = isinf(d) ? nothing : [one(T) - V(x, y) / d for x in xs, y in ys]
+        grads = [gradV(x, y) for x in xs, y in ys]
+    else
+        rs = isinf(d) ? nothing : [one(T) - V(xs[i], ys[i]) / d for i in eachindex(xs)]
+        grads = [gradV(xs[i], ys[i]) for i in eachindex(xs)]
+    end
+
     points = (x=xs, y=ys, r=rs)
-
-    grads = [gradV(x, y) for x in xs, y in ys]
     nx = [T(g[1]) for g in grads]
     ny = [T(g[2]) for g in grads]
     nr = fill(T(4.0), size(nx)) 
     
-    inv_len = one(T) ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
-    normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
-
-    return Geometry(isinf(d) ? nothing : d, diam_x, diam_y, V, gradV, points, normals)
-end
-
-# If n_points is an integer, use Fibonacci sampling
-function make_geometry(
-    d::T, 
-    diam_x::T, 
-    diam_y::T, 
-    V::F1, 
-    gradV::F2,
-    n_points::Int
-) where {T <: AbstractFloat, F1, F2}
-    xs, ys = fibonacci_lattice_points(diam_x, diam_y, n_points)
-
-    rs = isinf(d) ? nothing : [one(T) - V(xs[i], ys[i]) / d for i in eachindex(xs)]
-    points = (x=xs, y=ys, r=rs)
-
-    grads = [gradV(xs[i], ys[i]) for i in eachindex(xs)]
-    nx = [T(g[1]) for g in grads]
-    ny = [T(g[2]) for g in grads]
-    nr = fill(T(4.0), size(nx))
-
     inv_len = one(T) ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
     normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
 
