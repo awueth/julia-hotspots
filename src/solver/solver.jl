@@ -272,6 +272,30 @@ function get_matrix(
     return M
 end
 
+function get_interior_matrix(
+    xs::AbstractVector{T},
+    ys::AbstractVector{T},
+    λx::AbstractVector{T},
+    λy::AbstractVector{T},
+    diam_x::T,
+    diam_y::T,
+    V 
+) where {T <: AbstractFloat}
+
+    M = Matrix{T}(undef, length(xs),  length(λx))
+
+    Threads.@threads for j in eachindex(λx)
+        lx, ly = λx[j], λy[j]
+        @inbounds for i in eachindex(xs)
+            av, _ = axial_basis(lx, ly, diam_x, diam_y, xs[i], ys[i])
+            
+            M[i, j] = av * exp(-0.5 * V(xs[i], ys[i]))
+        end
+    end
+
+    return M
+end
+
 function u(
     d::Nothing,
     coefficients::AbstractVector{T},
@@ -358,6 +382,18 @@ end
 abstract type AbstractSolver end
 struct DenseSolver <: AbstractSolver end
 struct IterativeSolver <: AbstractSolver end
+struct QRSolver <: AbstractSolver
+    interior_matrix
+end
+
+function QRSolver(geometry::Geometry{Nothing, T}, n_modes::Tuple{Int,Int}, λ::T, sampler) where {T <: AbstractFloat}
+    xs, ys, _ = sampler(geometry.diam_x, geometry.diam_y)
+
+    λx, λy, _ = get_eigenvalues(geometry, n_modes, λ)
+    interior_matrix = get_interior_matrix(xs, ys, λx, λy, geometry.diam_x, geometry.diam_y, geometry.V)
+
+    return QRSolver(interior_matrix)
+end
 
 function solve_coefficients(A, n_modes, solver::DenseSolver; weights=nothing)
     F = svd!(A; full=false)
@@ -400,6 +436,23 @@ function solve_coefficients(A, n_modes, solver::IterativeSolver; weights=nothing
     loss = sqrt(normal_loss)
 
     return best_coefs, loss # , info
+end
+
+function solve_coefficients(A_boundary, n_modes, solver::QRSolver; weights=nothing)
+
+    A_interior = solver.interior_matrix
+
+    A = vcat(A_boundary, A_interior)
+    F = qr(A)
+    Q_boundary = F.Q[1:size(A_boundary, 1), 1:size(A_boundary, 2)]
+    S = svd!(Q_boundary; full=false)
+    loss = S.S[end]
+    v = S.V[:, end]
+    best_coefs = F.R \ v
+    best_coefs .*= sign(best_coefs[1])
+    best_coefs ./= norm(best_coefs) # Temporary
+
+    return best_coefs, loss
 end
 
 function solve(

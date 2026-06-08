@@ -35,13 +35,15 @@ diam_y = 2.0 * domain.Ly
 sampler = GridSampler(256, 64)
 n_modes = (128, 32)
 λ = 3.9297514935298103
-solver = IterativeSolver()
 
 V, gradV = potential_functions(pot; scale=ε)
 
 geometry = make_geometry(d, diam_x, diam_y, V, gradV, sampler)
 
-λ, _ = optimize_eigenvalue(geometry, n_modes, (3.85, 4.0), solver)
+# solver = QRSolver(geometry, n_modes, λ, FibonacciSampler(512))
+solver = DenseSolver()
+
+#λ, _ = optimize_eigenvalue(geometry, n_modes, (3.85, 4.0), solver)
 coefficients, residual = solve(geometry, n_modes, λ, solver)
 
 #plot_u_boundary(geometry, coefficients, n_modes, λ)
