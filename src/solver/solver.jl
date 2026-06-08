@@ -6,6 +6,31 @@ using LinearAlgebra
 using Optim
 using Random
 
+"""
+Solver for the pde -Δu = λu with Neumann boundary conditions on the domain
+    
+{(x, y, w) : x ∈ [-diam_x/2, diam_x/2], y ∈ [-diam_y/2, diam_y/2], |w| ≤ (√d - V(x, y)/√d)/2}
+
+After a change of variables, we obtain the effective problem -Δ_tranformed u = λu on the domain
+
+{(x, y, r) : x ∈ [0, diam_x/2], y ∈ [0, diam_y/2], r ≤ 1 - V(x, y)/d}
+
+with Dirichlet boundary conditions at x=0 and Neumann boundary conditions everywhere else. 
+
+We use the method of particular solutions to solve this problem. We express u as a linear combination of basis functions:
+
+u(x, y, r) = ∑ cₙ axial_basisₙ(x, y) * radial_basisₙ(r).
+
+The radial_basis functions are such that radial_basisₙ(1) = 1. Therefore, at d=∞, the the domain reduces to
+
+{(x, y) : x ∈ [0, diam_x/2], y ∈ [0, diam_y/2]}
+
+and the ansatz to u(x, y) = ∑ cₙ axial_basisₙ(x, y).
+
+In d=∞, the Neumann boundary condition at the face r=1-V/d converges to -Δu + ∇V ⋅ ∇u = λu. The measure converges to 1/Z exp(-V(x, y)) dx dy. 
+
+"""
+
 const InfiniteCartesianPoints{T} = NamedTuple{
     (:x, :y, :r),
     <:Tuple{AbstractVector{T}, AbstractVector{T}, Nothing}
