@@ -21,7 +21,46 @@ The sets barrel sets get their name from the fact that for an interval $I$ the s
 
 Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eiganvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
 
-Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, this is the subject of the following lemma.
+Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, this is the subject of the following lemmas.
+
+#lemma[
+  Any Neumann eigenfunction, that is not radial in the $w$-coordinate, has eigenvalue at least 4.
+] <lem:eig-radial>
+#proof[
+  In cylindrical coordinated the Lapalacian is $∆ = ∆_x +  ∂_r^2 + d/r ∂_r + 1/r^2 ∆_(S_d)$. We separate $phi_(1,d)$ into eigenfunctions of $-(∆_x +  ∂_r^2 + d/r ∂_r)$ and $-1/r^2 ∆_(S_d)$, that is
+
+  $
+  phi_(1,d) (x, abs(w)) = sum_(ell≥0, m) A_(ell, m)(x, abs(w)) Y_(ell, m) (theta),
+  $
+  
+  where $-∆ A_(ell, m) = lambda_(ell, m) A_(ell, m)$ and $-∆ Y_(ell, m) = ell (ell + d -1) Y_(ell, m)$. Each component $A_(ell, m) Y_(ell, m)$ is itself an eigenfunction of $-∆$ corresponding to the eigenvalue $lambda_(1,d)$. Therefore, each component minimizes the Rayleigh quotient and thus
+  
+  $
+  lambda_(1,d) = (∫ abs(nabla A_(ell, m) Y_(ell, m))^2) / (∫ abs(A_(ell, m) Y_(ell, m))^2)
+  ≥ ell (ell + d - 1) (∫_Ω∫_0^(rho(x)) abs(A_(ell, m))^2 r^(d-2) dif r dif x) / (∫_Ω∫_0^(rho(x)) abs(A_(ell, m))^2 r^d dif r dif x)
+  ≥ (ell (ell + d - 1)) / rho_"max"^2.
+  $
+
+  Therefore, whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$, we have $lambda_1 ≥ d / rho_"max"^2$ and
+  $rho_max = 1/2 (sqrt(d) - V(x)/sqrt(d)) ≤ 5/8 sqrt(d)$ #inline-note-a[Here I think we are giving away too much: $1/2 (sqrt(d) - V(x)/sqrt(d)) ≤ 1/2 (sqrt(d) -V(0)/sqrt(d)) approx 1/2 sqrt(d)$. Then we can conclude that if the eigenfunction is not radial then, $lambda_(1,d) ≥4$.], so $lambda_(1,d) ≥64/25 = 2.56$ whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$. Since $lambda_(1,d) ≤ 2$ for $d$ large enough, only $A_(0,0) Y_(0,0)$ survives which is constant in $w$.
+]
+
+#lemma[
+  $
+    lambda_1 < 3.9
+  $
+]
+#proof[
+  Use the numerical counterexample in some way. Worst case, compute its Rayleigh quotient.
+]
+
+#corollary[
+  The principal eigenfunction $phi_(1,d)$ on $F_d (V)$ is radial in $w$ for $d ≥ 4 norm(V)_oo$
+]
+
+#inline-note-a[
+  *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 2.5 s^2$.
+]
 
 #lemma[
   Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$. Then every Neumann eigenspace of $F_d (Q,V)$ has an orthonormal basis whose elements are even/odd, odd/even, even/even or odd/odd in $(x_1,x_2)$.
@@ -46,59 +85,18 @@ Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, t
 ]
 
 #lemma[
-  The eigenspaces 1 and 2 are simple.
+  The lowest radial eigenvalue in the odd/even sector is strictly less than the lowest radial eigenvalues of each of the other sectors.
+]
+#proof[
+  Verify numerically.
 ]
 
 #corollary[
-  $phi_(1,d)$ and $phi_(2,d)$ are even/odd and odd/even
-]
-
-#lemma[
-  $F_d (Q, V)$ has a spectral gap.
-]
-#proof[
-  This we can do numerically since we know the parity of the eigenfunctions.
-]
-
-#lemma[
-  The principal eigenfunction $phi_(1,d)$ on $F_d (V)$ is radial in $w$ for $d ≥ 4 norm(V)_oo$
-] <lem:eig-radial>
-#proof[
-  In cylindrical coordinated the Lapalacian is $∆ = ∆_x +  ∂_r^2 + d/r ∂_r + 1/r^2 ∆_(S_d)$. We separate $phi_(1,d)$ into eigenfunctions of $-(∆_x +  ∂_r^2 + d/r ∂_r)$ and $-1/r^2 ∆_(S_d)$, that is
-
-  $
-  phi_(1,d) (x, abs(w)) = sum_(ell≥0, m) A_(ell, m)(x, abs(w)) Y_(ell, m) (theta),
-  $
-  
-  where $-∆ A_(ell, m) = lambda_(ell, m) A_(ell, m)$ and $-∆ Y_(ell, m) = ell (ell + d -1) Y_(ell, m)$. Each component $A_(ell, m) Y_(ell, m)$ is itself an eigenfunction of $-∆$ corresponding to the eigenvalue $lambda_(1,d)$. Therefore, each component minimizes the Rayleigh quotient and thus
-  
-  $
-  lambda_(1,d) = (∫ abs(nabla A_(ell, m) Y_(ell, m))^2) / (∫ abs(A_(ell, m) Y_(ell, m))^2)
-  ≥ ell (ell + d - 1) (∫_Ω∫_0^(rho(x)) abs(A_(ell, m))^2 r^(d-2) dif r dif x) / (∫_Ω∫_0^(rho(x)) abs(A_(ell, m))^2 r^d dif r dif x)
-  ≥ (ell (ell + d - 1)) / rho_"max"^2.
-  $
-
-  Therefore, whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$, we have $lambda_1 ≥ d / rho_"max"^2$ and
-  $rho_max = 1/2 (sqrt(d) - V(x)/sqrt(d)) ≤ 5/8 sqrt(d)$ #inline-note-a[Here I think we are giving away too much: $1/2 (sqrt(d) - V(x)/sqrt(d)) ≤ 1/2 (sqrt(d) -V(0)/sqrt(d)) approx 1/2 sqrt(d)$. Then we can conclude that if the eigenfunction is not radial then, $lambda_(1,d) ≥4$.], so $lambda_(1,d) ≥64/25 = 2.56$ whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$. Since $lambda_(1,d) ≤ 2$ for $d$ large enough, only $A_(0,0) Y_(0,0)$ survives which is constant in $w$.
-]
+  The first eigenspace is simple and the first eigenfunction is odd/even.
+] <lem:eig-odd-even>
 
 #inline-note-a[
-  *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 2.5 s^2$.
-]
-
-
-#lemma[
-  $phi_(1,d)$ is odd in $x_1$ and even in $x_2$ for $d$ large enough.
-]<lem:eig-odd-even>
-#proof[
-  #inline-note-a[
-    $phi_(1,d)$ is either symmetric or antisymmetric by symmetry of domain and potential and $phi_(1,d)$ converges to an antisymmetric function. We need an explicit dimension for which $phi_(1,d)$ is antisymmetric in $x$ and symmetric in $x$. Can we do something similar to the previous lemma, i.e. the symmetric case adds too much energy.
-
-    $
-    integral abs(nabla (X_(j, k) R_(j,k)))^2
-    ≥ integral abs(nabla X_(j,k))^2 abs(R_(j,k))^2
-    $
-  ]
+  We will also need a bound on the spectral gap. If we want to compute the second eigenfunction with assumed symmetry, we need to show that the lowest eigenvalue in the corresponding sector is less than the eigenvalues in the remining sectors.  Another way would be to still compute the coefficients assuming a parity, and then setting the coefficients for eigenfunctions in other sectors to zero at verification time.
 ]
 
 As a result of @lem:eig-radial and @lem:eig-odd-even, after the change of variables $r = 2abs(w)\/sqrt(d)$, we can restrict the eigenvalue problem to the space
