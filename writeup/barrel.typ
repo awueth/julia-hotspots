@@ -5,15 +5,19 @@
 In this section we introduce the class of _barrel sets_ which are used in @pont_convex_2024 to construct a counterexample and on which we will base our counterexample as well. 
 
 #definition[
-  Let $Q := [-l_1\/2, l_1\/2] times [-l_2\/2, l_2\/2]$
+  Let $Q := [-l_1\/2, l_1\/2] times [-l_2\/2, l_2\/2]$ and let $V : Q -> RR$ be a convex potential. We define the convex domain
 
-  $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/2 (sqrt(d) - V(x)/sqrt(d))} $
+  $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/2 (sqrt(d) - V(x)/sqrt(d))}, $
+
+  which we call a barrel domain.
 ]
 
+The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
+
 #figure(
-  [TODO: An image of $F(Q,V)$ for $Q$ being an interval, looks like a Barrel],
-  caption: [TODO]
-)
+  image("image.png", width: 30%),
+  caption: [(Preliminary AI slop) The sets $F_1$ look like barells for $Q=[-1,1]$]
+) <fig:barell>
 
 #lemma[
   All eigenfunctions are even/odd, odd/even, even/even or odd/odd.
@@ -83,7 +87,7 @@ $
 
 with Dirichlet boundary conditions at the face $x_1=0$ and Neumann boundary conditions everywhere else.
 
-== MPS basis for Barrel sets
+== MPS basis for Barrel sets <mps_basis>
 
 We aim to construct a set of functions ${X_(j,k) R_(j,k)}_(j,k)$ such that any linear combination of those functions
 

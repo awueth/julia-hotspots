@@ -4,7 +4,7 @@
 
 In this section we aim to explain the counterexample from @pont_convex_2024 and how we adapted it to a version which can be computed explicitly. Since our proof relies on verified numerics, we do not proof any properties of the counterexample set rigorously, but rather explain intuitively why we expect the counterexample to work.
 
-The counterexample is effectively in the limit $d -> oo$, we first have to understand how to eigenvalue problem behaves in this limit. This is the subject of the next subsection.
+The counterexample is effectively built in the limit $d -> oo$, we first have to understand how to eigenvalue problem behaves in this limit. This is the subject of the next subsection.
 
 == The effective problem in the limit of dimension
 
