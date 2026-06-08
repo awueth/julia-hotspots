@@ -19,8 +19,30 @@ The sets barrel sets get their name from the fact that for an interval $I$ the s
   caption: [(Preliminary AI slop) The sets $F_1$ look like barells for $Q=[-1,1]$]
 ) <fig:barell>
 
+Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eiganvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
+
+Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, this is the subject of the following lemma.
+
 #lemma[
-  All eigenfunctions are even/odd, odd/even, even/even or odd/odd.
+  Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$. Then every Neumann eigenspace of $F_d (Q,V)$ has an orthonormal basis whose elements are even/odd, odd/even, even/even or odd/odd in $(x_1,x_2)$.
+] <lem:parity>
+#proof[
+  Let $Omega=F_d (Q,V)$ and define the reflections
+  $
+    r_1(x_1,x_2,w)=(-x_1,x_2,w), quad
+    r_2(x_1,x_2,w)=(x_1,-x_2,w).
+  $
+  Since $Q$ and $V$ are invariant under both reflections, $r_i (Omega)=Omega$ for $i=1,2$. Hence the operators $R_i u := u compose r_i$ are unitary involutions on $L^2(Omega)$ and preserve $H^1(Omega)$.
+  If $u$ is an eigenfunction with eigenvalue $lambda$, then for every test function $v$,
+  $
+    integral_Omega nabla (R_i u) dot nabla v dif z
+    = integral_Omega nabla u dot nabla (R_i v) dif z
+    = lambda integral_Omega u R_i v dif z
+    = lambda integral_Omega (R_i u) v dif z.
+  $
+  Hence $R_i u$ is an eigenfunction with the same eigenvalue, so $R_i$ leaves each eigenspace invariant.
+
+  The two reflections commute. Therefore their restrictions to any eigenspace $E_lambda$ are commuting self-adjoint operators on the finite-dimensional Hilbert space $E_lambda$, and can be simultaneously diagonalized. For a common eigenvector $u$ we have $R_i u = epsilon_i u$ with $epsilon_i in {+1,-1}$. The sign $+1$ means that $u$ is even in $x_i$, while the sign $-1$ means that $u$ is odd in $x_i$. This gives the claimed parity basis. In particular, every eigenfunction in a simple eigenspace has one of these four parity types.
 ]
 
 #lemma[
