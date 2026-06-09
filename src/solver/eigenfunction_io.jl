@@ -17,7 +17,7 @@ end
 function FittedEigenfunction(
     coefficients::AbstractVector{<:Real},
     λ::Real,
-    n_modes::Union{Int,Tuple{Int,Int}},
+    n_modes::Tuple{Int,Int},
     d::Real,
     diam_x::Real,
     diam_y::Real;
@@ -26,7 +26,7 @@ function FittedEigenfunction(
     return FittedEigenfunction(
         Float64.(coefficients),
         Float64(λ),
-        mode_counts(n_modes),
+        n_modes,
         Float64(d),
         Float64(diam_x),
         Float64(diam_y),
