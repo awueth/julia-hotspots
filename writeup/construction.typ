@@ -50,11 +50,19 @@ The goal is now to find a suitable initial value $psi_1$.
 
 == The counterexample in @pont_convex_2024 and adapting it for computation
 
-#inline-note-a[
-  I know the paragraph below is horribly written. I will improve it later, but it contains more or less what I had in mind.
-]
+In this section we explain the main idea behin the counterexample in @pont_convex_2024 and how to build the corresponding potential explicitly in a way suitable for computation. We begin our discussion with the initial condition for @eq:limit-ivp we are aiming for. This is perhaps best explained by a plot of $psi_1$, see @fig:initial-datum. 
 
-Our goal is to construct a potential $V$ with an initial datum $psi_1$ that evolves in $t$ in such a way that $h$ achieves its maximum in the interior. We will describe how $psi_1$ should look like here. We split the base of the barrel into two parts: The "core" $A_"core" = [0, pi\/2] times [0,1]$ and the "wing" $A_"wing" = [pi\/2,pi\/2 + m]$. On a macroscopic scale we want $psi_1$ to look like $sin(x_1)$ in $A_"core"$, that is, like the principal eigenfunction of $-∆$ on $A_"core"$. In $A_"wing"$ we want $psi_1$ to be a constant extension of the core function. On a microscopic scale we want $psi_1$ to perturbed in such a way that at the interface of $A_"core"$ and $A_"wing"$ we have $psi_1(x) approx q(x_2) + "const."$, where $q$ is as in @fig:q. This profile should extend into $A_"wing"$ but lose its high points at $x_2 = plus.minus 1.0$ before the end of the wing, see @fig:q. The initial datum $psi_1$ achieves its maximum at $x = (pi\/2 +m, 0)$, which is on the boundary. The heat extensions of the profile $q$ and its trimmed version both achieve their maximum at the origin at any time. However, the heat extension of $q$ will be strictly larger than the one of the trimmed versions, due to the additional energy in the tails. The full solution $h$ will capture the same phenomenon, but  due to the additional reaction term in @eq:limit-ivp, the extension $h$ will be strictly larger near $t=1/8$ (or $r=0$),
+#figure(
+  grid(
+    columns: 2,
+    image("eigenfunction_split.png", width: 50%),
+    image("eigenfunction_surface.png", width: 50%)
+  ),
+  
+  caption: [Left: The eigenfunction on the full domain.  Center: The green region magnified. Right: Surface plot of the region.]
+)<fig:initial-datum>
+
+The axis of the Barrel decomposes into two parts: The "core" $A_"core" = [0, pi\/2] times [0,1]$ and the "wing" $A_"wing" = [pi\/2,pi\/2 + m]$. On a macroscopic scale we want $psi_1$ to look like $sin(x_1)$ in $A_"core"$, that is, like the principal eigenfunction of $-∆$ on $A_"core"$. In $A_"wing"$ we want $psi_1$ to be a constant extension of the core function. On a microscopic scale we want $psi_1$ to perturbed in such a way that at the interface of $A_"core"$ and $A_"wing"$ we have $psi_1(x) approx q(x_2) + "const."$, where $q$ is as in @fig:q. This profile should extend into $A_"wing"$ but lose its high points at $x_2 = plus.minus 1.0$ before the end of the wing, see @fig:q. The initial datum $psi_1$ achieves its maximum at $x = (pi\/2 +m, 0)$, which is on the boundary. The heat extensions of the profile $q$ and its trimmed version both achieve their maximum at the origin at any time. However, the heat extension of $q$ will be strictly larger than the one of the trimmed versions, due to the additional energy in the tails. The full solution $h$ will capture the same phenomenon, but  due to the additional reaction term in @eq:limit-ivp, the extension $h$ will be strictly larger near $t=1/8$ (or $r=0$),
 
 $
 h(x,r) = sum_(j,k) c_(j,k) X_(j,k) (x) exp(-r^2 (lambda_(x,j,k) - lambda_1) / 8),
@@ -74,6 +82,9 @@ hence the maximum of $h$ will be in the interior near $x_2=0, r=0$ and $x_1 in (
   ), 
   caption: [Cross section of $psi_1$ at the core-wing interface and at the end of the wing.]
 )<fig:q>
+
+
+=== Deriving a potenital to obtain the desired initial datum
 
 In order to build a potential $V$ such that $psi_1$ has the before-mentioned properties in $A_"core"$, we consider the operator $L = -∆ + nabla V dot nabla$ to be a perturbation of the Laplacian $-∆$. Let $V_epsilon = epsilon^(-1) V$, then we can write $L$ as
 
@@ -154,7 +165,7 @@ $
 
 It is possible to satisfy the three constraints with $J=3$. However, we choose $J>3$, in order to have some degrees of freedom to minimize the convexification cost $M$. The zeroth mode $f_0$ has the same constraints except $f_0 (pi/2) = 1$, but instead $inner(f_0,sin(x_1)) = 0$.
 
-*Extending the potential to the wings.* In the previous paragraph we built $V_0$ such that the _Neumann_ eigenfunction $psi_1$ has the perscribed boundary profile $q$. In order to mantain this profile at the core-wing interface while extending the domain, we need $V$ to act as a virtual Neumann boundary condition.  We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $A_"wing"$, this way particles coming from $A_"core"$ have a high probability of reflecting at $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
+*Extending the potential to the wings.* In the previous paragraph we built $V_0$ such that the _Neumann_ eigenfunction $psi_1$ has the perscribed boundary profile $q$. In order to mantain this profile at the core-wing interface while extending the domain, we need $V$ to act as a virtual Neumann boundary condition. We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $A_"wing"$, this way particles coming from $A_"core"$ have a high probability of reflecting at $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
 
 #inline-note-a[
   Here I explain why $psi_1$ is a approximately constant along the flow lines of $nabla V$, if $nabla V$ is large. We can do this through the probabilistic interpretation:
@@ -173,11 +184,6 @@ cases(
   V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)
 )
 $
-
-#figure(
-  image("eigenfunction.png"),
-  caption: [This figure is a placeholder],
-)
 
 #inline-note-a[
   In the wing region the eigenfunction is approximately constant on the flow lines. Use this to transport the central part of the boundary profile outwards. 
