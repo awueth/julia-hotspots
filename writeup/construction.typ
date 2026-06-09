@@ -84,7 +84,7 @@ hence the maximum of $h$ will be in the interior near $x_2=0, r=0$ and $x_1 in (
 )<fig:q>
 
 
-=== Deriving a potenital to obtain the desired initial datum
+=== Deriving a potenital to obtain the desired initial datum in the core
 
 In order to build a potential $V$ such that $psi_1$ has the before-mentioned properties in $A_"core"$, we consider the operator $L = -∆ + nabla V dot nabla$ to be a perturbation of the Laplacian $-∆$. Let $V_epsilon = epsilon^(-1) V$, then we can write $L$ as
 
@@ -165,26 +165,17 @@ $
 
 It is possible to satisfy the three constraints with $J=3$. However, we choose $J>3$, in order to have some degrees of freedom to minimize the convexification cost $M$. The zeroth mode $f_0$ has the same constraints except $f_0 (pi/2) = 1$, but instead $inner(f_0,sin(x_1)) = 0$.
 
-*Extending the potential to the wings.* In the previous paragraph we built $V_0$ such that the _Neumann_ eigenfunction $psi_1$ has the perscribed boundary profile $q$. In order to mantain this profile at the core-wing interface while extending the domain, we need $V$ to act as a virtual Neumann boundary condition. We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $A_"wing"$, this way particles coming from $A_"core"$ have a high probability of reflecting at $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
+=== Extending to the wings
 
-#inline-note-a[
-  Here I explain why $psi_1$ is a approximately constant along the flow lines of $nabla V$, if $nabla V$ is large. We can do this through the probabilistic interpretation:
-  $
-  P_t psi_1 = e^(-lambda_1 t) psi_1 \
-  P_t f(x) = EE[f(X_t) | X_0 = x] \
-  dif X_t = - nabla V (X_t) dif t + sqrt(2) dif B_t
-  $
-  But all of this would have to be introduced beforehand. Maybe there is a simpler way. Let $h$ be the extension of $psi_1$, then, near $r=1$ we have $nabla V dot nabla h approx ∆_x h + lambda_1 h = 0$.
-]
+In the previous paragraph we built $V_0$ such that the _Neumann_ eigenfunction $psi_1$ has the perscribed boundary profile $q$. In order to mantain this profile at the core-wing interface while extending the domain, we need $V$ to act as a virtual Neumann boundary condition.
+
+
+*The probabilistic interpretation of the semigroup.* Let $P_t = e^(t L)$ be the semigroup corresponding to $L$. We have that $P_t psi_1 = e^(-lambda_1 t) psi_1$. Let $X_t$ denote the stochastic process described by $dif X_t = - nabla V (X_t) dif t + sqrt(2) dif B_t$, then the action of $P_t$ on a function $f$ can be written as
 
 $
-V(x) = 
-cases(
-  V_0(x) "if" x in A_"core",
-  V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)
-)
+P_t f(x) = EE[f(X_t) | X_0 = x].
 $
 
-#inline-note-a[
-  In the wing region the eigenfunction is approximately constant on the flow lines. Use this to transport the central part of the boundary profile outwards. 
-]
+The Neumann boundary condition is encoded by haveing $dif X_t$ reflect at the boundary. Therefore, by letting $nabla V$ increase sharply at the interface between $A_"core"$ and $A_"wing"$, we can enforce a virtual Neumann boundary condition at $partial A_"core"$. We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $A_"wing"$, this way particles coming from $A_"core"$ have a high probability of reflecting near $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
+
+Next, we establish that the eigenfunction $psi_1$ is approximately constant along the flow lines of $nabla V$ in $A_"wing"$. Indeed, let $h$ be the extension of $psi_1$, then, near $r=1$ we have $nabla_x V dot nabla_x h(dot, r) approx ∆_x h + lambda_1 h = 0$. Therefore, since $h$ is smooth, we have $nabla V dot nabla psi_1 approx 0$. As a result, we can transport the profile at the core-wing interface via the flow lines of $nabla V$.
