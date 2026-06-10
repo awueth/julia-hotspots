@@ -85,6 +85,13 @@ Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, t
 ]
 
 #lemma[
+  Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$ and let $lambda_1$ be the first non-zero Neumann eigenvalue of $F_d(Q,V)$. Then the eigenspace for $lambda_1$ does not contain odd/odd functions.
+] <lem:no-odd-odd-even-even>
+#proof[
+  By Courant's nodal domain theorem, every eigenfunction for $lambda_1$ has at most two nodal domains.
+]
+
+#lemma[
   The lowest radial eigenvalue in the odd/even sector is strictly less than the lowest radial eigenvalues of each of the other sectors.
 ]
 #proof[
