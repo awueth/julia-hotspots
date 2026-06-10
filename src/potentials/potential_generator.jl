@@ -113,7 +113,7 @@ function zero_mode_orthogonality_row(J_HARMONICS::Int; Lx::Float64=DEFAULT_Lx)
         coeffs[j] = 1.0
         p, _, _, _ = get_basis_funcs(coeffs, Lx)
 
-        prob = IntegralProblem((x, _) -> p(x) * sin(x), -Lx, Lx)
+        prob = IntegralProblem((x, _) -> p(x) * sin(x), (-Lx, Lx))
         row[j] = solve(prob, QuadGKJL(); reltol=1e-8, abstol=1e-8).u
     end
 
@@ -273,7 +273,7 @@ end
 
 function integrate_zero_to_x(f::Function, x::Real; reltol::Float64=DEFAULT_INTEGRATION_RELTOL, abstol::Float64=DEFAULT_INTEGRATION_ABSTOL)
     abs(x) < 1e-14 && return 0.0
-    prob = IntegralProblem((s, _) -> x * f(x * s), 0.0, 1.0)
+    prob = IntegralProblem((s, _) -> x * f(x * s), (0.0, 1.0))
     return solve(prob, QuadGKJL(); reltol=reltol, abstol=abstol).u
 end
 
