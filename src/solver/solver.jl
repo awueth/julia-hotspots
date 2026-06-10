@@ -618,16 +618,12 @@ function boundary_residual(
     coefficients::AbstractVector{T},
     λ::T,
     n_modes::Tuple{Int,Int},
-    grid_size::Tuple{Int,Int}
+    sampler
 ) where {T <: AbstractFloat}
-    nx_grid, ny_grid = grid_size
-    mx, my = n_modes
-    dx = (T(0.5) * geometry.diam_x) / nx_grid
-    dy = (T(0.5) * geometry.diam_y) / ny_grid
+    xs, ys, is_grid = sampler(geometry.diam_x, geometry.diam_y)
 
-    # 1. Create Cartesian grid coordinates
-    xs = [ (i-1)*dx + T(rand())*dx for i in 1:nx_grid ]
-    ys = [ (j-1)*dy + T(rand())*dy for j in 1:ny_grid ]
+    @assert is_grid "Sampler must produce a grid for this function"
+    mx, my = n_modes
 
     # 2. Reshape modal parameters into (mx, my) matrices
     λx_vec, λy_vec, λr_vec = get_eigenvalues(geometry, n_modes, λ)
@@ -666,12 +662,12 @@ function boundary_residual(
     T3 = Sx_grid * (W3 * Cy_grid')
 
     # 7. Final assembly with point-dependent normals
-    residuals = zeros(T, nx_grid, ny_grid)
+    residuals = zeros(T, length(xs), length(ys))
     gradV = geometry.gradV
     nr_base = T(4.0)
     
-    Threads.@threads for j in 1:ny_grid
-        for i in 1:nx_grid
+    Threads.@threads for j in eachindex(ys)
+        for i in eachindex(xs)
             gx, gy = gradV(xs[i], ys[j])
             inv_len = inv(sqrt(T(gx^2 + gy^2 + nr_base^2)))
             nx = T(gx) * inv_len
