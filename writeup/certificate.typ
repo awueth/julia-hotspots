@@ -23,8 +23,19 @@ Let $∂Ω = Gamma_0 union Gamma_1 union Gamma_2$ where $Gamma_0 = {(x, r) in pa
 
 == Bounds of the eigenvalue
 
-#inline-note-a[
-  For this we need barriers 😭
+=== Bounding the global eigenvalues by the eigenvalues in the core
+
+$
+lambda_1 
+&= inf_f (integral_Q abs(nabla f)^2 e^(-V) dif x) / (integral_ abs(f)^2 e^(-V) dif x ) \
+&>= inf_f (integral_"Core" abs(nabla f)^2 e^(-V) dif x) / (integral_"Core" abs(f)^2 e^(-V) dif x ) (integral_"Core" abs(f)^2 e^(-V) dif x) / (integral_Q abs(f)^2 e^(-V) dif x ) \
+&= lambda_1^"Core" (integral_"Core" abs(f)^2 e^(-V) dif x) / (integral_Q abs(f)^2 e^(-V) dif x )
+$
+
+#lemma[
+  $
+  (integral_"Core" abs(f)^2 e^(-V) dif x) / (integral_Q abs(f)^2 e^(-V) dif x ) >= ...
+  $
 ]
 
 == Pointwise bounds of the eigenfunction in $d=oo$ using Wang-Li-Yau
@@ -52,8 +63,8 @@ $
 To get a bound in $L^oo$ we use Wang-Li-Yau, we obtain
 
 $
-norm(Q_(s_1 + s_2) (L-lambda_1) phi_*) 
-≤ C_(s_1) norm(Q_(s_2)(L-lambda_1) phi_*)
+norm(Q_(s_1 + s_2) (L-lambda_1) phi_*)_oo 
+≤ C_(s_1) norm(Q_(s_2)(L-lambda_1) phi_*)_(L^2(e^(-V)))
 ≤ C_(s_1) e^(-(lambda_2-lambda_1) s_2) norm((L-lambda_1) phi_*)_(L^2(e^(-V))).
 $
 
