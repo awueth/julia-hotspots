@@ -16,6 +16,10 @@ We first separate the first two eigenvalues using a Galerkin method and certify 
   $
 ]
 
+#lemma[
+  $C_h ≤ max_(K in cal(T)_h) e^((V_"max" - V_"min")/2) C_("FE", K) h_K$
+]
+
 === Bounding the global eigenvalues by the eigenvalues in the core
 
 In this section we prove that we can approximate the spectrum of $L$ on $Q$ by the spectrum of $L$ restricted to a subset of $Q$ which carries most of the mass. 
@@ -44,15 +48,28 @@ $
 
 Now we bound the infinity norm using Wang-Li-Yau: $norm(phi_1)_oo ≤ e^(lambda_1 t) C norm(phi_1)_2 =  e^(lambda_1 t) C$.
 
+#lemma[
+  Let $overline(lambda_1) ≥ lambda_1$ then, 
+  $
+  lambda_1 > lambda_1^"Core"  (1- e^( 2overline(lambda_1) t) C_t^2 mu("Wing")).
+  $
+]
+
 Now lets try to lower bound $lambda_2$. Let $S = op("span"){phi_1, phi_2}$ (first two nonconstant eigenfunctions)
 
 $
 lambda_2^"Core" &≤ max_(1 perp h in S)  (integral_"Core" abs(nabla h)^2 dif mu) / (integral_"Core" abs(h)^2 dif mu) \
 &≤  max_(1 perp h in S) (integral_Q abs(nabla h)^2 dif mu) / (integral_Q abs(h)^2 dif mu) (integral_Q abs(h)^2 dif mu) / (integral_"Core" abs(h)^2 dif mu) \
-&≤ lambda_2 max_(1 perp h in S) (integral_Q abs(h)^2 dif mu) / (integral_"Core" abs(h)^2 dif mu)
+&≤ lambda_2 max_(1 perp h in S) (integral_Q abs(h)^2 dif mu) / (integral_"Core" abs(h)^2 dif mu) \
+&≤ lambda_2 1/(1 - mu("Wing")(norm(phi_1)_oo^2 + norm(phi_2)_oo^2))
 $
 
-we have $integral_Q abs(phi_1 + phi_2)^2 dif  = $
+#lemma[
+  Let $overline(lambda_2) ≥ lambda_2$ then,
+  $
+  lambda_2 > lambda_2^"Core" (1-2 e^(2 overline(lambda_2) t) C_t^2 mu("Wing"))
+  $
+]
 
 
 == Pointwise bounds of the eigenfunction
