@@ -7,8 +7,8 @@ includet("../potentials/potential_interface.jl")
 
 using .PotentialInterface
 
-t1_initial = 0.25
-t2_initial = 0.25
+t1_initial = inv(8.0)
+t2_initial = inv(8.0)
 t = t1_initial + t2_initial
 
 epsilon = 10.0
@@ -55,13 +55,36 @@ function compute_normalization(
         return 4.0 * exp(-epsilon * potential_value(pot, x, y))
     end
 
-    prob = IntegralProblem(integrand, lower, upper)
+    prob = IntegralProblem(integrand, (lower, upper))
     sol = solve(prob, HCubatureJL(); reltol=reltol, abstol=abstol)
 
     return (
         Z=sol.u,
         domain=(diam_x, domain.Ly),
     )
+end
+
+function compute_tail_mass(
+    pot,
+    normalization,
+    epsilon::Real,
+    wing_length::Real,
+    x_tail::Real
+)
+    domain = potential_domain(pot)
+    diam_x = domain.Lx + wing_length
+    lower = [x_tail, 0.0]
+    upper = [diam_x, domain.Ly]
+
+    integrand(u, _) = begin
+        x, y = u
+        return 4.0 * exp(-epsilon * potential_value(pot, x, y)) / normalization.Z
+    end
+
+    prob = IntegralProblem(integrand, (lower, upper))
+    sol = solve(prob, HCubatureJL(); reltol=1e-12, abstol=1e-12)
+
+    return sol.u
 end
 
 function compute_C1(
@@ -87,7 +110,7 @@ function compute_C1(
         return 4.0 * exp(-(x^2 + y^2) / t1 - epsilon * potential_value(pot, x, y)) / Z
     end
 
-    prob = IntegralProblem(integrand, lower, upper)
+    prob = IntegralProblem(integrand, (lower, upper))
     sol = solve(prob, HCubatureJL(); reltol=reltol, abstol=abstol)
 
     return (
