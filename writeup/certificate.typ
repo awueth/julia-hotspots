@@ -2,43 +2,69 @@
 
 = Certifying the numerical counterexample <certificate>
 
-In this section we aim to show that whenever we have an approximate eigenfunction $phi_*$ of $phi_1$ obtained through the method of particular solutions, which has small error on the boundary conditions, then $phi_*$ is close to $phi$ pointwise.
-
-Let $∂Ω = Gamma_0 union Gamma_1 union Gamma_2$ where $Gamma_0 = {(x, r) in partial Ω : x_1 = 0}$, $Gamma_1 = {(x, r) in ∂Ω : |x_1|=1 or |x_2|=1 or r=0}$ and $Gamma_2 = {(x,r) in ∂Ω : r = 1-V(x)/d}$. We construct $phi_*$ such that the boundary conditions on $Gamma_0 union Gamma_1$ are satisfied exactly.
-
-#theorem[
-  At $d=oo$ there exists a pair $(phi_*, lambda_*)$ such that
-
-  #figure(
-    table(
-      columns: 2,
-      [Quantity], [Enclosure],
-      $norm((L-lambda_1)phi_*)_oo$, $[0, ?]$, // Compute with arb
-      $norm((L-lambda_1)phi_*)_(L^2 (e^(-V)))$, $[0, ?]$, // Compute with arb?
-      $lambda_1$, $[lambda_* / (1 + norm(v)), lambda_* / (1 - norm(v))]$, // Upper bound could also be with Rayleigh quotient,
-      $lambda$
-    ),
-  )
-]
+In this section we aim to show that whenever we have an approximate eigenfunction $phi_*$ of $phi_1$ obtained through the method of particular solutions, which has small error on the boundary conditions, then $phi_*$ is close to $phi$ pointwise. The theorems used to certify this all have in common that they need some type of a priori bounds of the eigenvalues. 
 
 == Bounds of the eigenvalue
 
+The problem with Moler-Payne and similar methods is that they do not give the position in the spectrum. 
+We first separate the first two eigenvalues using a Galerkin method and certify the bounds as described in @liu_guaranteed_2024.
+
 === Bounding the global eigenvalues by the eigenvalues in the core
+
+In this section we prove that we can approximate the spectrum of $L$ on $Q$ by the spectrum of $L$ restricted to a subset of $Q$ which carries most of the mass. 
+
+Let $dif mu = 1/Z e^(-V)$, assume $norm(phi_1)_(L^2 (mu)) = 1$, then
 
 $
 lambda_1 
-&= inf_f (integral_Q abs(nabla f)^2 e^(-V) dif x) / (integral_ abs(f)^2 e^(-V) dif x ) \
-&>= inf_f (integral_"Core" abs(nabla f)^2 e^(-V) dif x) / (integral_"Core" abs(f)^2 e^(-V) dif x ) (integral_"Core" abs(f)^2 e^(-V) dif x) / (integral_Q abs(f)^2 e^(-V) dif x ) \
-&= lambda_1^"Core" (integral_"Core" abs(f)^2 e^(-V) dif x) / (integral_Q abs(f)^2 e^(-V) dif x )
+&= integral_Q abs(nabla phi_1)^2 dif mu \
+&>= inf_f (integral_"Core" abs(nabla f)^2 dif mu) / (integral_"Core" abs(f)^2 dif mu ) integral_"Core" abs(phi_1)^2 dif mu \
+&= lambda_1^"Core" integral_"Core" abs(phi_1)^2 dif mu.
 $
 
-#lemma[
+We have
+
+$
+integral_"Core" abs(phi_1)^2 dif mu = 1 - integral_"Wing" abs(phi_1)^2 dif mu
+$
+
+The simplest bound of this is
+
+$
+integral_"Wing" abs(phi_1)^2 dif mu
+≤ norm(phi_1)^2_oo mu("Wing").
+$
+
+Now we bound the infinity norm using Wang-Li-Yau: $norm(phi_1)_oo ≤ e^(lambda_1 t) C norm(phi_1)_2 =  e^(lambda_1 t) C$.
+
+#inline-note-a[
+  Maybe we can do better if we do 
+
   $
-  (integral_"Core" abs(f)^2 e^(-V) dif x) / (integral_Q abs(f)^2 e^(-V) dif x ) >= ...
+  integral_"Wing" abs(phi_1)^2 dif mu
+  &<= norm(phi_1)_4^2 sqrt(mu("Wing"))
   $
+
+  and now use a hypercontractivity estimate for $norm(phi_1)_4^2$.
+
 ]
 
-== Pointwise bounds of the eigenfunction in $d=oo$ using Wang-Li-Yau
+Now lets try to lower bound $lambda_2$. Let $S = op("span"){phi_1, phi_2}$ (first two nonconstant eigenfunctions)
+
+$
+lambda_2^"Core" &≤ max_(1 perp h in S)  (integral_"Core" abs(nabla h)^2 dif mu) / (integral_"Core" abs(h)^2 dif mu) \
+&≤  max_(1 perp h in S) (integral_Q abs(nabla h)^2 dif mu) / (integral_Q abs(h)^2 dif mu) (integral_Q abs(h)^2 dif mu) / (integral_"Core" abs(h)^2 dif mu) \
+&≤ lambda_2 max_(1 perp h in S) (integral_Q abs(h)^2 dif mu) / (integral_"Core" abs(h)^2 dif mu)
+$
+
+we have $integral_Q abs(phi_1 + phi_2)^2 dif  = $
+
+
+== Pointwise bounds of the eigenfunction
+
+Let $∂Ω = Gamma_0 union Gamma_1 union Gamma_2$ where $Gamma_0 = {(x, r) in partial Ω : x_1 = 0}$, $Gamma_1 = {(x, r) in ∂Ω : |x_1|=1 or |x_2|=1 or r=0}$ and $Gamma_2 = {(x,r) in ∂Ω : r = 1-V(x)/d}$. We construct $phi_*$ such that the boundary conditions on $Gamma_0 union Gamma_1$ are satisfied exactly.
+
+=== Pointwise bounds of the eigenfunction in $d=oo$ using Wang-Li-Yau
 
 Let $phi_*$ be an approximate eigenfunction, i.e. $norm((L-lambda_*) phi_*)_oo ≤ epsilon$ and $norm(phi_*)_2 = 1$.
 
@@ -178,7 +204,7 @@ norm(Q_t (L-lambda_1) phi_*)_oo
 $
 */
 
-== Barriers for the finite dimensional case
+=== Barriers for the finite dimensional case
 
 Suppose $phi_*$ is an approximation of $phi_1$ in the sense that
 
