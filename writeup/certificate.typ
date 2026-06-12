@@ -9,6 +9,13 @@ In this section we aim to show that whenever we have an approximate eigenfunctio
 The problem with Moler-Payne and similar methods is that they do not give the position in the spectrum. 
 We first separate the first two eigenvalues using a Galerkin method and certify the bounds as described in @liu_guaranteed_2024.
 
+#theorem([Theorem 3.2 in @liu_guaranteed_2024])[
+  Suppose that for the interpolation error $Pi_h$ it holds that $integral abs(nabla (u-Pi_h u))^2 dif x ≤ C_h integral abs(u-Pi_h u)^2 dif x$ for all $u in H^1$. Then
+  $
+  lambda_(k, h)/(1 + lambda_(k, h) C_h^2) ≤ lambda_k.
+  $
+]
+
 === Bounding the global eigenvalues by the eigenvalues in the core
 
 In this section we prove that we can approximate the spectrum of $L$ on $Q$ by the spectrum of $L$ restricted to a subset of $Q$ which carries most of the mass. 
@@ -36,18 +43,6 @@ integral_"Wing" abs(phi_1)^2 dif mu
 $
 
 Now we bound the infinity norm using Wang-Li-Yau: $norm(phi_1)_oo ≤ e^(lambda_1 t) C norm(phi_1)_2 =  e^(lambda_1 t) C$.
-
-#inline-note-a[
-  Maybe we can do better if we do 
-
-  $
-  integral_"Wing" abs(phi_1)^2 dif mu
-  &<= norm(phi_1)_4^2 sqrt(mu("Wing"))
-  $
-
-  and now use a hypercontractivity estimate for $norm(phi_1)_4^2$.
-
-]
 
 Now lets try to lower bound $lambda_2$. Let $S = op("span"){phi_1, phi_2}$ (first two nonconstant eigenfunctions)
 
