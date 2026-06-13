@@ -7,17 +7,28 @@ In this section we aim to show that whenever we have an approximate eigenfunctio
 == Bounds of the eigenvalue
 
 The problem with Moler-Payne and similar methods is that they do not give the position in the spectrum. 
-We first separate the first two eigenvalues using a Galerkin method and certify the bounds as described in @liu_guaranteed_2024.
+We lower bound the first two eigenvalues using a Galerkin method and certify the bounds as described in @liu_guaranteed_2024.
 
-#theorem([Theorem 3.2 in @liu_guaranteed_2024])[
-  Suppose that for the interpolation error $Pi_h$ it holds that $integral abs(nabla (u-Pi_h u))^2 dif x ≤ C_h integral abs(u-Pi_h u)^2 dif x$ for all $u in H^1$. Then
+#theorem([@liu_guaranteed_2024, Theorem 3.2])[
+  Suppose that for the interpolation error $Pi_h$ it holds that $integral abs(u-Pi_h u)^2 dif x ≤ C_h^2 integral abs(nabla(u-Pi_h u))^2 dif x$ for all $u in H^1$. Then
   $
   lambda_(k, h)/(1 + lambda_(k, h) C_h^2) ≤ lambda_k.
   $
 ]
 
 #lemma[
-  $C_h ≤ max_(K in cal(T)_h) e^((V_"max" - V_"min")/2) C_("FE", K) h_K$
+  For our problem we have
+  $ C_h ≤ max_(K in cal(T)_h) e^((V_"max" - V_"min")/2) C_("FE", K) 0.1893 h. $
+]
+#proof[
+  For Courzeix-Raviart $Pi^"CR"$ on a simplex $K$ we have $norm(u - Pi^"CR" u)_K ≤ C^"CR" (K) norm(nabla (u - Pi^"CR" u))_K$ where $C^"CR" (K) ≤ 0.1893 h_K$. Therefore, 
+  $
+  integral_K abs(u - Pi_h u)^2 e^(-V) dif x
+  &≤ e^(-min_(x in K) V(x)) integral_K abs(u - Pi_h u)^2 dif x \
+  &≤ e^(-min_(x in K) V(x)) C^"CR" (K)^2 integral_K abs(nabla (u - Pi_h u))^2 dif x \
+  &≤ e^(-min_(x in K) V(x)) C^"CR" (K)^2 integral_K abs(nabla (u - Pi_h u))^2 exp(-V(x) + max_(y in K) V(y)) dif x \
+  &= e^(max_(x in K) V(x) - min_(x in K) V(x)) C^"CR" (K)^2 integral_K abs(nabla (u - Pi_h u))^2 e^(-V) dif x.
+  $
 ]
 
 === Bounding the global eigenvalues by the eigenvalues in the core
@@ -71,6 +82,17 @@ $
   $
 ]
 
+=== The bounds
+
+#let lambda1_core_lower = 3.8
+#let lambda2_core_lower = 9.5
+
+With Courzeix-Raviart implemented using Gridap.jl we obtain
+
+$
+lambda_(1, h)^"Core" &≥ #lambda1_core_lower \
+lambda_(2, h)^"Core" &≥ #lambda2_core_lower
+$
 
 == Pointwise bounds of the eigenfunction
 
