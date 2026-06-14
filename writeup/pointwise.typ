@@ -57,8 +57,10 @@ All in all:
   $
   norm(phi_* - phi_1)_oo 
   ≤& min_(s_1, s_2 ≥ 0) [ (norm((L-lambda_*) phi_*)_oo + norm(phi_*)_oo abs(lambda_1 - lambda_1^*)) (e^(s_1 overline(lambda_1))-1)/(underline(lambda_1)) \
-  &+ (norm((L-lambda_*) phi_*)_2 + abs(lambda_1 - lambda_1^*)) ∫_(s_1)^oo C_(s\/2) e^(-2(underline(lambda_2)-overline(lambda_1)) s) dif s].
+  &+ (norm((L-lambda_*) phi_*)_2 + abs(lambda_1 - lambda_1^*)) ∫_(s_1)^oo C_(s\/2) e^(-2(underline(lambda_2)-overline(lambda_1)) s) dif s], 
   $
+  
+  where $abs(lambda_1 - lambda_1^*) ≤ max(lambda_1^* - underline(lambda_1), overline(lambda_1) - lambda_1)$.
 ]
 
 
