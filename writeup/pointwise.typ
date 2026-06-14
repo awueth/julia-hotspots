@@ -6,7 +6,7 @@ In this section we aim to show that whenever we have an approximate eigenfunctio
 
 Let $∂Ω = Gamma_0 union Gamma_1 union Gamma_2$ where $Gamma_0 = {(x, r) in partial Ω : x_1 = 0}$, $Gamma_1 = {(x, r) in ∂Ω : |x_1|=1 or |x_2|=1 or r=0}$ and $Gamma_2 = {(x,r) in ∂Ω : r = 1-V(x)/d}$. We construct $phi_*$ such that the boundary conditions on $Gamma_0 union Gamma_1$ are satisfied exactly.
 
-=== Pointwise bounds of the eigenfunction in $d=oo$ using Wang-Li-Yau
+==  In $d=oo$ using Wang-Li-Yau
 
 Let $phi_*$ be an approximate eigenfunction, i.e. $norm((L-lambda_*) phi_*)_oo ≤ epsilon$ and $norm(phi_*)_2 = 1$.
 
@@ -45,38 +45,20 @@ $
 
 All in all:
 
-$
-norm(phi_* - phi_1)_oo 
-≤& min_(s_1, s_2) [ (norm((L-lambda_*) phi_*)_oo + norm(phi_*)_oo abs(lambda_1 - lambda_1^*)) (e^(s_1 overline(lambda_1))-1)/(underline(lambda_1)) \
-&+ (norm((L-lambda_*) phi_*)_2 + abs(lambda_1 - lambda_1^*)) ∫_(s_1)^oo C_(s\/2) e^(-2(underline(lambda_2)-overline(lambda_1)) s) dif s].
-$
-
-#inline-note-a[
-  We can get a very crude estimate by setting $s_1 = 3.0$. Then, the first integral evaluates to
-
+#theorem[
+  Let $phi_1$ be the first non-trivial eigenfunction of $-Delta + nabla V dot nabla$ on $Q$. Let $phi_*$ be an approximation of this eigenfunction in the sense that $(L-lambda_*) phi_* = 0$, for some $lambda)*$ Finally, suppose we have the eigenvalue bounds
   $
-  ∫_0^s_1 e^(lambda_1 s) dif s
-  = (e^(3lambda_1) - 1) / lambda_1 
-  approx 20.
+  underline(lambda_1) ≤ lambda_1 ≤ overline(lambda_1) \
+  underline(lambda_2) ≤ lambda_2 ≤ overline(lambda_2).
   $
 
-  For the second integral we split $s/2 = (s-1)/2 + 0.5$ to obtain the constant
-  
-  $
-  C_(s\/2) ≤ sqrt(M)/3  3/2 = sqrt(M)/2 approx 2
-  $
-
-  As a result, the second interval evaluates to
+  Then,
 
   $
-  ∫_3^oo C_(s\/2) e^(-2(lambda_2-lambda_1) s) dif s
-  ≤ 2 ∫_3^(oo) e^(-2(lambda_2-lambda_1) s) dif s
-  = e^(-6(lambda_2 - lambda_1)) / (lambda_2 - lambda_1)
-  approx 0.0025,
+  norm(phi_* - phi_1)_oo 
+  ≤& min_(s_1, s_2 ≥ 0) [ (norm((L-lambda_*) phi_*)_oo + norm(phi_*)_oo abs(lambda_1 - lambda_1^*)) (e^(s_1 overline(lambda_1))-1)/(underline(lambda_1)) \
+  &+ (norm((L-lambda_*) phi_*)_2 + abs(lambda_1 - lambda_1^*)) ∫_(s_1)^oo C_(s\/2) e^(-2(underline(lambda_2)-overline(lambda_1)) s) dif s].
   $
-  assuming $lambda_2 - lambda _1 approx 1$.
-
-  I left a lot of slack everywhere, so we can do much better, in particular for the first constant. We should be able to get away with a significantly smaller $s_1$.
 ]
 
 
@@ -154,7 +136,7 @@ norm(Q_t (L-lambda_1) phi_*)_oo
 $
 */
 
-=== Barriers for the finite dimensional case
+== Barriers for the finite dimensional case
 
 Suppose $phi_*$ is an approximation of $phi_1$ in the sense that
 
