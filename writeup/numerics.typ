@@ -24,7 +24,7 @@ $
 by computing the right singular vector of $Q_B$.
 
 
-== Guaranteed error bounds using interval arithmetic
+== Results
 
 #inline-note-a[
   Here goes the theroem that we have an approximation $phi_*$ at dimension $d$ with a certain boundary error. 
