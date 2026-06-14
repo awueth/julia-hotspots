@@ -33,6 +33,8 @@ Sorry for forcing Typst on you, I promise its super easy. There is a guide for L
 
 #include "eigenvalues.typ"
 
+#include "pointwise.typ"
+
 #include "certificate.typ"
 
 #bibliography("zotero.bib")

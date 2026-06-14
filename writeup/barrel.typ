@@ -19,9 +19,11 @@ The sets barrel sets get their name from the fact that for an interval $I$ the s
   caption: [(Preliminary AI slop) The sets $F_1$ look like barells for $Q=[-1,1]$]
 ) <fig:barell>
 
-Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eiganvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
+Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eigenvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
 
-Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, this is the subject of the following lemmas.
+== The low barrel eigenfunctions are radial
+
+The counterexample in @pont_convex_2024 is built in high dimensions $d$. In order to have any hope to build a numerical counterexample, we have to reduce the number of effective dimensions by showing that the ground eigenfunction is radial in the $w$-coordinate. The proof goes in two steps: First we prove that any eigenfunction with a radial dependence must have a high eigenvalue. In a second step we compute an approximate radial eigenfuntion and compute its Rayleigh quotient, showing that the ground eigenvalue is small. By contradiction the eigenfunction bust be radial. 
 
 #lemma[
   Any Neumann eigenfunction, that is not radial in the $w$-coordinate, has eigenvalue at least 4.
@@ -46,9 +48,11 @@ Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, t
 ]
 
 #lemma[
+  The first non-trivial eigenvalue of $F_(d) (Q, V)$ satisfies
   $
     lambda_1 < 3.9
   $
+  for $d$ large enough and for our choice of $Q, V$.
 ]
 #proof[
   Use the numerical counterexample in some way. Worst case, compute its Rayleigh quotient.
@@ -61,6 +65,82 @@ Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, t
 #inline-note-a[
   *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 2.5 s^2$.
 ]
+
+== The effective problem in the limit of dimension
+
+The counterexample is effectively built in the limit $d -> oo$, we first have to understand how the eigenvalue problem behaves in this limit. The sequence of principal eigenfunctions $phi_(1,d)$ of $F_d$ at dimension $d$ converges to a function $h$ that is an eigenfunction of $L = -∆ + nabla V dot nabla$ at $r=1$ and satisfyes the following initial value problem:
+
+$
+∂_r h &= -r/4 (∆_x + lambda) h && "for" x in Q, r in [0, 1) \
+h(x, 1) &= psi_1 (x) && "for" x in Q \
+// ∂_r h(x, r) &= 0 "at" r = 0 \ 
+∂_arrow(n) h &= 0 && "for" x in ∂ Q,
+$ <eq:limit-problem>
+
+here $psi_1$ is the first non-trivial eigenfunction of $L$. The first equation follows immediately from the eigenvalue equation $-Delta phi_(1, d) = lambda_(1, d) phi$ since
+
+$
+∆ = ∆_x + 4/d ∂_r^2 + 4/r ∂_r -> Delta_x + 4/r ∂_r.
+$
+
+For the boundary condition we examine rayleigh quotient
+
+$
+// (integral_Omega abs(nabla u)^2 dif z) / (integral_Omega abs(u)^2 dif z)
+// &= 
+(integral_Q integral_0^(rho_d (V)) abs(nabla u)^2 r^d dif r dif x) / (integral_Q integral_0^(rho_d (V)) abs(u)^2 r^d dif r dif x) 
+&= (integral_Q abs(nabla u)^2 (sqrt(d) - V(x)/sqrt(d))^(d+1) dif x) / (integral_Q abs(u)^2 (sqrt(d) - V(x)/sqrt(d))^(d+1) dif x)
+-> (integral_Q abs(nabla u)^2 e^(-V(x)) dif x) / (integral_Q abs(u)^2 e^(-V(x)) dif x).
+$
+
+This is the Rayleigh quotient for the Neumann problem $L u = lambda u$ on $Q$. 
+
+// Another way to see the same thing is te examine the boundry condition $∂_arrow(n) u = 0$ on the face $r=rho$.
+// Maybe add this later if I have time
+
+The boundary value problem in @eq:limit-problem can be transformed into a reaction-diffusion initial value problem by the change of variables $t = (1-r^2)/8$, we obtain
+
+$
+∂_t h &= ∆_x h+ lambda h "for" t in (0, 1\/8]\
+h(x, 0) &= psi_1(x) \
+∂_arrow(n) h &= 0 "on the spatial boundary".
+$<eq:limit-ivp>
+
+
+#lemma[
+  Let $lambda_(k, d)^"rad"$ be the $k$-th Neumann eigenvalue of $F_d (Q,V)$ restricted to functions $u(x, w)=u(x,abs(w))$. Let $lambda_k$ be the $k$-th Neumann eigenvalue of $L = -Delta + nabla V dot nabla$ in $L^2 (Q, e^(-V))$. Then for every $k$, $lambda_(k, d)^"rad" -> lambda_k$.
+]
+
+#proof[
+  First, for the upper bound, take the first $k+1$ eigenfunctions $f_0, ..., f_k$ of $L$, and lift them to the barrel by $u_j (x, w) = f_j (x)$. These are radial, and, their Rayleigh quotients satisfy
+
+  $
+  (integral_(F_d) abs(nabla u)^2) / (integral_(F_d) abs(u)^2)
+  = (integral_Q abs(nabla f_j (x))^2 abs(B^(d+1)_(R_d (x))) dif x) / (integral_Q abs(f_j (x))^2 abs(B^(d+1)_(R_d (x))) dif x)
+  $
+
+  where $R_d (x) = 1/2 (sqrt(d) - V(x)/sqrt(d))$ is the radius of the Barrel at $x$.
+
+  #inline-note-a[
+    $
+    C exp(- (M + M^2)/d) e^(-V(x)) ≤ abs(B^(d+1)_(R_d (x))) ≤ C exp(-V(x))
+    $
+    where $M$ is such that $V(x) ≤ M$ for all $x$.
+  ]
+
+  $
+  lambda_(k,d)^"rad" &= min_(dim E = k+1) max_(u in E) cal(R)_d (u) \
+  &≤ max_(u in op("span"){u_0,...,u_k}) (integral_Q abs(nabla u (x))^2 abs(B^(d+1)_(R_d (x))) dif x) / (integral_Q abs(u (x))^2 abs(B^(d+1)_(R_d (x))) dif x) \
+  &≤ exp(- (M+M^2)/(d)) max_(f in op("span"){f_0,...,f_k}) (integral_Q abs(nabla f_j (x))^2 e^(-V(x)) dif x) / (integral_Q abs(f_j (x))^2 e^(-V(x)) dif x) \
+  &= e^(-(M+M^2)/d) lambda_k
+  $
+
+  To obtain a lower bound, let $u in H^1 (F_d)$ be radial, decompose it fibrewise: $u(x,w) = overline(u)(x) + u^perp (x,w)$, where $overline(u)$ is the average of $u$ over the ball ${w : abs(w) < R_d (x)}$.
+]
+
+== Symmetry considerations
+
+Symmetries of the potential $V$ translate to further symmetries of the eigenfunctions, this is the subject of the following lemmas.
 
 #lemma[
   Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$. Then every Neumann eigenspace of $F_d (Q,V)$ has an orthonormal basis whose elements are even/odd, odd/even, even/even or odd/odd in $(x_1,x_2)$.
@@ -85,7 +165,7 @@ Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, t
 ]
 
 #lemma[
-  Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$ and let $lambda_1$ be the first non-zero Neumann eigenvalue of $F_d(Q,V)$. Then the eigenspace for $lambda_1$ does not contain odd/odd functions.
+  Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$ and let $lambda_1$ be the first non-zero Neumann eigenvalue of $F_d (Q,V)$. Then the eigenspace for $lambda_1$ does not contain odd/odd functions.
 ] <lem:no-odd-odd-even-even>
 #proof[
   By Courant's nodal domain theorem, every eigenfunction for $lambda_1$ has at most two nodal domains.
@@ -101,10 +181,6 @@ Symmetries of the potential $V$ translate to symmetries of the eigenfunctions, t
 #corollary[
   The first eigenspace is simple and the first eigenfunction is odd/even.
 ] <lem:eig-odd-even>
-
-#inline-note-a[
-  We will also need a bound on the spectral gap. If we want to compute the second eigenfunction with assumed symmetry, we need to show that the lowest eigenvalue in the corresponding sector is less than the eigenvalues in the remining sectors.  Another way would be to still compute the coefficients assuming a parity, and then setting the coefficients for eigenfunctions in other sectors to zero at verification time.
-]
 
 As a result of @lem:eig-radial and @lem:eig-odd-even, after the change of variables $r = 2abs(w)\/sqrt(d)$, we can restrict the eigenvalue problem to the space
 

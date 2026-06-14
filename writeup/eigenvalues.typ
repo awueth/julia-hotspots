@@ -9,6 +9,11 @@ We lower bound the first two eigenvalues using a Galerkin method and certify the
 
 These are relatively easy to obtain, we just compute the Rayleigh-quotient of our candidates
 
+$
+lambda_1 &≤ 4.0 \
+lambda_2 &≤ 10.0
+$
+
 == Lower bounds
 
 #theorem([@liu_guaranteed_2024, Theorem 3.2])[
@@ -84,6 +89,18 @@ $
   $
 ]
 
+#lemma[
+  $mu("Wing") ≤ 10^(-10)$
+]
+#proof[
+  Recall that $V(x) = 1/alpha log sum_i exp(alpha v_i (x))$ where $v_i$ are hyperplanes. We integrate the following numericaly
+  $
+    exp(-V(x)) 
+    = [sum_i exp(alpha v_i (x))]^(-1/alpha)
+    = exp(-M(x)/alpha) [sum_i exp(alpha v_i (x) - M(x))]^(-1/alpha)
+  $
+]
+
 === The bounds
 
 #let lambda1_core_lower = 3.8
@@ -95,3 +112,7 @@ $
 lambda_(1, h)^"Core" &≥ #lambda1_core_lower \
 lambda_(2, h)^"Core" &≥ #lambda2_core_lower
 $
+
+#inline-note-a[
+  The above bounds are rounded down so strongly and the mass in the wings is so small, such that the bounds also holds for the global eigenvalues.
+]

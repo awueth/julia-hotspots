@@ -4,50 +4,6 @@
 
 In this section we aim to explain the counterexample from @pont_convex_2024 and how we adapted it to a version which can be computed explicitly. Since our proof relies on verified numerics, we do not proof any properties of the counterexample set rigorously, but rather explain the inuition behind the reason why we expect the counterexample to work.
 
-The counterexample is effectively built in the limit $d -> oo$, we first have to understand how to eigenvalue problem behaves in this limit. This is the subject of the next subsection.
-
-== The effective problem in the limit of dimension
-
-The sequence of principal eigenfunctions $phi_(1,d)$ of $F_d$ at dimension $d$ converges to a function $h$ that is an eigenfunction of $L = -∆ + nabla V dot nabla$ at $r=1$ and satisfyes the following initial value problem:
-
-$
-∂_r h &= -r/4 (∆_x + lambda) h && "for" x in Q, r in [0, 1) \
-h(x, 1) &= psi_1 (x) && "for" x in Q \
-// ∂_r h(x, r) &= 0 "at" r = 0 \ 
-∂_arrow(n) h &= 0 && "for" x in ∂ Q,
-$ <eq:limit-problem>
-
-here $psi_1$ is the first non-trivial eigenfunction of $L$. The first equation follows immediately from the eigenvalue equation $-Delta phi_(1, d) = lambda_(1, d) phi$ since
-
-$
-∆ = ∆_x + 4/d ∂_r^2 + 4/r ∂_r -> Delta_x + 4/r ∂_r.
-$
-
-For the boundary condition we examine rayleigh quotient
-
-$
-// (integral_Omega abs(nabla u)^2 dif z) / (integral_Omega abs(u)^2 dif z)
-// &= 
-(integral_Q integral_0^(rho_d (V)) abs(nabla u)^2 r^d dif r dif x) / (integral_Q integral_0^(rho_d (V)) abs(u)^2 r^d dif r dif x) 
-&= (integral_Q abs(nabla u)^2 (sqrt(d) - V(x)/sqrt(d))^(d+1) dif x) / (integral_Q abs(u)^2 (sqrt(d) - V(x)/sqrt(d))^(d+1) dif x)
--> (integral_Q abs(nabla u)^2 e^(-V(x)) dif x) / (integral_Q abs(u)^2 e^(-V(x)) dif x).
-$
-
-This is the Rayleigh quotient for the Neumann problem $L u = lambda u$ on $Q$. 
-
-// Another way to see the same thing is te examine the boundry condition $∂_arrow(n) u = 0$ on the face $r=rho$.
-// Maybe add this later if I have time
-
-The boundary value problem in @eq:limit-problem can be transformed into a reaction-diffusion initial value problem by the change of variables $t = (1-r^2)/8$, we obtain
-
-$
-∂_t h &= ∆_x h+ lambda h "for" t in (0, 1\/8]\
-h(x, 0) &= psi_1(x) \
-∂_arrow(n) h &= 0 "on the spatial boundary".
-$<eq:limit-ivp>
-
-The goal is now to find a suitable initial value $psi_1$.
-
 == The counterexample in @pont_convex_2024 and adapting it for computation
 
 In this section we explain the main idea behin the counterexample in @pont_convex_2024 and how to build the corresponding potential explicitly in a way suitable for computation. We begin our discussion with the initial condition for @eq:limit-ivp we are aiming for. This is perhaps best explained by a plot of $psi_1$, see @fig:initial-datum. 
