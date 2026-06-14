@@ -4,8 +4,8 @@
 
 In this section we introduce the class of _barrel sets_ which are used in @pont_convex_2024 to construct a counterexample and on which we will base our counterexample as well. 
 
-#definition[
-  Let $Q := [-l_1\/2, l_1\/2] times [-l_2\/2, l_2\/2]$ and let $V : Q -> RR$ be a convex potential. We define the convex domain
+#definition([Barrel domain])[
+  Let $Q subset RR^2$ be a bounded convex domain and let $V : Q -> RR$ be a convex potential. We define the convex domain
 
   $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/2 (sqrt(d) - V(x)/sqrt(d))}, $
 
@@ -19,32 +19,37 @@ The sets barrel sets get their name from the fact that for an interval $I$ the s
   caption: [(Preliminary AI slop) The sets $F_1$ look like barells for $Q=[-1,1]$]
 ) <fig:barell>
 
-Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eigenvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
+For the purpose of this work, $Q$ will always be a rectangle $[-l_1\/2, l_1\/2] times [-l_2\/2, l_2\/2]$.
+
+// Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eigenvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
 
 == The low barrel eigenfunctions are radial
 
-The counterexample in @pont_convex_2024 is built in high dimensions $d$. In order to have any hope to build a numerical counterexample, we have to reduce the number of effective dimensions by showing that the ground eigenfunction is radial in the $w$-coordinate. The proof goes in two steps: First we prove that any eigenfunction with a radial dependence must have a high eigenvalue. In a second step we compute an approximate radial eigenfuntion and compute its Rayleigh quotient, showing that the ground eigenvalue is small. By contradiction the eigenfunction bust be radial. 
+The counterexample is in high dimension $d$. In order to compute its eigenfunction, we have to reduce the number of effective dimensions by showing that the ground eigenfunction is radial in the $w$-coordinate. The proof goes in two steps: First we prove that any eigenfunction with a radial dependence must have a high eigenvalue. In a second step we compute an approximate radial eigenfuntion and compute its Rayleigh quotient, showing that the ground eigenvalue is small. By contradiction the eigenfunction bust be radial. 
 
 #lemma[
-  Any Neumann eigenfunction, that is not radial in the $w$-coordinate, has eigenvalue at least 4.
+  Let $phi.alt_(k, d)$ be the $k$-th Neumann eigenfunction of the Laplacian on $F_d (Q, V)$ and let $lambda_(k, d)$ be the corresponding eigenvalue. If $phi.alt_(k,d)(x, w)$ is not radial in the $w$-coordinate, then 
+  $
+  lambda_(k,d) ≥ 4 (d/(d-V(0)))^2.
+  $
 ] <lem:eig-radial>
 #proof[
-  In cylindrical coordinated the Lapalacian is $∆ = ∆_x +  ∂_r^2 + d/r ∂_r + 1/r^2 ∆_(S_d)$. We separate $phi_(1,d)$ into eigenfunctions of $-(∆_x +  ∂_r^2 + d/r ∂_r)$ and $-1/r^2 ∆_(S_d)$, that is
+  In cylindrical coordinated the Lapalacian is $∆ = ∆_x +  ∂_r^2 + d/r ∂_r + 1/r^2 ∆_(S_d)$. We separate $phi.alt_(k,d)$ into eigenfunctions of $-(∆_x +  ∂_r^2 + d/r ∂_r)$ and $-1/r^2 ∆_(S_d)$, that is
 
   $
-  phi_(1,d) (x, abs(w)) = sum_(ell≥0, m) A_(ell, m)(x, abs(w)) Y_(ell, m) (theta),
+  phi.alt_(k,d) (x, abs(w)) = sum_(ell≥0, m) A_(ell, m)(x, abs(w)) Y_(ell, m) (theta),
   $
   
-  where $-∆ A_(ell, m) = lambda_(ell, m) A_(ell, m)$ and $-∆ Y_(ell, m) = ell (ell + d -1) Y_(ell, m)$. Each component $A_(ell, m) Y_(ell, m)$ is itself an eigenfunction of $-∆$ corresponding to the eigenvalue $lambda_(1,d)$. Therefore, each component minimizes the Rayleigh quotient and thus
+  where $-∆ A_(ell, m) = lambda_(ell, m) A_(ell, m)$ and $-∆ Y_(ell, m) = ell (ell + d -1) Y_(ell, m)$. Each component $A_(ell, m) Y_(ell, m)$ is itself an eigenfunction of $-∆$ corresponding to the eigenvalue $lambda_(k,d)$. Therefore, each component is an eigenfunction and its Rayleigh quotient exactly evaluates to the eigenvalue, thus
   
   $
-  lambda_(1,d) = (∫ abs(nabla A_(ell, m) Y_(ell, m))^2) / (∫ abs(A_(ell, m) Y_(ell, m))^2)
+  lambda_(k,d) = (∫ abs(nabla A_(ell, m) Y_(ell, m))^2) / (∫ abs(A_(ell, m) Y_(ell, m))^2)
   ≥ ell (ell + d - 1) (∫_Ω∫_0^(rho(x)) abs(A_(ell, m))^2 r^(d-2) dif r dif x) / (∫_Ω∫_0^(rho(x)) abs(A_(ell, m))^2 r^d dif r dif x)
   ≥ (ell (ell + d - 1)) / rho_"max"^2.
   $
 
-  Therefore, whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$, we have $lambda_1 ≥ d / rho_"max"^2$ and
-  $rho_max = 1/2 (sqrt(d) - V(x)/sqrt(d)) ≤ 5/8 sqrt(d)$ #inline-note-a[Here I think we are giving away too much: $1/2 (sqrt(d) - V(x)/sqrt(d)) ≤ 1/2 (sqrt(d) -V(0)/sqrt(d)) approx 1/2 sqrt(d)$. Then we can conclude that if the eigenfunction is not radial then, $lambda_(1,d) ≥4$.], so $lambda_(1,d) ≥64/25 = 2.56$ whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$. Since $lambda_(1,d) ≤ 2$ for $d$ large enough, only $A_(0,0) Y_(0,0)$ survives which is constant in $w$.
+  Therefore, whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$, we have $lambda_(k,d) ≥ d / rho_"max"^2$ and
+  $rho_max = 1/2 (sqrt(d) - V(0)/sqrt(d))$.
 ]
 
 #lemma[

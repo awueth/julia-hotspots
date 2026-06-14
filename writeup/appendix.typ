@@ -154,3 +154,5 @@ $
 ]
 
 === $d<oo$
+
+*The second constant.*
