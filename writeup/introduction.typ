@@ -78,7 +78,7 @@ $
 where $Q subset RR^2$ is a rectangle and $V : Q -> RR$ is a convex potential. We now study the sequence of principal eigenfunctions $phi_(1,d)$ of $Ω_d$. First of all, notice that for $d$ large enough $phi_(1,d)$ is radial in the seecond argument $w$. We can therefore, overloading the notation, write $phi_(1,d) (x,r) := phi_(1,d) (x, 2d^(-1/2) abs(w))$. Under the change of variables $r = 2d^(-1/2) abs(w)$, the set $Ω_d$ becomes effectively three dimensional
 
 $
-Ω_d = {(x,r) in Q times RR_(≥0) : |w| ≤ 1 - V(x)/d},
+Ω_d = {(x,r) in Q times RR_(≥0) : r ≤ 1 - V(x)/d},
 $
 
 and the eigenvalue equation $-∆ phi_(1,d) = lambda_(1,d) phi_(1,d)$ transforms into
@@ -114,4 +114,3 @@ Since $phi_*$ and $norm(partial_arrow(n) phi_*)_(L^oo (∂Ω))$ are evaluated nu
 
 This thesis is structured as follows: In @barrels we introduce the class of sets used in @pont_convex_2024 to construct a counterexample. We show that on this class of sets the principal eigenfunction $phi_1$ is highly symmetrical along some dimensions allowing us to reduce the effective dimension of the set giving the counterexample to three. On this effectively three dimensional set we construct a basis for the method of particular solutions. \
 In @construction we explain the counterexample in @pont_convex_2024 and derive an adaptation which can be explicitly computed. In @numerics we present our numerical implementation of our method of particular solutions and compute the rigorous error bounds. Finally, in @certificate we prove that with the error bound found in @numerics, there must be a counterexample in finite dimensions.
-

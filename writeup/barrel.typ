@@ -7,9 +7,15 @@ In this section we introduce the class of _barrel sets_ which are used in @pont_
 #definition([Barrel domain])[
   Let $Q subset RR^2$ be a bounded convex domain and let $V : Q -> RR$ be a convex potential. We define the convex domain
 
-  $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/4 (sqrt(d) - V(x)/sqrt(d))}, $
+  $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/2 (sqrt(d) - V(x)/sqrt(d))}, $
 
-  which we call a barrel domain. The constant factor $1/4$ in the radius is completely arbitrary. In the @pont_convex_2024 it was chosen to be $1/2$, however, we chose $1/4$ since it allows us to show that eigenfunctions with eigenvalue less than $4^2$ are radial in $w$ for large $d$. With the factor $1/2$ we can only prove the same result for eigenvalues less than $2^2$. 
+  which we call a barrel domain.
+]
+
+#inline-note-a[
+  *outdated content:*
+
+  The constant factor $1/4$ in the radius is completely arbitrary. In the @pont_convex_2024 it was chosen to be $1/2$, however, we chose $1/4$ since it allows us to show that eigenfunctions with eigenvalue less than $4^2$ are radial in $w$ for large $d$. With the factor $1/2$ we can only prove the same result for eigenvalues less than $2^2$. 
 ]
 
 The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
@@ -19,7 +25,7 @@ The sets barrel sets get their name from the fact that for an interval $I$ the s
   caption: [(Preliminary AI slop) The sets $F_1$ look like barells for $Q=[-1,1]$]
 ) <fig:barell>
 
-For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also use a fixed potential $V :Q -> RR$ which is symmetric in both coordinates.
+For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also use a fixed potential $V :Q -> RR$ which is symmetric in both coordinates. We will denote the eigenvalues of the Neumann Laplacian on $F_d (Q,V)$ by $0 = lambda_(0,d) < lambda_(1,d) ≤ lambda_(2,d) ≤ ...$, with multiple eigenvalues listed separately. The corresponding eigenfunctions will be denoted by $phi.alt_(0,d), phi.alt_(1,d), phi.alt_(2,d)$ and so on.  We will refer to $(lambda_(1, d), lambda_(1, d))$ as the "first" eigenvalue and eigenfunction.
 
 // Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eigenvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
 
@@ -30,7 +36,7 @@ The counterexample is in high dimension $d$. In order to compute its eigenfuncti
 #lemma[
   Let $phi.alt_(k, d)$ be the $k$-th Neumann eigenfunction of the Laplacian on $F_d (Q, V)$ and let $lambda_(k, d)$ be the corresponding eigenvalue. If $phi.alt_(k,d)(x, w)$ is not radial in the $w$-coordinate, then 
   $
-  lambda_(k,d) ≥ 16 (d/(d-V(0)))^2.
+  lambda_(k,d) ≥ 4 (d/(d-V(0)))^2.
   $
 ] <lem:eig-radial>
 #proof[
@@ -49,10 +55,10 @@ The counterexample is in high dimension $d$. In order to compute its eigenfuncti
   $
 
   Therefore, whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$, we have $lambda_(k,d) ≥ d / rho_"max"^2$ and
-  $rho_max = 1/4 (sqrt(d) - V(0)/sqrt(d))$.
+  $rho_max = 1/2 (sqrt(d) - V(0)/sqrt(d))$.
 ]
 
-A direct consequence of the above lemma is that any eigenfunction with eigenvalue less than $16$ is radial in high enough dimension. 
+A direct consequence of the above lemma is that any eigenfunction with eigenvalue less than $4$ is radial in high enough dimension. 
 #lemma[
   The first non-trivial eigenvalue of $F_(d) (Q, V)$ satisfies
   $
@@ -68,11 +74,25 @@ A direct consequence of the above lemma is that any eigenfunction with eigenvalu
 //   *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 4 s^2$.
 // ]
 
+We will be working exclusively with readial eigenfunctions, therefore we perform the change of variables
+
+$
+r = 2 abs(w) d^(-1/2).
+$
+
+In the $(x,r)$-coordinates, the Laplacian becomes
+
+$
+Delta_x + 4/d ∂_r^2 + 4/r ∂_r.
+$
+
+The Barrel set transforms into
+
 $
 Omega_d = {(x,r) in Q times RR_(≥ 0) : r ≤ 1 - V(x)/d}.
 $
 
-On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$. We will show that $lambda_(2, Omega_d) < 16$, therefore $lambda_(i, Omega_d) = lambda_i$ for $i=0,1,2$.
+On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$. We will show that $lambda_(2, Omega_d) < 4$, therefore $lambda_(i, Omega_d) = lambda_i$ for $i=0,1,2$ and $d$ large enough.
 
 
 == The effective problem in the limit of dimension
@@ -191,13 +211,18 @@ Symmetries of the potential $V$ translate to further symmetries of the eigenfunc
   The first eigenspace is simple and the first eigenfunction is odd/even.
 ] <lem:eig-odd-even>
 
-As a result of @lem:eig-radial and @lem:eig-odd-even, after the change of variables $r = 2abs(w)\/sqrt(d)$, we can restrict the eigenvalue problem to the space
 
-$
-Ω_d (V) = {(x,w) in [0, l_1\/2] times [0, l_2\/2] times RR_(≥0) : r ≤  1 - V(x)/d}
-$
+#inline-note-a[
+  *The following is now outdated:*
 
-with Dirichlet boundary conditions at the face $x_1=0$ and Neumann boundary conditions everywhere else.
+  As a result of @lem:eig-radial and @lem:eig-odd-even, after the change of variables $r = 2abs(w)\/sqrt(d)$, we can restrict the eigenvalue problem to the space
+
+  $
+  Ω_d (V) = {(x,w) in [0, l_1\/2] times [0, l_2\/2] times RR_(≥0) : r ≤  1 - V(x)/d}
+  $
+
+  with Dirichlet boundary conditions at the face $x_1=0$ and Neumann boundary conditions everywhere else.
+]
 
 == MPS basis for Barrel sets <mps_basis>
 
@@ -216,7 +241,7 @@ $
 We choose $X_(j,k)$ and $R_(j,k)$ such that
 
 $
--∆_x X_(j,k) = lambda_(x,j,k) X_(j,k), quad (d^(-1) ∂_r^2 + r^(-1) ∂_r) R_(j, k) = lambda_(r,j,k) R_(j,k)
+-∆_x X_(j,k) = lambda_(x,j,k) X_(j,k), quad -4 (d^(-1) ∂_r^2 + r^(-1) ∂_r) R_(j, k) = lambda_(r,j,k) R_(j,k)
 $
 
 for real numbers $lambda_(x,j,k)$ and $lambda_(r,j,k)$ satisfying $lambda_(x,j,k) + lambda_(r,j,k) = lambda_*$ For $∆_x$ the eigenfunctions are straight forward:
