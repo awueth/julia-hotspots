@@ -7,9 +7,9 @@ In this section we introduce the class of _barrel sets_ which are used in @pont_
 #definition([Barrel domain])[
   Let $Q subset RR^2$ be a bounded convex domain and let $V : Q -> RR$ be a convex potential. We define the convex domain
 
-  $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/2 (sqrt(d) - V(x)/sqrt(d))}, $
+  $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/4 (sqrt(d) - V(x)/sqrt(d))}, $
 
-  which we call a barrel domain.
+  which we call a barrel domain. The constant factor $1/4$ in the radius is completely arbitrary. In the @pont_convex_2024 it was chosen to be $1/2$, however, we chose $1/4$ since it allows us to show that eigenfunctions with eigenvalue less than $4^2$ are radial in $w$ for large $d$. With the factor $1/2$ we can only prove the same result for eigenvalues less than $2^2$. 
 ]
 
 The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
@@ -19,7 +19,7 @@ The sets barrel sets get their name from the fact that for an interval $I$ the s
   caption: [(Preliminary AI slop) The sets $F_1$ look like barells for $Q=[-1,1]$]
 ) <fig:barell>
 
-For the purpose of this work, $Q$ will always be a rectangle $[-l_1\/2, l_1\/2] times [-l_2\/2, l_2\/2]$.
+For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also use a fixed potential $V :Q -> RR$ which is symmetric in both coordinates.
 
 // Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eigenvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
 
@@ -30,14 +30,14 @@ The counterexample is in high dimension $d$. In order to compute its eigenfuncti
 #lemma[
   Let $phi.alt_(k, d)$ be the $k$-th Neumann eigenfunction of the Laplacian on $F_d (Q, V)$ and let $lambda_(k, d)$ be the corresponding eigenvalue. If $phi.alt_(k,d)(x, w)$ is not radial in the $w$-coordinate, then 
   $
-  lambda_(k,d) ≥ 4 (d/(d-V(0)))^2.
+  lambda_(k,d) ≥ 16 (d/(d-V(0)))^2.
   $
 ] <lem:eig-radial>
 #proof[
   In cylindrical coordinated the Lapalacian is $∆ = ∆_x +  ∂_r^2 + d/r ∂_r + 1/r^2 ∆_(S_d)$. We separate $phi.alt_(k,d)$ into eigenfunctions of $-(∆_x +  ∂_r^2 + d/r ∂_r)$ and $-1/r^2 ∆_(S_d)$, that is
 
   $
-  phi.alt_(k,d) (x, abs(w)) = sum_(ell≥0, m) A_(ell, m)(x, abs(w)) Y_(ell, m) (theta),
+  phi.alt_(k,d) (x, w) = sum_(ell≥0, m) A_(ell, m)(x, abs(w)) Y_(ell, m) (theta),
   $
   
   where $-∆ A_(ell, m) = lambda_(ell, m) A_(ell, m)$ and $-∆ Y_(ell, m) = ell (ell + d -1) Y_(ell, m)$. Each component $A_(ell, m) Y_(ell, m)$ is itself an eigenfunction of $-∆$ corresponding to the eigenvalue $lambda_(k,d)$. Therefore, each component is an eigenfunction and its Rayleigh quotient exactly evaluates to the eigenvalue, thus
@@ -49,9 +49,10 @@ The counterexample is in high dimension $d$. In order to compute its eigenfuncti
   $
 
   Therefore, whenever $A_(ell, m) ≠ 0$ for some $ell ≥ 1$, we have $lambda_(k,d) ≥ d / rho_"max"^2$ and
-  $rho_max = 1/2 (sqrt(d) - V(0)/sqrt(d))$.
+  $rho_max = 1/4 (sqrt(d) - V(0)/sqrt(d))$.
 ]
 
+A direct consequence of the above lemma is that any eigenfunction with eigenvalue less than $16$ is radial in high enough dimension. 
 #lemma[
   The first non-trivial eigenvalue of $F_(d) (Q, V)$ satisfies
   $
@@ -63,13 +64,16 @@ The counterexample is in high dimension $d$. In order to compute its eigenfuncti
   Use the numerical counterexample in some way. Worst case, compute its Rayleigh quotient.
 ]
 
-#corollary[
-  The principal eigenfunction $phi_(1,d)$ on $F_d (V)$ is radial in $w$ for $d ≥ 4 norm(V)_oo$
-]
+// #inline-note-a[
+//   *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 4 s^2$.
+// ]
 
-#inline-note-a[
-  *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 2.5 s^2$.
-]
+$
+Omega_d = {(x,r) in Q times RR_(≥ 0) : r ≤ 1 - V(x)/d}.
+$
+
+On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$. We will show that $lambda_(2, Omega_d) < 16$, therefore $lambda_(i, Omega_d) = lambda_i$ for $i=0,1,2$.
+
 
 == The effective problem in the limit of dimension
 
