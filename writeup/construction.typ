@@ -4,6 +4,14 @@
 
 In this section we aim to explain the counterexample from @pont_convex_2024 and how we adapted it to a version which can be computed explicitly. Since our proof relies on verified numerics, we do not proof any properties of the counterexample set rigorously, but rather explain the inuition behind the reason why we expect the counterexample to work.
 
+The boundary value problem in @eq:limit-problem can be transformed into a reaction-diffusion initial value problem by the change of variables $t = (1-r^2)/8$, we obtain
+
+$
+∂_t h &= ∆_x h+ lambda h "for" t in (0, 1\/8]\
+h(x, 0) &= psi_1(x) \
+∂_arrow(n) h &= 0 "on the spatial boundary".
+$<eq:limit-ivp>
+
 == The counterexample in @pont_convex_2024 and adapting it for computation
 
 In this section we explain the main idea behin the counterexample in @pont_convex_2024 and how to build the corresponding potential explicitly in a way suitable for computation. We begin our discussion with the initial condition for @eq:limit-ivp we are aiming for. This is perhaps best explained by a plot of $psi_1$, see @fig:initial-datum. 

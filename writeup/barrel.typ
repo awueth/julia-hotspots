@@ -98,46 +98,74 @@ $
 = nabla_(x, w) G dot nabla_(x, w) phi.alt_1 
 &= 1/(2 sqrt(d)) nabla_x V dot nabla_x phi.alt_1 + 2/sqrt(d) ∂_r phi.alt_1 \
 &= 1/(2 sqrt(d)) nabla_x V dot nabla_x phi.alt_1 - 2/sqrt(d) 1/4 (Delta_x + lambda_1) phi.alt_1 \
-&= 1/(2 sqrt(d)) (-Delta_x + nabla_x V dot nabla - lambda) phi.alt_1
+&= 1/(2 sqrt(d)) (-Delta_x + nabla_x V dot nabla - lambda) phi.alt_1.
 $
 
-Therefore, writing $psi_1 (x) = phi.alt_1(x, r=1)$,
+Therefore, if we let $L := - Delta + nabla V dot nabla$ and write $psi_1 (x) := phi.alt_1(x, r=1)$, then $psi_1$ is an eigenfunction of $L$ with eigenvalue $lambda_1$. In conclusion, the eigenvalue problem on $F_d (Q, V)$ turns into a boundary value problem at $d=oo$:
 
 $
--Delta psi_1 + nabla V dot nabla psi_1 = lambda_1 psi_1.
-$
-
-As a result, we obtain a boundary value problem in $d=oo$:
-
-$
-∂_r h &= -r/4 (∆_x + lambda) h && "for" x in Q, r in [0, 1) \
-h(x, 1) &= psi_1 (x) && "for" x in Q \
+∂_r phi.alt &= -r/4 (∆_x + lambda_1) phi.alt && "for" x in Q, r in [0, 1) \
+phi.alt(x, 1) &= psi (x) && "for" x in Q \
 // ∂_r h(x, r) &= 0 "at" r = 0 \ 
 ∂_arrow(n) h &= 0 && "for" x in ∂ Q.
 $ <eq:limit-problem>
 
-The boundary value problem in @eq:limit-problem can be transformed into a reaction-diffusion initial value problem by the change of variables $t = (1-r^2)/8$, we obtain
+=== The conncection to the log-concave problem
+
+In the introduction we claimed that the spectrum of barell sets $F_d (Q, V)$ approximates the spectrum of $Q$ with respect to the log-concave measure $dif mu(x) = e^(-V(x)) dif (x)$, as $d -> oo$. In order to make this connection, note that the divergence form of $L psi_1 = lambda psi_1$ is $-nabla dot (e^(-V) nabla psi_1) = lambda_1 e^(-V) psi_1$. To obtain the weak formulation, we multiply by a test function $v$ and integrate with respect to the Lebesgue measure:
 
 $
-∂_t h &= ∆_x h+ lambda h "for" t in (0, 1\/8]\
-h(x, 0) &= psi_1(x) \
-∂_arrow(n) h &= 0 "on the spatial boundary".
-$<eq:limit-ivp>
-
-In divergence form $L psi_1 = lambda psi_1$ is $-nabla dot (e^(-V) nabla psi_1) = lambda_1 e^(-V) psi_1$. To obtain the weak formulation, we multiply by a test function $v$ and integrate with respect to the Lebesgue measure:
-
-$
-- integral_Omega nabla dot (e^(-V) nabla psi_1) v dif x = lambda_1 integral_Omega psi_1 v e^(-V) dif x
+- integral_Q nabla dot (e^(-V) nabla psi_1) v dif x = lambda_1 integral_Q psi_1 v e^(-V) dif x
 $
 
 Integrating by parts and using $partial_arrow(n) psi_1 = 0$ we obtain
 
 $
-integral_Q nabla psi_1 dot nabla v space e^(-V) dif x = lambda_1 integral_Q psi_1 v space e^(-V) dif x.
+integral_Q nabla psi_1 dot nabla v space e^(-V) dif x = lambda_1 integral_Q psi_1 v space e^(-V) dif x, 
 $
 
-This shows that $psi_1$ is an eigenfunction of the log-concave problem. 
+i.e. $psi_1$ is an eigenfunction with respect to the log-concave measure $mu$ in the weak sense. We will not make this rigorous since we only want to motivate why constructing a counterexample at $d=oo$ is useful. However, we need explicit a priori bounds of the eigenvalues at finite dimensions. We will therefore now derive explicit bounds of $lambda_(i,d)$ in terms of $lambda_(i, oo)$.
 
+Consider the diffeomorphism,
+
+$ Phi : F_d (Q, V) -> Q times B_(sqrt(d)/2), quad (x,w) |-> (x, a(x) w) $
+
+where $a(x) := (1 - V(x)/d)^(-1)$, which "compresses" the barrel into a cylinder. The pushforward $Phi_hash mu$ of $mu$ has density
+
+$
+dif Phi_hash mu = det(D Phi)^(-1) dif x dif w.
+$
+
+And,
+
+$
+det (D Phi)^(-1)
+= det mat(
+  I_2, 0;
+  w (nabla a)^T, a I_(d+1)
+)^(-1)
+= (1 - V(x)/d)^(d+1)
+-> exp(-V).
+$
+
+In a sense, $Phi$ is almost mass preserving, more explicitly:
+
+#lemma[
+  Let $cal(L)$ be the Lebesgue measure on $F_d (Q, V)$, normalized such that $cal(L)(F_d (Q, V)) = 1$. 
+  $
+  (1-epsilon) ≤ abs((dif Phi_hash cal(L))/(dif mu)) ≤ (1 + epsilon)
+  $
+]<lem:mass-preservation>
+
+We furthermore claim that $Phi$ is almost an isometry:
+
+#lemma[
+  $
+    1-epsilon ≤ norm(D Phi - I)_"op" ≤ 1+epsilon
+  $
+]<lem:isometry>
+
+The two lemmas are exactly the assumptions of the following lemma, which shows that the eigenvalues converge. 
 
 #lemma[
   Let $(X, mu)$ and $(Y, nu)$ be measure spaces, $Phi : X -> Y$. Assume that $Phi$ is approximately mass preserving, i.e. $abs((dif Phi_hash mu)/(dif nu) (y) - 1) < epsilon$ for all $y in Y$. Assume $norm(D Phi - I)_"op" < epsilon$. Then, 
@@ -146,6 +174,7 @@ This shows that $psi_1$ is an eigenfunction of the log-concave problem.
   (1-epsilon)^3 / (1 + epsilon) lambda_k (nu) ≤ lambda_k (mu) ≤ (1+epsilon)^3 / (1-epsilon) lambda_k (nu).
   $
 ]
+
 #proof[
   Write $a_mu (u, v) = integral nabla u dot nabla v dif mu$ and $m_mu (u,v) = integral u v dif mu$.
 
@@ -189,14 +218,11 @@ This shows that $psi_1$ is an eigenfunction of the log-concave problem.
 
 ]
 
-#lemma[
-  Let $Phi : (F_d (Q, V), dif x) -> (Q times B_(sqrt(d)/2), 1/Z_d e^(-V) dif x dif w)$ be given by $(x,w) |-> (x, (1-V(x)/d)^(-1) w)$. Then $norm(D Phi - I)_"op" = O(d^(-1/2))$ and $det D Phi approx e^(V)$
-
-  Assume $d > V$ so that $(1-V(x)/d) > 0$ for all $x in Q$.
+#proof[Proof of @lem:mass-preservation][
+  TODO
 ]
-#proof[
-  Let $a(x) := (1-V(x)/d)^(-1)$, then $Phi(x,w) = (x, a(x) w)$.
 
+#proof[Proof of @lem:isometry][
   $
     D Phi - I =
     mat(
@@ -219,14 +245,6 @@ This shows that $psi_1$ is an eigenfunction of the log-concave problem.
   = sqrt(V^2 + d/4 abs(nabla V)^2) / (d-V).
   // ≤ sqrt(4 norm(V)_oo^2 + d norm(nabla V)_oo^2) / (2 (d - norm(V)_oo))
   $
-
-  For the determinant: $D Phi$ is block triangular, therefore $det D Phi = (1-V(x)/d)^(-(d+1))$. Hence, 
-  
-  $
-  (dif Phi_hash mu) / (dif nu) = e^V (1-V/d)^(d+1).
-  $
-
-  We claim that this converges to $1$ uniformly in $x$ as $d -> oo$. 
 ]
 
 == Symmetry considerations
