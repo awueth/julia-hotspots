@@ -247,12 +247,12 @@ The two lemmas are exactly the assumptions of the following lemma, which shows t
   $
 ]
 
-== Symmetry considerations
+== Parity of eigenfunctions
 
-Symmetries of the potential $V$ translate to further symmetries of the eigenfunctions, this is the subject of the following lemmas.
+Since $Q$ is symmetric and $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$, lower eigenfunctions of $Omega_d$, are even or odd in each coordinate:
 
 #lemma[
-  Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$. Then every Neumann eigenspace of $F_d (Q,V)$ has an orthonormal basis whose elements are even/odd, odd/even, even/even or odd/odd in $(x_1,x_2)$.
+  Every Neumann eigenspace of $F_d (Q,V)$ has an orthonormal basis whose elements are even/odd, odd/even, even/even or odd/odd in $(x_1,x_2)$.
 ] <lem:parity>
 #proof[
   Let $Omega=F_d (Q,V)$ and define the reflections
@@ -274,70 +274,89 @@ Symmetries of the potential $V$ translate to further symmetries of the eigenfunc
 ]
 
 #lemma[
-  Assume that $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$ and let $lambda_1$ be the first non-zero Neumann eigenvalue of $F_d (Q,V)$. Then the eigenspace for $lambda_1$ does not contain odd/odd functions.
+  The eigenspace for $lambda_1$ does not contain odd/odd functions.
 ] <lem:no-odd-odd-even-even>
 #proof[
   By Courant's nodal domain theorem, every eigenfunction for $lambda_1$ has at most two nodal domains.
 ]
 
-#lemma[
-  The lowest radial eigenvalue in the odd/even sector is strictly less than the lowest radial eigenvalues of each of the other sectors.
-]
-#proof[
-  Verify numerically.
-]
-
-#corollary[
-  The first eigenspace is simple and the first eigenfunction is odd/even.
-] <lem:eig-odd-even>
-
-
-#inline-note-a[
-  *The following is now outdated:*
-
-  As a result of @lem:eig-radial and @lem:eig-odd-even, after the change of variables $r = 2abs(w)\/sqrt(d)$, we can restrict the eigenvalue problem to the space
-
-  $
-  Ω_d (V) = {(x,w) in [0, l_1\/2] times [0, l_2\/2] times RR_(≥0) : r ≤  1 - V(x)/d}
-  $
-
-  with Dirichlet boundary conditions at the face $x_1=0$ and Neumann boundary conditions everywhere else.
-]
+We know empiricaly that the first eigenspaces are all simple, and, that the first eigenfunction is odd in $x_1$ and even in $x_2$. We will assume from now on that $phi.alt_(1, d)$ indeed has these symmetries. We will prove later on via the eigenvalue bounds, that the obtained approximation of the eigenfunction, indeed approximates the principal eigenfunction. This assumption will allow us to reduce the number of free coefficients in the MPS basis by a factor of 4. 
 
 == MPS basis for Barrel sets <mps_basis>
 
-We aim to construct a set of functions ${X_(j,k) R_(j,k)}_(j,k)$ such that any linear combination of those functions
+The goals is to construct a set of functions ${X_(j,k) R_(j,k)}_(j,k)$ such that any linear combination of those functions
 
 $
 phi_* (x,r) = ∑_(j,k) c_(j,k) X_(j,k)(x) R_(j,k) (r),
 $
 
-satisfies $-∆ phi_* = lambda_* phi_*$ in $F_d$. Under the change of variables $r = 2abs(w)\/sqrt(d)$ the Laplacian transforms into
-
-$
-∆ = ∆_x + 4/d ∂_r^2 + 4/r ∂_r.
-$
-
-We choose $X_(j,k)$ and $R_(j,k)$ such that
+satisfies $-∆ phi_* = lambda_* phi_*$ in $Omega_d$. Recall that on $Omega_d = {(x, r) in [-l_1/2, l_1/2] times [-l_2/2, l_2/2] times RR_(≥0) : r≤(1-V(x)/d)}$, the Laplacian is given by $∆_x + 4/d ∂_r^2 + 4/r ∂_r$. We choose $X_(j,k)$ and $R_(j,k)$ such that
 
 $
 -∆_x X_(j,k) = lambda_(x,j,k) X_(j,k), quad -4 (d^(-1) ∂_r^2 + r^(-1) ∂_r) R_(j, k) = lambda_(r,j,k) R_(j,k)
 $
 
-for real numbers $lambda_(x,j,k)$ and $lambda_(r,j,k)$ satisfying $lambda_(x,j,k) + lambda_(r,j,k) = lambda_*$ For $∆_x$ the eigenfunctions are straight forward:
+for real numbers $lambda_(x,j,k)$ and $lambda_(r,j,k)$ satisfying $lambda_(x,j,k) + lambda_(r,j,k) = lambda_*$ For $-∆_x$ the eigenfunctions are simply:
 
 $
-X_(j,k)(x) =sin(x_1 ((2j+1)pi)/l_1) cos(x_2 (2k pi)/l_2)
+X_(j,k)(x) =sin(x_1 ((2j+1)pi)/l_1) cos(x_2 (2k pi)/l_2),
 $
 
-this prescribes $lambda_(x,j,k) = (((2j+1)pi)/l_1)^2 + ((2k pi)/l_2)^2$ and $lambda_(r, j, k) = lambda_* - lambda_(x,j,k)$. Observe that $lambda_(r, j, k)$ can be negative, in fact it is negative for most $j,k$. As a result $R_(j,k)$ has two branches
+this prescribes $lambda_(x,j,k) = (((2j+1)pi)/l_1)^2 + ((2k pi)/l_2)^2$ and $lambda_(r, j, k) = lambda_* - lambda_(x,j,k)$. Notice that we already factored in the fact that $phi.alt_(1,d)$ is odd in the first and even in the second coordinate. Observe that $lambda_(r, j, k)$ can be negative, in fact in our case it is negative for most $j,k$. Consequently, $R_(j,k)$ has two branches
 
 $
 R_(j,k)(r) tilde 
 cases(
-  r^(-alpha_d) I_alpha (beta_(d,j,k) r) "if" lambda_(r, j, k) < 0,
-  r^(-alpha_d) J_alpha (beta_(d,j,k) r) "if" lambda_(r, j, k) ≥ 0
+  r^(-alpha_d) (I_alpha_d (beta_(d,j,k) r)) / (I_alpha_d (beta_(d,j,k))) "if" lambda_(r, j, k) < 0,
+  r^(-alpha_d) (J_alpha_d (beta_(d,j,k) r)) / (J_alpha_d (beta_(d,j,k))) "if" lambda_(r, j, k) ≥ 0
 ),
 $
 
-where $alpha_d = (d-1)/2$ and $beta_(d,j, k) = sqrt(d/4 abs(lambda_(r,j,k)))$. See @sec:mps-radial for a proof of $-∆ X_(j, k) = lambda_(x,j,k) X_(j,k)$.
+where $alpha_d = (d-1)/2$ and $beta_(d,j, k) = sqrt(d/4 abs(lambda_(r,j,k)))$. The functions $I_alpha, J_alpha$ denote the (modified) Bessel functions of the first kind of order $alpha$. We defer the proof of $-∆ X_(j, k) = lambda_(x,j,k) X_(j,k)$ to  @sec:mps-radial.
+
+For large $d$ and $r < 1$, $r^(-alpha_d)$ is very small and $I_alpha_d (beta_(d, j, k) r)$ is extremely large. Computing $R_(j, k)$ naively therefore induces fatal floating points round off errors. The solution is to work with the  _Jahnke-Emden lambda functions_
+
+$
+Lambda_alpha^J (z) &= Gamma(alpha + 1) (J_alpha (z)) / (z slash 2)^alpha = sum_(i ≥ 0) ((-1)^i)/(i! (alpha+1)_i) (z/2)^(2i), \
+Lambda_alpha^I (z) &= Gamma(alpha + 1) (I_alpha (x)) / (z slash 2)^alpha = sum_(i ≥ 0) 1/(i! (alpha+1)_i) (z/2)^(2i), 
+$
+
+where $(alpha+1)_i = Gamma(alpha+i+1)/Gamma(alpha+1)$ is the Pochhammer symbol. Each is a power series in $z^2$ which can be computed recursively and converges very quickly for $r<1$. With this definition the $r^(-alpha_d)$ cancels exactly against the $r^(alpha_d)$ hidden in the Bessel function,
+
+$
+r^(-alpha_d) J_(alpha_d) (beta_(d,j,k) r) = (beta_(d,j,k) slash 2)^(alpha_d) / Gamma(alpha_d + 1) Lambda_(alpha_d)^J (beta_(d,j,k) r),
+$
+
+and likewise for the $I$-branch. The remaining constant $(beta_(d,j,k) slash 2)^(alpha_d) slash Gamma(alpha_d + 1)$ is independent of $r$ but would itself over/underflow for large $d$; it is removed by normalizing $R_(j,k)$ at $r = 1$, so that the problematic prefactor is never formed
+
+$
+R_(j,k)(r) = (Lambda_(alpha_d)^(I slash J) (beta_(d,j,k) r)) / (Lambda_(alpha_d)^(I slash J) (beta_(d,j,k))).
+$
+
+The series for $Lambda_(alpha_d)^(I slash J)$ is summed by the recurrence $rho_i = rho_(i-1) dot (minus.plus x^2 slash 4) slash (i (i + alpha_d))$, accumulated until the term falls below machine precision relative to the partial sum, and its derivative  is obtained from the analogous series with $alpha_d -> alpha_d + 1$. In the $d = oo$ limit we instead use the Gaussian $exp(-(lambda_(r,j,k) slash 8)(r^2 - 1))$ directly.
+
+
+#inline-note-a[
+  *The following is not yet icorporated*
+
+  As $d -> oo$
+
+  $
+  Lambda_(alpha_d)^(I slash J) (x) -> sum_(i ≥ 0) 1/(i!) (minus.plus x^2 / (4 alpha_d))^i = exp(minus.plus x^2 / (4 alpha_d)).
+  $
+
+  Setting $x = beta_(d,j,k) r$ and using
+
+  $
+  beta_(d,j,k)^2 / (4 alpha_d) = (d abs(lambda_(r,j,k)) slash 4) / (4 dot (d-1) slash 2) = (d abs(lambda_(r,j,k))) / (8(d-1)) -> abs(lambda_(r,j,k)) / 8,
+  $
+
+  the normalized ratio $R_(j,k)(r) = Lambda_(alpha_d)^(I slash J) (beta_(d,j,k) r) slash Lambda_(alpha_d)^(I slash J) (beta_(d,j,k))$ tends to a Gaussian that is automatically normalized at $r = 1$,
+
+  $
+  R_(j,k)(r) ->_(d -> oo) exp(minus.plus abs(lambda_(r,j,k)) / 8 (r^2 - 1)) = exp(- lambda_(r,j,k) / 8 (r^2 - 1)),
+  $
+
+  since $minus.plus abs(lambda_(r,j,k)) = - lambda_(r,j,k)$ on the $J$/$I$ branch respectively. This is exactly the Gaussian the implementation evaluates directly in the $d = oo$ branch. The same limit follows independently from the radial ODE $-4(d^(-1) R'' + r^(-1) R') = lambda_(r,j,k) R$: inserting $R = e^(c r^2)$ gives $-4(d^(-1)(2c + 4 c^2 r^2) + 2c) -> -8c = lambda_(r,j,k)$, i.e. $c = - lambda_(r,j,k) slash 8$, the discarded terms being $O(1 slash d)$.
+]
+
