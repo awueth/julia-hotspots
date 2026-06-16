@@ -2,8 +2,6 @@
 
 = Barrel sets <barrels>
 
-In this section we introduce the class of _barrel sets_ which are used in @pont_convex_2024 to construct a counterexample and on which we will base our counterexample as well. 
-
 #definition([Barrel domain])[
   Let $Q subset RR^2$ be a bounded convex domain and let $V : Q -> RR$ be a convex potential. We define the convex domain
 
@@ -12,13 +10,7 @@ In this section we introduce the class of _barrel sets_ which are used in @pont_
   which we call a barrel domain.
 ]
 
-#inline-note-a[
-  *outdated content:*
-
-  The constant factor $1/4$ in the radius is completely arbitrary. In the @pont_convex_2024 it was chosen to be $1/2$, however, we chose $1/4$ since it allows us to show that eigenfunctions with eigenvalue less than $4^2$ are radial in $w$ for large $d$. With the factor $1/2$ we can only prove the same result for eigenvalues less than $2^2$. 
-]
-
-The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
+The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @pont_convex_2024. The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
 
 #figure(
   image("image.png", width: 30%),
@@ -26,6 +18,12 @@ The sets barrel sets get their name from the fact that for an interval $I$ the s
 ) <fig:barell>
 
 For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also use a fixed potential $V :Q -> RR$ which is symmetric in both coordinates. We will denote the eigenvalues of the Neumann Laplacian on $F_d (Q,V)$ by $0 = lambda_(0,d) < lambda_(1,d) ≤ lambda_(2,d) ≤ ...$, with multiple eigenvalues listed separately. The corresponding eigenfunctions will be denoted by $phi.alt_(0,d), phi.alt_(1,d), phi.alt_(2,d)$ and so on.  We will refer to $(lambda_(1, d), lambda_(1, d))$ as the "first" eigenvalue and eigenfunction.
+
+// #inline-note-a[
+//   *outdated content:*
+
+//   The constant factor $1/4$ in the radius is completely arbitrary. In the @pont_convex_2024 it was chosen to be $1/2$, however, we chose $1/4$ since it allows us to show that eigenfunctions with eigenvalue less than $4^2$ are radial in $w$ for large $d$. With the factor $1/2$ we can only prove the same result for eigenvalues less than $2^2$. 
+// ]
 
 // Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eigenvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.
 
@@ -58,41 +56,31 @@ The counterexample is in high dimension $d$. In order to compute its eigenfuncti
   $rho_max = 1/2 (sqrt(d) - V(0)/sqrt(d))$.
 ]
 
-A direct consequence of the above lemma is that any eigenfunction with eigenvalue less than $4$ is radial in high enough dimension. 
-#lemma[
-  The first non-trivial eigenvalue of $F_(d) (Q, V)$ satisfies
-  $
-    lambda_1 < 3.9
-  $
-  for $d$ large enough and for our choice of $Q, V$.
-]
-#proof[
-  Use the numerical counterexample in some way. Worst case, compute its Rayleigh quotient.
-]
-
-// #inline-note-a[
-//   *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 4 s^2$.
-// ]
-
-We will be working exclusively with readial eigenfunctions, therefore we perform the change of variables
+A direct consequence of the above lemma is that any eigenfunction with eigenvalue less than $4$ is radial in high enough dimension. If we restrict the problem to radial eigenfunctions, then the change of variables
 
 $
-r = 2 abs(w) d^(-1/2).
+r = 2 abs(w) d^(-1/2), 
 $
 
-In the $(x,r)$-coordinates, the Laplacian becomes
-
-$
-Delta_x + 4/d ∂_r^2 + 4/r ∂_r.
-$
-
-The Barrel set transforms into
+transforms the Barel set $F_d (Q, V)$ into
 
 $
 Omega_d = {(x,r) in Q times RR_(≥ 0) : r ≤ 1 - V(x)/d}.
 $
 
-On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$. We will show that $lambda_(2, Omega_d) < 4$, therefore $lambda_(i, Omega_d) = lambda_i$ for $i=0,1,2$ and $d$ large enough.
+In the $(x,r)$-coordinates, the Laplacian becomes
+
+$
+Delta_(x,r) = Delta_x + 4/d ∂_r^2 + 4/r ∂_r.
+$
+
+with Neumann boundary conditions at $r=0$.
+
+On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$ and eigenfunctions $phi.alt_(0, Omega_d), phi.alt_(1, Omega)$ and so on. From now on, we will simply assume that the eigenfunctions $phi.alt_(1,d), phi.alt_(2,d)$ on the full Barrel are radial. We will therefore overload the notation and also write $phi.alt_(i,d)$ for $phi.alt_(i, Omega_d)$. In @certificate we will show that $lambda_(2, Omega_d) < 4$, therefore $lambda_(i, Omega_d) = lambda_i$ for $i=0,1,2$ and our choice of $d$. Consequently, $phi.alt_(1,d), phi.alt_(2,d)$ are indeed radial, and, therefore if $phi.alt_(1, Omega_d)$ achieves its maximum in ${(x,r) in Q^circle times RR_(≥ 0) : r < 1 - V(x)/d}$ then $phi.alt_(1,d)$ attains its maximum in the interior of the full Barrel.
+
+// #inline-note-a[
+//   *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 4 s^2$.
+// ]
 
 
 == The effective problem in the limit of dimension
