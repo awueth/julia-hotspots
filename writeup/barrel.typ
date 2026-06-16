@@ -85,35 +85,36 @@ On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$ and eigenfu
 
 == The effective problem in the limit of dimension
 
-The counterexample is effectively built in the limit $d -> oo$, we first have to understand how the eigenvalue problem behaves in this limit. The sequence of principal eigenfunctions $phi_(1,d)$ of $F_d$ at dimension $d$ converges to a function $h$ that is an eigenfunction of $L = -∆ + nabla V dot nabla$ at $r=1$ and satisfyes the following initial value problem:
+In this subsection we study the eigenvalue problem on $Omega_d$ as $d -> oo$. Recall that the Laplacian on $Omega_d$ is given by $Delta_x + 4/d ∂_r^2 + 4/r ∂_r -> Delta_x + 4 r^(-1) ∂_r$ as $d-> oo$, therefore, formaly
+
+$
+∂_r phi.alt_1 = -r/4 (Delta_x + lambda_1) phi.alt_1,
+$
+
+for all $r in [0, 1)$. The boundary $r=1$ is defined by $0=G(x,w) = abs(w) - sqrt(d)/2 (1 - V(x)/d)$ on the barrel $F(Q,V)$. The outward normal vector is proportional to $nabla_(x, w) G = (1/(2 sqrt(d)) nabla_x V, w/abs(w))$. By the chain rule $nabla_w phi.alt_(1, Omega_d) = ∂_r phi.alt_(1, Omega_d) 2/(sqrt(d)) w/abs(w)$. Now,
+
+$
+0 
+= nabla_(x, w) G dot nabla_(x, w) phi.alt_1 
+&= 1/(2 sqrt(d)) nabla_x V dot nabla_x phi.alt_1 + 2/sqrt(d) ∂_r phi.alt_1 \
+&= 1/(2 sqrt(d)) nabla_x V dot nabla_x phi.alt_1 - 2/sqrt(d) 1/4 (Delta_x + lambda_1) phi.alt_1 \
+&= 1/(2 sqrt(d)) (-Delta_x + nabla_x V dot nabla - lambda) phi.alt_1
+$
+
+Therefore, writing $psi_1 (x) = phi.alt_1(x, r=1)$,
+
+$
+-Delta psi_1 + nabla V dot nabla psi_1 = lambda_1 psi_1.
+$
+
+As a result, we obtain a boundary value problem in $d=oo$:
 
 $
 ∂_r h &= -r/4 (∆_x + lambda) h && "for" x in Q, r in [0, 1) \
 h(x, 1) &= psi_1 (x) && "for" x in Q \
 // ∂_r h(x, r) &= 0 "at" r = 0 \ 
-∂_arrow(n) h &= 0 && "for" x in ∂ Q,
+∂_arrow(n) h &= 0 && "for" x in ∂ Q.
 $ <eq:limit-problem>
-
-here $psi_1$ is the first non-trivial eigenfunction of $L$. The first equation follows immediately from the eigenvalue equation $-Delta phi_(1, d) = lambda_(1, d) phi$ since
-
-$
-∆ = ∆_x + 4/d ∂_r^2 + 4/r ∂_r -> Delta_x + 4/r ∂_r.
-$
-
-For the boundary condition we examine rayleigh quotient
-
-$
-// (integral_Omega abs(nabla u)^2 dif z) / (integral_Omega abs(u)^2 dif z)
-// &= 
-(integral_Q integral_0^(rho_d (V)) abs(nabla u)^2 r^d dif r dif x) / (integral_Q integral_0^(rho_d (V)) abs(u)^2 r^d dif r dif x) 
-&= (integral_Q abs(nabla u)^2 (sqrt(d) - V(x)/sqrt(d))^(d+1) dif x) / (integral_Q abs(u)^2 (sqrt(d) - V(x)/sqrt(d))^(d+1) dif x)
--> (integral_Q abs(nabla u)^2 e^(-V(x)) dif x) / (integral_Q abs(u)^2 e^(-V(x)) dif x).
-$
-
-This is the Rayleigh quotient for the Neumann problem $L u = lambda u$ on $Q$. 
-
-// Another way to see the same thing is te examine the boundry condition $∂_arrow(n) u = 0$ on the face $r=rho$.
-// Maybe add this later if I have time
 
 The boundary value problem in @eq:limit-problem can be transformed into a reaction-diffusion initial value problem by the change of variables $t = (1-r^2)/8$, we obtain
 
@@ -122,6 +123,21 @@ $
 h(x, 0) &= psi_1(x) \
 ∂_arrow(n) h &= 0 "on the spatial boundary".
 $<eq:limit-ivp>
+
+In divergence form $L psi_1 = lambda psi_1$ is $-nabla dot (e^(-V) nabla psi_1) = lambda_1 e^(-V) psi_1$. To obtain the weak formulation, we multiply by a test function $v$ and integrate with respect to the Lebesgue measure:
+
+$
+- integral_Omega nabla dot (e^(-V) nabla psi_1) v dif x = lambda_1 integral_Omega psi_1 v e^(-V) dif x
+$
+
+Integrating by parts and using $partial_arrow(n) psi_1 = 0$ we obtain
+
+$
+integral_Q nabla psi_1 dot nabla v space e^(-V) dif x = lambda_1 integral_Q psi_1 v space e^(-V) dif x.
+$
+
+This shows that $psi_1$ is an eigenfunction of the log-concave problem. 
+
 
 #lemma[
   Let $(X, mu)$ and $(Y, nu)$ be measure spaces, $Phi : X -> Y$. Assume that $Phi$ is approximately mass preserving, i.e. $abs((dif Phi_hash mu)/(dif nu) (y) - 1) < epsilon$ for all $y in Y$. Assume $norm(D Phi - I)_"op" < epsilon$. Then, 
