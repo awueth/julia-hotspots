@@ -69,18 +69,20 @@ The conjecture was believed to be true for convex sets until it was recently dis
 
 == Convex sets can have interior hot spots
 
-The counterexample in @pont_convex_2024 pursues the following strategy: The authors establish the log-concave analog of the hot spots conjecture. That is, instead of a Neumann eigenfunction minimizing $(integral_Omega abs(nabla phi)^2 dif x) / (integral_Omega abs(phi)^2 dif x)$, with respect to the uniform measure $bb(1)_Omega$, they generalize to log-concave measures $mu$
-
+They key to the counteraxample constructed in @pont_convex_2024 is to first pose the log-concave extension of the hot spots conjecture. The eigenfunctions of the Neumann Laplacian $Omega$ are critical points of the Rayleigh quotient $integral_Omega abs(nabla phi.alt)^2 dif x \/ integral_Omega abs(nabla phi.alt)^2 dif x$. The log-concave analogon is obtained by generalizing the Lebesgue measure on $Omega$ to log-concave measures. That is, to measures $mu$ with density $dif mu(x) = e^(-V (x)) dif x$ for some convex function $V$ on $Omega$. The principal eigenfunction $phi.alt_(1, mu)$ is now the minimizer of 
 $
-lambda_1 (mu) = inf_(phi) (integral_Omega abs(nabla phi)^2 dif mu) / (integral_Omega abs(phi)^2 dif mu).
+(integral_Omega abs(nabla phi)^2 dif mu) / (integral_Omega abs(phi)^2 dif mu).
 $
 
-They then show that there exists a log-concave extension of the conjecture is false. They transfer to the uniform measure, by simulating the log-concave measure $mu$ by a uniform measure on so called Barrel sets in high dimensions. These are sets of the form
+The log-concave extension of the hot spots conjecture states that $phi.alt_(1, mu)$ attains its maximum on $∂ Omega$, for any log-concave measure $mu$. The authors of @pont_convex_2024 first disprove this version of the conjecture and then transfer the counterexample by approximating $mu$ by a uniform measure on a high-dimensional _barrel set_. Given a convex body $Q subset RR^n$ and a potential $V : Q -> RR$, the barrel set is defined as
 
-$ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ sqrt(d)/2 (1 - V(x)/d)}. $
+$ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : abs(w) <= sqrt(d)/2 (1 - V(x)/d)}, $
 
+which is a convex body in $RR^(n+d+1)$ for sufficiently large $d$. The diffeomorphism
 
-The map $Phi : (x,w) |-> (x, (1-V(x)/d)^(-1) w)$ is a bijection between $F_d (Q, V)$ and $Q times B_(sqrt(d)/2)$. The pushforward of the uniform measure on $F_d (Q, V)$ under $Phi$ approximates the log-concave measure with density $e^(-V) dif x dif w$ on $Q times B_(sqrt(d)/2)$. As a result, we expect $norm(phi_(i, d) compose Phi - phi_(mu, i))_(L^2(mu)) -> 0$, as $d -> oo$. The authors then show that the principal eigenfunction $phi_(mu, 1)$ of the log-concave measure $mu$ has a strict maximum in the interior of $Q times B_(sqrt(d)/2)$, and therefore, for sufficiently large $d$, the principal eigenfunction $phi_(1, d)$ of the uniform measure on $F_d (Q, V)$ must also have a strict maximum in the interior. The dimension $d_"HS"$, at which the hot spot property starts to fail, is not explicit and the naive tracking of constants does not yield a satisfactory bound. In this work we aim to give an explicit lower bound of the dimension for which (HS1-HS3) starts to fail.
+$ Phi : F_d (Q, V) -> Q times B_(sqrt(d)/2), quad (x,w) |-> (x, (1 - V(x)/d)^(-1) w) $
+
+pushes the uniform measure on $F_d (Q, V)$ forward to a measure that approximates the log-concave measure $e^(-V) dif x dif w$ on $Q times B_(sqrt(d)/2)$ as $d -> oo$. Consequently, the principal eigenfunctions satisfy $norm(phi_(1, d) compose Phi - phi_(mu, 1))_(L^2(mu)) -> 0$ as $d -> oo$. Since $phi_(mu, 1)$ attains a strict interior maximum, it follows that for all sufficiently large $d$, the principal eigenfunction $phi_(1, d)$ of the Neumann Laplacian on the convex domain $F_d (Q, V)$ must also attain a strict interior maximum, violating (HS1)--(HS3). The threshold dimension $d_"HS"$ above which the hot spots property fails is not made explicit in @pont_convex_2024, and a naive tracking of constants does not yield a satisfactory quantitative bound. The primary goal of this work is to provide an explicit lower bound on $d_"HS"$.
 
 == The method of particular solutions and certified numerics
 
