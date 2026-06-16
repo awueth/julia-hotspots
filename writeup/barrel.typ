@@ -135,36 +135,94 @@ h(x, 0) &= psi_1(x) \
 ∂_arrow(n) h &= 0 "on the spatial boundary".
 $<eq:limit-ivp>
 
-
 #lemma[
-  Let $lambda_(k, d)^"rad"$ be the $k$-th Neumann eigenvalue of $F_d (Q,V)$ restricted to functions $u(x, w)=u(x,abs(w))$. Let $lambda_k$ be the $k$-th Neumann eigenvalue of $L = -Delta + nabla V dot nabla$ in $L^2 (Q, e^(-V))$. Then for every $k$, $lambda_(k, d)^"rad" -> lambda_k$.
+  Let $(X, mu)$ and $(Y, nu)$ be measure spaces, $Phi : X -> Y$. Assume that $Phi$ is approximately mass preserving, i.e. $abs((dif Phi_hash mu)/(dif nu) (y) - 1) < epsilon$ for all $y in Y$. Assume $norm(D Phi - I)_"op" < epsilon$. Then, 
+
+  $
+  (1-epsilon)^3 / (1 + epsilon) lambda_k (nu) ≤ lambda_k (mu) ≤ (1+epsilon)^3 / (1-epsilon) lambda_k (nu).
+  $
+]
+#proof[
+  Write $a_mu (u, v) = integral nabla u dot nabla v dif mu$ and $m_mu (u,v) = integral u v dif mu$.
+
+  Let $u, v in Y$,
+
+  $
+  m_mu (u compose Phi, v compose Phi) = integral_Y u v dif (Phi_hash mu) = integral_Y u v (dif Phi_hash mu)/(dif nu) dif nu. 
+  $
+
+  Therefore, since $(1-epsilon) ≤ (dif Phi_hash mu)/(dif nu) (y) ≤ (1+epsilon)$ for all $y in Y$,
+
+  $
+  (1-epsilon) m_nu (u, v) ≤ m_mu (u compose Phi, v compose Phi) ≤ (1+epsilon) m_nu (u, v).
+  $
+
+  For the Dirichlet energy: Let $M(x) := D Phi(x) D Phi^T (x)$
+
+  $
+  a_mu (nabla (u compose Phi), nabla (v compose Phi)) 
+  &= integral_X nabla f(Phi(x))^T M nabla u(Phi(x)) dif mu(x) \
+  &= integral_Y nabla u(y)^T M(Phi^(-1)(y)) nabla u(y) (dif Phi_hash mu)/(dif nu) (y) dif nu(y) \
+  $
+
+  Therefore, using both assumptions, we have
+
+  $
+  (1-epsilon)^3 a_nu (u, v) ≤ a_mu (nabla (u compose Phi), nabla (v compose Phi)) ≤ (1+epsilon)^3 a_nu (u, v).
+  $
+
+  For the Rayleigh quotient it follows that
+
+  $
+  (1-epsilon)^3 / (1 + epsilon) R_nu (u) ≤ R_mu (u compose Phi) ≤ (1+epsilon)^3 / (1-epsilon) R_nu (u).
+  $
+
+  By Courant-Fischer and the fact that $Phi$ is a bijection, we have
+
+  $
+  (1-epsilon)^3 / (1 + epsilon) lambda_k (nu) ≤ lambda_k (mu) ≤ (1+epsilon)^3 / (1-epsilon) lambda_k (nu).
+  $
+
 ]
 
+#lemma[
+  Let $Phi : (F_d (Q, V), dif x) -> (Q times B_(sqrt(d)/2), 1/Z_d e^(-V) dif x dif w)$ be given by $(x,w) |-> (x, (1-V(x)/d)^(-1) w)$. Then $norm(D Phi - I)_"op" = O(d^(-1/2))$ and $det D Phi approx e^(V)$
+
+  Assume $d > V$ so that $(1-V(x)/d) > 0$ for all $x in Q$.
+]
 #proof[
-  First, for the upper bound, take the first $k+1$ eigenfunctions $f_0, ..., f_k$ of $L$, and lift them to the barrel by $u_j (x, w) = f_j (x)$. These are radial, and, their Rayleigh quotients satisfy
+  Let $a(x) := (1-V(x)/d)^(-1)$, then $Phi(x,w) = (x, a(x) w)$.
 
   $
-  (integral_(F_d) abs(nabla u)^2) / (integral_(F_d) abs(u)^2)
-  = (integral_Q abs(nabla f_j (x))^2 abs(B^(d+1)_(R_d (x))) dif x) / (integral_Q abs(f_j (x))^2 abs(B^(d+1)_(R_d (x))) dif x)
+    D Phi - I =
+    mat(
+      0_2, 0;
+      w (nabla a)^T, (a-1) I_(d+1)
+    )
   $
 
-  where $R_d (x) = 1/2 (sqrt(d) - V(x)/sqrt(d))$ is the radius of the Barrel at $x$.
-
-  #inline-note-a[
-    $
-    C exp(- (M + M^2)/d) e^(-V(x)) ≤ abs(B^(d+1)_(R_d (x))) ≤ C exp(-V(x))
-    $
-    where $M$ is such that $V(x) ≤ M$ for all $x$.
-  ]
+  therefore
 
   $
-  lambda_(k,d)^"rad" &= min_(dim E = k+1) max_(u in E) cal(R)_d (u) \
-  &≤ max_(u in op("span"){u_0,...,u_k}) (integral_Q abs(nabla u (x))^2 abs(B^(d+1)_(R_d (x))) dif x) / (integral_Q abs(u (x))^2 abs(B^(d+1)_(R_d (x))) dif x) \
-  &≤ exp(- (M+M^2)/(d)) max_(f in op("span"){f_0,...,f_k}) (integral_Q abs(nabla f_j (x))^2 e^(-V(x)) dif x) / (integral_Q abs(f_j (x))^2 e^(-V(x)) dif x) \
-  &= e^(-(M+M^2)/d) lambda_k
+    norm(D Phi - I)_"op" = sqrt((a-1)^2 + abs(w)^2 abs(nabla a)^2).
   $
 
-  To obtain a lower bound, let $u in H^1 (F_d)$ be radial, decompose it fibrewise: $u(x,w) = overline(u)(x) + u^perp (x,w)$, where $overline(u)$ is the average of $u$ over the ball ${w : abs(w) < R_d (x)}$.
+  Now, $a-1 = V / (d - V)$ and $nabla a = (nabla V) / d (1 - V/d)^(-2)$ and $abs(nabla w) abs(nabla a) ≤ abs(nabla V) / (2 sqrt(d)) (1 - V(x)/d)^(-1) = (sqrt(d) abs(nabla V))/(2(d-V))$ . Therefore, 
+
+  $
+  norm(D Phi - I)_"op" 
+  ≤ (V^2 / (d - V)^2 + (d abs(nabla V)^2) / (4 (d-V)^2))^(1/2)
+  = sqrt(V^2 + d/4 abs(nabla V)^2) / (d-V).
+  // ≤ sqrt(4 norm(V)_oo^2 + d norm(nabla V)_oo^2) / (2 (d - norm(V)_oo))
+  $
+
+  For the determinant: $D Phi$ is block triangular, therefore $det D Phi = (1-V(x)/d)^(-(d+1))$. Hence, 
+  
+  $
+  (dif Phi_hash mu) / (dif nu) = e^V (1-V/d)^(d+1).
+  $
+
+  We claim that this converges to $1$ uniformly in $x$ as $d -> oo$. 
 ]
 
 == Symmetry considerations
