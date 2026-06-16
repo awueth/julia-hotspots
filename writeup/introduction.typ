@@ -96,5 +96,8 @@ Since $phi_*$ and $norm(partial_arrow(n) phi_*)_(L^oo (∂Ω))$ are evaluated nu
 
 == Outline of the thesis
 
-This thesis is structured as follows: In @barrels we introduce the class of sets used in @pont_convex_2024 to construct a counterexample. We show that on this class of sets the principal eigenfunction $phi_1$ is highly symmetrical along some dimensions allowing us to reduce the effective dimension of the set giving the counterexample to three. On this effectively three dimensional set we construct a basis for the method of particular solutions. \
-In @construction we explain the counterexample in @pont_convex_2024 and derive an adaptation which can be explicitly computed. In @numerics we present our numerical implementation of our method of particular solutions and compute the rigorous error bounds. Finally, in @certificate we prove that with the error bound found in @numerics, there must be a counterexample in finite dimensions.
+This thesis is structured as follows: In @barrels we study barrel sets in detail. We explain how Barell sets approximate the log-concave problem in high dimensions. We show that on barel sets the principal eigenfunction $phi.alt_1$ is highly symmetrical allowing us to reduce the effective dimension of the set giving the counterexample to three. On this effectively three dimensional set we construct a basis for the method of particular solutions. \
+In @construction we explain the construction of the potential $V$ inducing a counterexample log-concave measure in @pont_convex_2024 and derive an adaptation which can be explicitly computed. \
+In @numerics we present our numerical implementation of our method of particular solutions and the resulting approximation. Since the method of particular solutions cannot guarantee the position in the spectrum of the approximate eigenpairs, we derive a priori bounds in @sec:eigenvalues. \
+In @sec:pointwise we derive pointwise bounds for the eigenfunction based on the eigenvalue bounds and the MPS-residual. \
+Finally, in @certificate we present the resulting numerical bounds and discuss improvements needed for a certificate for the failure of the hot spots conjecture. 

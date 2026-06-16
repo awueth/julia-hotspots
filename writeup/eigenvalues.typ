@@ -1,6 +1,6 @@
 #import "template.typ": *
 
-= Bounds for the eigenvalues
+= Bounds for the eigenvalues <sec:eigenvalues>
 
 The problem with Moler-Payne and similar methods is that they do not give the position in the spectrum. 
 We lower bound the first two eigenvalues using a Galerkin method and certify the bounds as described in @liu_guaranteed_2024.

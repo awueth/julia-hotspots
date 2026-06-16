@@ -1,6 +1,6 @@
 #import "template.typ": *
 
-= Pointwise bounds of the eigenfunction 
+= Pointwise bounds of the eigenfunction <sec:pointwise>
 
 In this section we aim to show that whenever we have an approximate eigenfunction $phi_*$ of $phi_1$ obtained through the method of particular solutions, which has small error on the boundary conditions, then $phi_*$ is close to $phi$ pointwise. The theorems used to certify this all have in common that they need some type of a priori bounds of the eigenvalues. 
 
