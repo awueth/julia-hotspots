@@ -69,36 +69,18 @@ The conjecture was believed to be true for convex sets until it was recently dis
 
 == Convex sets can have interior hot spots
 
-The counterexample in @pont_convex_2024 is built using a sequence of convex sets $Ω_d subset RR^(d+2)$ which are of the following nature:
+The counterexample in @pont_convex_2024 pursues the following strategy: The authors establish the log-concave analog of the hot spots conjecture. That is, instead of a Neumann eigenfunction minimizing $(integral_Omega abs(nabla phi)^2 dif x) / (integral_Omega abs(phi)^2 dif x)$, with respect to the uniform measure $bb(1)_Omega$, they generalize to log-concave measures $mu$
 
 $
-Ω_d = {(x,w) in Q times RR^(d+1) : |w| ≤ 1/2 (sqrt(d) - V(x)/sqrt(d))},
+lambda_1 (mu) = inf_(phi) (integral_Omega abs(nabla phi)^2 dif mu) / (integral_Omega abs(phi)^2 dif mu).
 $
 
-where $Q subset RR^2$ is a rectangle and $V : Q -> RR$ is a convex potential. We now study the sequence of principal eigenfunctions $phi_(1,d)$ of $Ω_d$. First of all, notice that for $d$ large enough $phi_(1,d)$ is radial in the seecond argument $w$. We can therefore, overloading the notation, write $phi_(1,d) (x,r) := phi_(1,d) (x, 2d^(-1/2) abs(w))$. Under the change of variables $r = 2d^(-1/2) abs(w)$, the set $Ω_d$ becomes effectively three dimensional
+They then show that there exists a log-concave extension of the conjecture is false. They transfer to the uniform measure, by simulating the log-concave measure $mu$ by a uniform measure on so called Barrel sets in high dimensions. These are sets of the form
 
-$
-Ω_d = {(x,r) in Q times RR_(≥0) : r ≤ 1 - V(x)/d},
-$
+$ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ sqrt(d)/2 (1 - V(x)/d)}. $
 
-and the eigenvalue equation $-∆ phi_(1,d) = lambda_(1,d) phi_(1,d)$ transforms into
 
-$
-∂_r phi_(1,d) &= r/4 (∆_x - lambda_(1,d)) phi_(1,d) + O(d^(-1)).
-$
-
-The sequence $phi_(1,d)$ converge uniformly to a function $phi_(1,oo) : Q times [0,1]$ which satisfies
-
-$
-∂_r phi_(1,d) &= r/4 (∆_x - lambda) phi_(1,d) \
-L phi_(1,d)(x, 1) &= lambda_(1, oo) phi_(1,d) \
-∂_r phi_(1,d)(x, r) &= 0 "at" r = 0 \
-∂_arrow(n) phi_(1,d) &= 0,
-$
-
-where $L:= -∆ + nabla V dot nabla$, see @pont_convex_2024[Theorem 2.6]. The counterexample is now effectively built at $d = oo$, i.e. it is shown that there exists a convex potential $V$ such that $phi_(1,oo)$ does achieve its maximum in $Q^circle times [0,1)$. As a result there must be a critical dimension $d_"HS"$ such that for all $d≥d_"HS"$ the functions $phi_(1,d)$ achieve there maximum in $Q^circle times [0,1)$ as well. 
-
-The dimension $d_"HS"$, at which the hot spot property starts to fail, is not explicit and the naive tracking of constants does not yield a satisfactory bound. In this work we aim to give an explicit lower bound of the dimension for which (HS1-HS3) starts to fail. We do this by solving for the principal eigenfunction $phi_1$ numerically and then certifying the counterexample using interval arithmetic.
+The map $Phi : (x,w) |-> (x, (1-V(x)/d)^(-1) w)$ is a bijection between $F_d (Q, V)$ and $Q times B_(sqrt(d)/2)$. The pushforward of the uniform measure on $F_d (Q, V)$ under $Phi$ approximates the log-concave measure with density $e^(-V) dif x dif w$ on $Q times B_(sqrt(d)/2)$. As a result, we expect $norm(phi_(i, d) compose Phi - phi_(mu, i))_(L^2(mu)) -> 0$, as $d -> oo$. The authors then show that the principal eigenfunction $phi_(mu, 1)$ of the log-concave measure $mu$ has a strict maximum in the interior of $Q times B_(sqrt(d)/2)$, and therefore, for sufficiently large $d$, the principal eigenfunction $phi_(1, d)$ of the uniform measure on $F_d (Q, V)$ must also have a strict maximum in the interior. The dimension $d_"HS"$, at which the hot spot property starts to fail, is not explicit and the naive tracking of constants does not yield a satisfactory bound. In this work we aim to give an explicit lower bound of the dimension for which (HS1-HS3) starts to fail.
 
 == The method of particular solutions and certified numerics
 
