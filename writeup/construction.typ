@@ -2,35 +2,43 @@
 
 = Constructing a counterexample set <construction>
 
-In this section we aim to explain the counterexample from @pont_convex_2024 and how we adapted it to a version which can be computed explicitly. Since our proof relies on verified numerics, we do not proof any properties of the counterexample set rigorously, but rather explain the inuition behind the reason why we expect the counterexample to work. To better understand the counterexample and for consistency with @pont_convex_2024, we perform the change of variables $t = (1-r^2)/8$ to transform the boundary value problem in @eq:limit-problem into a reaction-diffusion initial value problem:
+In this section we explain the counterexample from @pont_convex_2024 and how we adapted it into a version that can be computed explicitly. Since our proof relies on verified numerics, we do not establish any properties of the counterexample set rigorously here; instead we give the intuition for why we expect it to work. Recall from @eq:limit-problem that the spatial variable $x$ ranges over the base $Q$ of the Barrel, while $r in [0, 1]$ is the radial coordinate, and $psi_1(x) = phi.alt_1(x, r=1)$. Following @pont_convex_2024, we perform the change of variables $t = (1-r^2) slash 8$, which sends the shell $r=1$ to $t=0$ and the axis $r=0$ to $t=1\/8$. Since $partial_r = -r\/4 thin partial_t$, this turns the boundary value problem @eq:limit-problem into a reaction-diffusion initial value problem:
 
 $
-∂_t h &= ∆_x h+ lambda h "for" t in (0, 1\/8]\
+∂_t h &= ∆_x h+ lambda_1 h "for" t in (0, 1\/8]\
 h(x, 0) &= psi_1(x) \
-∂_arrow(n) h &= 0 "on the spatial boundary".
+∂_arrow(n) h &= 0 "on the spatial boundary",
 $<eq:limit-ivp>
 
-The initial condition at $t=0$ corresponds to the values of $h$ at the shell of the Barrel.
+where $h(x, t) = phi.alt_1(x, r)$ is simply the Barrel eigenfunction in the new coordinates. The initial condition at $t=0$ corresponds to the values of $h$ on the shell of the Barrel, and an interior maximum of $h$ yields the interior maximum of $phi.alt_1$ that we are after. In terms of the MPS basis of @mps_basis, separating variables gives
 
 $
-h(x, t) = sum_(j,k) c_(j,k) X_(j, k) (x) exp(lambda_(r, j, k) t)
-$
+h(x, t) = sum_(j,k) c_(j,k) X_(j, k) (x) exp(lambda_(r, j, k) t),
+$<eq:limit-expansion>
 
-We claim that $h(x, t)$ attains its maximum at $t=1/8$, therefore, if $max_(x in Q^circle) h(x, 1/8) > max_(x in ∂Q) h(x,1/8)$, then the global maximum of $h$ is attained in the interior of the Barrel. We have the following condition that can be verified numericaly:
+where the $X_(j,k)$ are the Neumann eigenfunctions of $-∆_x$ on $Q$ with eigenvalues $lambda_(x,j,k)$, and $lambda_(r,j,k) = lambda_1 - lambda_(x,j,k)$; indeed, under $t = (1-r^2)\/8$ the $d=oo$ radial factor $exp(- lambda_(r,j,k)\/8 thin (r^2-1))$ of @mps_basis is exactly $exp(lambda_(r,j,k) t)$. Note that the reaction term shifts every exponent by $lambda_1$: the modes with $lambda_(x,j,k) < lambda_1$ have $lambda_(r,j,k) > 0$ and therefore _grow_ as $t -> 1\/8$, rather than only decaying slowest as they would under pure diffusion, which is what makes an interior maximum at the axis possible.
+
+To show that the global maximum of $h$ is attained in the interior of the Barrel, it suffices to establish two claims: a _temporal_ claim, that $max_(0 ≤ t ≤ 1\/8) max_x h(x,t)$ is attained at $t=1\/8$, and a _spatial_ claim, that $max_(x in Q^circle) h(x, 1\/8) > max_(x in ∂Q) h(x,1\/8)$. The following lemma gives a numerically verifiable sufficient condition for the temporal claim.
 
 #lemma[
-  If $max_x h(x, T) ≥ e^(lambda T) max_x h(x, 0)$, then $max_(0 ≤ t ≤ T) max_x h(x,t) = max_x h(x,T)$
+  If $max_x h(x, T) ≥ e^(lambda_1 T) max_x h(x, 0)$, then $max_(0 ≤ t ≤ T) max_x h(x,t) = max_x h(x,T)$.
 ]
 #proof[
-  Let $u(x,t) := e^(-lambda t) h(x,t)$, then $∂_t u = Delta u$ and by the maximum principle
+  Let $u(x,t) := e^(-lambda_1 t) h(x,t)$, so that $∂_t u = Delta u$ with no-flux boundary conditions. By the parabolic maximum principle the spatial maximum is non-increasing in time, $max_x u(x, t) ≤ max_x u(x, 0)$ for $t ≥ 0$. Equivalently, since $u(dot,0)=h(dot, t)$,
+
   $
-  max_x u(dot, t) ≤ max_x u(dot, 0),
+  max_x h(x,t) ≤ e^(lambda_1 t) max_x h(x, 0).
   $
-  for all $t$.
+
+  Hence for every $t ≤ T$, using $lambda_1 > 0$ and the assumption,
+  
+  $
+  max_x h(x,t) ≤ e^(lambda_1 T) max_x h(x,0) ≤ max_x h(x, T).
+  $
 ]
 
 
-We split the base $Q$ of the Barell into two parts: The _core_ $Q_"core" = [-pi/2, pi/2] times [-1, 1]$ and the _wing_ $Q_"wing" = ([-2pi, 2 pi] times [-1, 1]) without Q_"core"$. On a macroscopic scale we want $psi_1$ to look like $sin(x_1)$ in $Q_"core"$, that is, like the principal eigenfunction of $-∆$ on $Q_"core"$. In $Q_"wing"$ we want $psi_1$ to be a constant extension of the core function. On a microscopic scale we want $psi_1$ to perturbed in such a way that at the interface of $Q_"core"$ and $Q_"wing"$ we have $psi_1(x) approx q(x_2) + "const."$, where $q$ is as in @fig:q. This profile should extend into $Q_"wing"$ but lose its high points at $x_2 = plus.minus 1.0$ before the end of the wing, see @fig:q. The initial datum $psi_1$ achieves its maximum at $x = (pi\/2 +m, 0)$, which is on the boundary. The heat extensions of the profile $q$ and its trimmed version both achieve their maximum at the origin at any time. However, the heat extension of $q$ will be strictly larger than the one of the trimmed versions, due to the additional energy in the tails. The full solution $h$ will capture the same phenomenon, but  due to the additional reaction term in @eq:limit-ivp, the extension $h$ will be strictly larger near $t=1/8$ (or $r=0$), hence the maximum of $h$ will be in the interior near $x_2=0, r=0$ and $x_1 in (pi/2, pi/2 + m)$.
+We split the base $Q$ of the barrel into two parts: The _core_ $Q_"core" = [-pi/2, pi/2] times [-1, 1]$ and the _wing_ $Q_"wing" = ([-2pi, 2 pi] times [-1, 1]) without Q_"core"$. On a macroscopic scale we want $psi_1$ to look like $sin(x_1)$ in $Q_"core"$, that is, like the principal eigenfunction of $-∆$ on $Q_"core"$. In $Q_"wing"$ we want $psi_1$ to be a constant extension of the core function. On a microscopic scale we want $psi_1$ to be perturbed in such a way that at the interface of $Q_"core"$ and $Q_"wing"$ we have $psi_1(x) approx q(x_2) + "const."$, where $q$ is as in @fig:q. This profile should extend into $Q_"wing"$ but lose its high points at $x_2 = plus.minus 1.0$ before the end of the wing, see @fig:q. The initial datum $psi_1$ achieves its maximum at $x = (2pi, 0)$, the end of the wing, which is on the boundary. The heat extensions of the profile $q$ and its trimmed version both achieve their maximum at the origin at any time. However, the heat extension of $q$ will be strictly larger than the one of the trimmed versions, due to the additional energy in the tails. The full solution $h$ will capture the same phenomenon, but  due to the additional reaction term in @eq:limit-ivp, the extension $h$ will be strictly larger near $t=1/8$ (or $r=0$), hence the maximum of $h$ will be in the interior near $x_2=0, r=0$ and $x_1 in (pi/2, 2pi)$.
 
 
 #figure(
@@ -45,10 +53,6 @@ We split the base $Q$ of the Barell into two parts: The _core_ $Q_"core" = [-pi/
   caption: [Cross section of $psi_1$ at the core-wing interface and at the end of the wing.]
 )<fig:q>
 
-== Construction of the core
-
-In this section we explain the main idea behin the counterexample in @pont_convex_2024 and how to build the corresponding potential explicitly in a way suitable for computation. We begin our discussion with the initial condition for @eq:limit-ivp we are aiming for. This is perhaps best explained by a plot of $psi_1$, see @fig:initial-datum. 
-
 #figure(
   grid(
     columns: 2,
@@ -59,16 +63,15 @@ In this section we explain the main idea behin the counterexample in @pont_conve
   caption: [Left: The eigenfunction on the full domain.  Center: The green region magnified. Right: Surface plot of the region.]
 )<fig:initial-datum>
 
+== Construction of the core potential
 
-=== Deriving a potenital to obtain the desired initial datum in the core
-
-In order to build a potential $V$ such that $psi_1$ has the before-mentioned properties in $A_"core"$, we consider the operator $L = -∆ + nabla V dot nabla$ to be a perturbation of the Laplacian $-∆$. Let $V_epsilon = epsilon^(-1) V$, then we can write $L$ as
+In order to build a potential $V$ such that $psi_1$ has the before-mentioned properties in $Q_"core"$, we consider the operator $L = -∆ + nabla V dot nabla$ to be a perturbation of the Laplacian $-∆$. Let $V_epsilon = epsilon^(-1) V$, then we can write $L$ as
 
 $
 L = -∆ + epsilon nabla V_epsilon dot nabla.
 $
 
-Expand both $lambda_1$ and $psi_1$ in powers of $epsilon$,
+Expanding both $lambda_1$ and $psi_1$ in powers of $epsilon$,
 
 $
 lambda_1 &= tilde(lambda)_1 + epsilon mu + O(epsilon^2) \
@@ -82,7 +85,7 @@ tilde(psi)_1 &= sqrt(pi/2) sin(x_1), quad tilde(lambda)_1 = 1 \
 (-∆-1) beta &= sqrt(pi/2) (mu sin(x_1) - (∂_1 V_epsilon) cos(x_1)).
 $
 
-We already obtain the correct macroscopic behavior of $psi_1$ since $epsilon$ is small. The rest of the desired properties will be enabled by $beta$. Let $beta_0$ be
+We already obtain the correct macroscopic behavior of $psi_1$, given that $epsilon$ is small enough. The rest of the desired properties will be enabled by $beta$. Let $beta_0$ be
 
 - antisymmetric in $x_1$,
 - symmetric in $x_2$,
@@ -152,6 +155,6 @@ $
 P_t f(x) = EE[f(X_t) | X_0 = x].
 $
 
-The Neumann boundary condition is encoded by haveing $dif X_t$ reflect at the boundary. Therefore, by letting $nabla V$ increase sharply at the interface between $A_"core"$ and $A_"wing"$, we can enforce a virtual Neumann boundary condition at $partial A_"core"$. We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $A_"wing"$, this way particles coming from $A_"core"$ have a high probability of reflecting near $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
+The Neumann boundary condition is encoded by haveing $dif X_t$ reflect at the boundary. Therefore, by letting $nabla V$ increase sharply at the interface between $Q_"core"$ and $Q_"wing"$, we can enforce a virtual Neumann boundary condition at $partial Q_"core"$. We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $Q_"wing"$, this way particles coming from $Q_"core"$ have a high probability of reflecting near $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
 
-Next, we establish that the eigenfunction $psi_1$ is approximately constant along the flow lines of $nabla V$ in $A_"wing"$. Indeed, let $h$ be the extension of $psi_1$, then, near $r=1$ we have $nabla_x V dot nabla_x h(dot, r) approx ∆_x h + lambda_1 h = 0$. Therefore, since $h$ is smooth, we have $nabla V dot nabla psi_1 approx 0$. As a result, we can transport the profile at the core-wing interface via the flow lines of $nabla V$.
+Next, we establish that the eigenfunction $psi_1$ is approximately constant along the flow lines of $nabla V$ in $Q_"wing"$. Indeed, let $h$ be the extension of $psi_1$, then, near $r=1$ we have $nabla_x V dot nabla_x h(dot, r) approx ∆_x h + lambda_1 h = 0$. Therefore, since $h$ is smooth, we have $nabla V dot nabla psi_1 approx 0$. As a result, we can transport the profile at the core-wing interface via the flow lines of $nabla V$.
