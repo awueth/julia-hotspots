@@ -2,9 +2,7 @@
 
 = Constructing a counterexample set <construction>
 
-In this section we aim to explain the counterexample from @pont_convex_2024 and how we adapted it to a version which can be computed explicitly. Since our proof relies on verified numerics, we do not proof any properties of the counterexample set rigorously, but rather explain the inuition behind the reason why we expect the counterexample to work.
-
-The boundary value problem in @eq:limit-problem can be transformed into a reaction-diffusion initial value problem by the change of variables $t = (1-r^2)/8$, we obtain
+In this section we aim to explain the counterexample from @pont_convex_2024 and how we adapted it to a version which can be computed explicitly. Since our proof relies on verified numerics, we do not proof any properties of the counterexample set rigorously, but rather explain the inuition behind the reason why we expect the counterexample to work. To better understand the counterexample and for consistency with @pont_convex_2024, we perform the change of variables $t = (1-r^2)/8$ to transform the boundary value problem in @eq:limit-problem into a reaction-diffusion initial value problem:
 
 $
 ∂_t h &= ∆_x h+ lambda h "for" t in (0, 1\/8]\
@@ -12,27 +10,27 @@ h(x, 0) &= psi_1(x) \
 ∂_arrow(n) h &= 0 "on the spatial boundary".
 $<eq:limit-ivp>
 
-== The counterexample in @pont_convex_2024 and adapting it for computation
-
-In this section we explain the main idea behin the counterexample in @pont_convex_2024 and how to build the corresponding potential explicitly in a way suitable for computation. We begin our discussion with the initial condition for @eq:limit-ivp we are aiming for. This is perhaps best explained by a plot of $psi_1$, see @fig:initial-datum. 
-
-#figure(
-  grid(
-    columns: 2,
-    image("eigenfunction_split.png", width: 50%),
-    image("eigenfunction_surface.png", width: 50%)
-  ),
-  
-  caption: [Left: The eigenfunction on the full domain.  Center: The green region magnified. Right: Surface plot of the region.]
-)<fig:initial-datum>
-
-The axis of the Barrel decomposes into two parts: The "core" $A_"core" = [0, pi\/2] times [0,1]$ and the "wing" $A_"wing" = [pi\/2,pi\/2 + m]$. On a macroscopic scale we want $psi_1$ to look like $sin(x_1)$ in $A_"core"$, that is, like the principal eigenfunction of $-∆$ on $A_"core"$. In $A_"wing"$ we want $psi_1$ to be a constant extension of the core function. On a microscopic scale we want $psi_1$ to perturbed in such a way that at the interface of $A_"core"$ and $A_"wing"$ we have $psi_1(x) approx q(x_2) + "const."$, where $q$ is as in @fig:q. This profile should extend into $A_"wing"$ but lose its high points at $x_2 = plus.minus 1.0$ before the end of the wing, see @fig:q. The initial datum $psi_1$ achieves its maximum at $x = (pi\/2 +m, 0)$, which is on the boundary. The heat extensions of the profile $q$ and its trimmed version both achieve their maximum at the origin at any time. However, the heat extension of $q$ will be strictly larger than the one of the trimmed versions, due to the additional energy in the tails. The full solution $h$ will capture the same phenomenon, but  due to the additional reaction term in @eq:limit-ivp, the extension $h$ will be strictly larger near $t=1/8$ (or $r=0$),
+The initial condition at $t=0$ corresponds to the values of $h$ at the shell of the Barrel.
 
 $
-h(x,r) = sum_(j,k) c_(j,k) X_(j,k) (x) exp(-r^2 (lambda_(x,j,k) - lambda_1) / 8),
+h(x, t) = sum_(j,k) c_(j,k) X_(j, k) (x) exp(lambda_(r, j, k) t)
 $
 
-hence the maximum of $h$ will be in the interior near $x_2=0, r=0$ and $x_1 in (pi/2, pi/2 + m)$.
+We claim that $h(x, t)$ attains its maximum at $t=1/8$, therefore, if $max_(x in Q^circle) h(x, 1/8) > max_(x in ∂Q) h(x,1/8)$, then the global maximum of $h$ is attained in the interior of the Barrel. We have the following condition that can be verified numericaly:
+
+#lemma[
+  If $max_x h(x, T) ≥ e^(lambda T) max_x h(x, 0)$, then $max_(0 ≤ t ≤ T) max_x h(x,t) = max_x h(x,T)$
+]
+#proof[
+  Let $u(x,t) := e^(-lambda t) h(x,t)$, then $∂_t u = Delta u$ and by the maximum principle
+  $
+  max_x u(dot, t) ≤ max_x u(dot, 0),
+  $
+  for all $t$.
+]
+
+
+We split the base $Q$ of the Barell into two parts: The _core_ $Q_"core" = [-pi/2, pi/2] times [-1, 1]$ and the _wing_ $Q_"wing" = ([-2pi, 2 pi] times [-1, 1]) without Q_"core"$. On a macroscopic scale we want $psi_1$ to look like $sin(x_1)$ in $Q_"core"$, that is, like the principal eigenfunction of $-∆$ on $Q_"core"$. In $Q_"wing"$ we want $psi_1$ to be a constant extension of the core function. On a microscopic scale we want $psi_1$ to perturbed in such a way that at the interface of $Q_"core"$ and $Q_"wing"$ we have $psi_1(x) approx q(x_2) + "const."$, where $q$ is as in @fig:q. This profile should extend into $Q_"wing"$ but lose its high points at $x_2 = plus.minus 1.0$ before the end of the wing, see @fig:q. The initial datum $psi_1$ achieves its maximum at $x = (pi\/2 +m, 0)$, which is on the boundary. The heat extensions of the profile $q$ and its trimmed version both achieve their maximum at the origin at any time. However, the heat extension of $q$ will be strictly larger than the one of the trimmed versions, due to the additional energy in the tails. The full solution $h$ will capture the same phenomenon, but  due to the additional reaction term in @eq:limit-ivp, the extension $h$ will be strictly larger near $t=1/8$ (or $r=0$), hence the maximum of $h$ will be in the interior near $x_2=0, r=0$ and $x_1 in (pi/2, pi/2 + m)$.
 
 
 #figure(
@@ -46,6 +44,20 @@ hence the maximum of $h$ will be in the interior near $x_2=0, r=0$ and $x_1 in (
   ), 
   caption: [Cross section of $psi_1$ at the core-wing interface and at the end of the wing.]
 )<fig:q>
+
+== Construction of the core
+
+In this section we explain the main idea behin the counterexample in @pont_convex_2024 and how to build the corresponding potential explicitly in a way suitable for computation. We begin our discussion with the initial condition for @eq:limit-ivp we are aiming for. This is perhaps best explained by a plot of $psi_1$, see @fig:initial-datum. 
+
+#figure(
+  grid(
+    columns: 2,
+    image("eigenfunction_split.png", width: 50%),
+    image("eigenfunction_surface.png", width: 50%)
+  ),
+  
+  caption: [Left: The eigenfunction on the full domain.  Center: The green region magnified. Right: Surface plot of the region.]
+)<fig:initial-datum>
 
 
 === Deriving a potenital to obtain the desired initial datum in the core
@@ -129,7 +141,7 @@ $
 
 It is possible to satisfy the three constraints with $J=3$. However, we choose $J>3$, in order to have some degrees of freedom to minimize the convexification cost $M$. The zeroth mode $f_0$ has the same constraints except $f_0 (pi/2) = 1$, but instead $inner(f_0,sin(x_1)) = 0$.
 
-=== Extending to the wings
+== Extending to the wings
 
 In the previous paragraph we built $V_0$ such that the _Neumann_ eigenfunction $psi_1$ has the perscribed boundary profile $q$. In order to mantain this profile at the core-wing interface while extending the domain, we need $V$ to act as a virtual Neumann boundary condition.
 
