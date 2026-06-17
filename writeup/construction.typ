@@ -83,19 +83,18 @@ Substituting the expansions into $L psi_1 = lambda_1 psi_1$ and collecting terms
 $
 tilde(psi)_1 &= sqrt(pi/2) sin(x_1), quad tilde(lambda)_1 = 1 \
 (-∆-1) beta &= sqrt(pi/2) (mu sin(x_1) - (∂_1 V_epsilon) cos(x_1)).
+$ <eq:perturbation-terms>
+
+We already obtain the correct macroscopic behavior of $psi_1$, given that $epsilon$ is small enough. The rest of the desired properties will be enabled by $beta$. Suppose we have a function $beta_0$ defined on $Q_"core"$ that is
+
++ odd in $x_1$ and even in $x_2,$
++ has Neumann boundary data and additionally $beta_0(pi\/2,x_2) = q(x_2) + "const."$, and 
++ satisfies $(∆+1) beta_0(pi\/2, x_2) = 0$.
+
+Then, the possibly non-convex potential
+
 $
-
-We already obtain the correct macroscopic behavior of $psi_1$, given that $epsilon$ is small enough. The rest of the desired properties will be enabled by $beta$. Let $beta_0$ be
-
-- antisymmetric in $x_1$,
-- symmetric in $x_2$,
-- have Neumann boundary data with $beta_0(pi\/2,x_2) = q(x_2) + "const."$, and 
-- satisfy $(∆+1) beta_0(pi\/2, x_2) = 0$.
-
-The function
-
-$
-V_0 (x_1,x_2) = -sqrt(2/pi) ∫_0^x_1 ((∆ + 1) beta_0 (s,x_2)) / cos(s) dif s
+V_0 (x_1,x_2) = -sqrt(2/pi) ∫_0^x_1 ((∆ + 1) beta_0 (s,x_2)) / cos(s) dif s,
 $
 
 satisfies
@@ -104,7 +103,29 @@ $
 (-∆-1) beta_0 &= -sqrt(pi/2) (∂_1 V_0) cos(x_1).
 $
 
-From the function $V_0$ we obtain the convex potential $V(x) = V_0(x) + 1/2 M norm(x)^2$, for $M$ large enough. In practice we get a lower bound for $M$ by computing the least eigenvalue of the hessian of $V$. Let $s(x_1), mu$ be a solution of the ODE $-∂_1^2 s(x_1) - s(x_1) = sqrt(pi/2) (mu/M sin(x_1) - x_1 cos(x_1))$ on $[-pi\/2, pi/2]$ with Neumann boundary conditions. Then, $beta(x_1, x_2) = beta_0 (x_1, x_2) + M s(x_1)$ satisfies
+To obtain a convex potential, we add a quadratic term $1/2 (M_1 x_1^2 + M_2 x_2^2)$ to $V_0(x_1, x_2)$, that gives us the potential $V(x_1, x_2) = V_0 (x_1, x_2) + 1/2 (M_1 x_1^2 + M_2 x_2^2)$. The Hessian of $V$ is therefore
+
+$
+H_V (x) 
+= H_(V_0) + H_V
+=
+mat(
+  a(x), c(x);
+  c(x), b(x)
+) 
++ mat(
+  M_1, 0;
+  0, M_2
+).
+$
+
+For $H_V$ to be PSD, it is sufficient that $det H ≥ 0$ and $tr H ≥ 0$, so we choose $M_1, M_2$ such that $M_1 + M_2$ is minimized under the constraints
+
+$
+forall x : a + M_1 ≥ 0, b + M_2 ≥ 0, (a + M_1)(b + M_2) - c^2 ≥ 0.
+$
+
+In order to obtain the full $beta$ satisfying @eq:perturbation-terms, let $s(x_1), mu$ be a solution of the ODE $-∂_1^2 s(x_1) - s(x_1) = sqrt(pi/2) (mu/M sin(x_1) - x_1 cos(x_1))$ on $[-pi\/2, pi/2]$ with Neumann boundary conditions. Then, $beta(x_1, x_2) = beta_0 (x_1, x_2) + M s(x_1)$ satisfies
 
 $
 (-∆-1) beta(x_1,x_2)
@@ -112,10 +133,10 @@ $
 &= sqrt(pi/2)(mu sin(x_1) - (∂_1 V) cos(x_1)),
 $
 
-as desired.
+as desired. In practice we never compute $s$ since it does not affect the interface profile and we only are interested in obtaining a potential.
 
 
-*Constructing $beta_0$* We use the ansatz  
+*Constructing $beta_0$* We choose a target boundary profile $q(x_2) = sum_(n=1)^N q_n cos(n pi x_2)$. We construct $beta_0$ as a Chebyshev-Fourier expansion:
   
 $
 beta_0 (x_1,x_2) = f_0(x_1) + sum_(n=1)^N q_n f_n (x_1) cos(n pi x_2)
@@ -158,3 +179,11 @@ $
 The Neumann boundary condition is encoded by haveing $dif X_t$ reflect at the boundary. Therefore, by letting $nabla V$ increase sharply at the interface between $Q_"core"$ and $Q_"wing"$, we can enforce a virtual Neumann boundary condition at $partial Q_"core"$. We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $Q_"wing"$, this way particles coming from $Q_"core"$ have a high probability of reflecting near $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
 
 Next, we establish that the eigenfunction $psi_1$ is approximately constant along the flow lines of $nabla V$ in $Q_"wing"$. Indeed, let $h$ be the extension of $psi_1$, then, near $r=1$ we have $nabla_x V dot nabla_x h(dot, r) approx ∆_x h + lambda_1 h = 0$. Therefore, since $h$ is smooth, we have $nabla V dot nabla psi_1 approx 0$. As a result, we can transport the profile at the core-wing interface via the flow lines of $nabla V$.
+
+== Parametrizing the potential and guaranteed convexity
+
+
+
+$
+V_"LSE" = LSE("planes")
+$

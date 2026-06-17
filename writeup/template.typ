@@ -19,3 +19,4 @@
 
 #let inner(a, b) = $lr(chevron.l #a, #b chevron.r)$
 #let erf = $op("erf")$
+#let LSE = $op("LSE")$
