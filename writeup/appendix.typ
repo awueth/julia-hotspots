@@ -44,7 +44,55 @@ since $lambda < 0$.
 
 For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z J'_alpha (z) + (z^2 - alpha^2) I_alpha (z) = 0$ instead.
 
-== Wang-Li-Yau Constants
+== Ultracontractivity
+
+#theorem[Wang's Harnack inequality][
+  Let $Omega subset RR^n$ be convex. Let $f$ be a bounded continuous function on $Omega$. For any $t≥0$ we have
+
+  $
+  abs(P_t f (x))^2 ≤ exp(abs(x-y)^2/(2 t)) P_t abs(f)^2 (y),
+  $
+
+  for all $x, y in Omega$.
+]<thm:wang-harnack>
+
+#theorem[Ultracontractivity][
+  If $(integral exp(-abs(x)^2/(2s)) dif mu)^(-1/2) ≤ C_1$ and $norm(P_t exp (abs(x)^2 / (4 s)))_(L^(oo)) ≤ C_2$, then
+
+  $
+  norm(P_(s + t) f)_(L^oo) ≤ C_1 C_2 norm(f)_(L^2).
+  $
+]
+#proof[
+
+  From Wang's Harnack inequality (@thm:wang-harnack) it follows that
+
+  $
+  e^(-abs(y)^2/(2s)) abs(P_s f (x))^2
+  ≤ e^(abs(x)^2/(2s)) P_s abs(f)^2 (y)
+  $
+
+  for all $x, y in Omega$. By integrating over $y in Omega$, we obtain
+
+  $
+  abs(P_s f (x))^2 integral_Omega e^(-abs(y)^2/(2s)) dif mu(y) ≤ e^(abs(x)^2/(2s)) integral P_s abs(f)^2 (y) dif mu(y) = e^(abs(x)^2/(2s)) norm(f)^2_(L^2),
+  $
+
+  or equivalently,
+
+  $
+  abs(P_s f(x)) ≤ (integral_Omega e^(-abs(y)^2/(2 s)) dif mu(y))^(-1/2) e^(abs(x)^2/(4s)) norm(f)_(L^2).
+  $
+
+  Now, using the above and the maximum principle, 
+
+  $
+  norm(P_(s+t) f)_(L^oo)
+  = norm(P_t (P_s f))_(L^oo)
+  ≤ (integral_Omega e^(-abs(y)^2/(2 s)))^(-1/2) norm(f)_(L^2) norm(P_t e^(abs(x)^2/(4s)))_(L^oo)
+  ≤ C_1 C_2 norm(f)_(L^2).
+  $
+]
 
 === $d=oo$
 
