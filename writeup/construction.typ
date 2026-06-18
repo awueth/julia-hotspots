@@ -197,7 +197,7 @@ $
 V_"LSE" (x) = LSE(l_1(x), ..., l_n (x)).
 $
 
-It is straightforward to check, that $LSE$ is convex. It follows immediately that $V_"LSE"$ is convex as well. 
+It is straightforward to check, that $LSE$ is convex. It follows immediately that $V_"LSE"$ is convex as well. The advantage of this construction, is that $V_"LSE"$ is smooth and convex by definition, we do not have to verify it numericaly.
 
 It is well known that
 
@@ -205,3 +205,6 @@ $
 max{x_1,...,x_n} ≤ LSE_alpha (x_1,...,x_n) ≤ max{x_1,...,x_n} + T log n. 
 $
 
+We can approximate a given convex potential $tilde(V)$, by sampling $n$ points $(x, r)_i$ on the potential surface $V$ and then choosing $l_i$ to be tangent to $V$ at $(x, r)_i$.
+
+Finally, since $V_LSE$ is fully parametrized, it is possible to optimize $V_LSE$ with respect to some objective. 

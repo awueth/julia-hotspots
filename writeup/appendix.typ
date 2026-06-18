@@ -228,24 +228,55 @@ $
 ∂_arrow(n_d) u := nabla V dot nabla_x u + 4 ∂_r u = 0.
 $
 
-*The second constant.* We must bound, for use in @thm:ultracontractivity,
+*The second constant.* 
+
+Change of variables $s = sqrt(d) slash 2 - abs(w)$
 
 $
-norm(P_(t)^(Omega_d) exp(alpha (norm(x)^2 + r^2)))_(L^oo (Omega_d)) ≤ C_2, quad alpha := 1/(4 t_1).
+  S_d (Q, V) = {(x, sqrt(d) slash 2 - abs(w)) : (x, w) in F_d (Q, V)}
 $
 
-The simplest approach is to factor out the terms depending on $x$:
+On this set we have the mesaure
 
 $
-norm(P_t^(Omega_d) exp(alpha (norm(x)^2 + r^2 d slash 4)))_(L^oo (Omega_d)),
-≤ (max_(x in Q) e^(alpha norm(x)^2)) norm(P_t^(Omega_d) exp(alpha r^2 d slash 4))_(L^oo (Omega_d)),
+  dif mu_d 
+  = abs(w)^d dif w dif x 
+  = (sqrt(d) slash 2 - s)^d dif s dif x
+  = e^(d log(sqrt(d) slash 2 - s)) dif s dif x
 $
 
-and then bound $P_t^(Omega_d) exp(alpha r^2 d slash 4)$ using a barrier. That is, a function $b(t, x, r)$ with
+so we have the potetial $W(x,s) = -d log(sqrt(d) slash 2 - s)$.
+
+The Laplacian in these coordinates is
 
 $
-∂_t b(t, x, r) - Delta_(x,r) b(t, x, r) &≥ 0 "for" t≥0, (x, r) in Omega_d \
-∂_(arrow(n_d)) b(t, x, 1-V(x)/d) &≥ 0 "for" t≥0, x in Q \
-∂_n b(t, x, r) &≥0 "for" t≥0, x in ∂ Q.
+Delta_(x,s) = Delta_x + ∂_s^2 - d / (sqrt(d) / 2 - s) ∂_s,
 $
 
+and the Neumann condition at the boundary $s=V(x)/(2 sqrt(d))$ is
+
+$
+∂_arrow(n_d) u
+:= 1 / (2 sqrt(d)) nabla V dot nabla_x u - ∂_s u = 0.
+$
+
+The relevant bound is now
+
+$
+norm(P_t^(S_d) e^(alpha (abs(x)^2 + abs(s)^2)))_(L^oo)
+≤ (max_(x in Q) e^(alpha abs(x)^2))  norm(P_t^(S_d) e^(alpha abs(s)^2))_(L^oo).
+$
+
+The key is, that the measure $mu_d$ is concentrated near $s=0$ where $e^(alpha abs(s)^2)$ is small. In the neighborhood of $s=sqrt(d)/2$ there is almost no mass. Now we construct a barrier $b(t, x, s)$ for $e^(alpha abs(s)^2)$, i.e.
+
+$
+∂_t b - Delta_(x,s) b &≥ 0 \
+∂_arrow(n_d) b &≥ 0 \
+b(0, x, s) &≥ e^(alpha abs(s)^2).
+$
+
+We claim that the following function does the trick:
+
+$
+b(t, x, s) = ...
+$
