@@ -183,7 +183,25 @@ Next, we establish that the eigenfunction $psi_1$ is approximately constant alon
 == Parametrizing the potential and guaranteed convexity
 
 
+#definition[
+  Let $x in RR^n$,
+  $
+  LSE_T (x) = T log sum_(i=1)^n e^(x_i slash T),
+  $
+  where $T > 0$ is the _temperature_ parameter.
+]
+
+We will build the final potential as the $LSE$ of affine planes $l_i (x) = a_i x_1 + b_i x_2 + c_i$,
 
 $
-V_"LSE" = LSE("planes")
+V_"LSE" (x) = LSE(l_1(x), ..., l_n (x)).
 $
+
+It is straightforward to check, that $LSE$ is convex. It follows immediately that $V_"LSE"$ is convex as well. 
+
+It is well known that
+
+$
+max{x_1,...,x_n} ≤ LSE_alpha (x_1,...,x_n) ≤ max{x_1,...,x_n} + T log n. 
+$
+
