@@ -237,8 +237,15 @@ $
 The simplest approach is to factor out the terms depending on $x$:
 
 $
-norm(P_t^(Omega_d) exp(alpha (norm(x)^2 + r^2)))_(L^oo (Omega_d)),
-≤ (max_(x in Q) e^(alpha norm(x)^2)) norm(P_t^(Omega_d) exp(alpha r^2))_(L^oo (Omega_d)),
+norm(P_t^(Omega_d) exp(alpha (norm(x)^2 + r^2 d slash 4)))_(L^oo (Omega_d)),
+≤ (max_(x in Q) e^(alpha norm(x)^2)) norm(P_t^(Omega_d) exp(alpha r^2 d slash 4))_(L^oo (Omega_d)),
 $
 
-and then bound $P_t^(Omega_d) exp(alpha r^2)$ using a barrier. 
+and then bound $P_t^(Omega_d) exp(alpha r^2 d slash 4)$ using a barrier. That is, a function $b(t, x, r)$ with
+
+$
+∂_t b(t, x, r) - Delta_(x,r) b(t, x, r) &≥ 0 "for" t≥0, (x, r) in Omega_d \
+∂_(arrow(n_d)) b(t, x, 1-V(x)/d) &≥ 0 "for" t≥0, x in Q \
+∂_n b(t, x, r) &≥0 "for" t≥0, x in ∂ Q.
+$
+
