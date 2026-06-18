@@ -62,7 +62,7 @@ For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z
   $
   norm(P_(s + t) f)_(L^oo) ≤ C_1 C_2 norm(f)_(L^2).
   $
-]
+]<thm:ultracontractivity>
 #proof[
 
   From Wang's Harnack inequality (@thm:wang-harnack) it follows that
@@ -94,7 +94,7 @@ For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z
   $
 ]
 
-=== $d=oo$
+=== Ultracontractivity constants at $d=oo$
 
 *The first constant.* We want to find $C_1(t_1)$ such that
 
@@ -201,6 +201,44 @@ $
   Assuming the wing has length $l_"wing"$, then $X_t$ reaches the core boundary at $t = (l_"wing" - X_0) \/ nabla V$. Since $nabla V approx - epsilon 10^(7)$ this time is very small. Now do the analysis from the semester paper. This should lead a constant that is approximately the infinity norm in the core.
 ]
 
-=== $d<oo$
+=== Ultracontractivity constants in finite dimensions
 
-*The second constant.*
+Recall from @barrels that radial functions on the barrel are identified with functions on
+
+$
+Omega_d = {(x,r): x in Q, 0≤r≤1 - V(x)/d},
+$
+
+with operator
+
+$
+Delta_(x,r) = Delta_x + 4/d ∂_r^2 + 4/r ∂_r.
+$
+
+on the weighted space
+
+$
+L^2(Omega_d, dif mu_d), quad dif mu_d = r^d dif x dif r,
+$
+
+up to the irrelevant angular-volume factor. 
+Let $P_t^(Omega_d)=e^(t Delta_(x,r))$ denote the corresponding Neumann semigroup. At $r=0$ the Neumann condition is the usual regularity condition $∂_r u=0$ for radial lifts, and on the boundary $r=1-V(x)/d$ it is the conormal condition
+
+$
+∂_arrow(n_d) u := nabla V dot nabla_x u + 4 ∂_r u = 0.
+$
+
+*The second constant.* We must bound, for use in @thm:ultracontractivity,
+
+$
+norm(P_(t)^(Omega_d) exp(alpha (norm(x)^2 + r^2)))_(L^oo (Omega_d)) ≤ C_2, quad alpha := 1/(4 t_1).
+$
+
+The simplest approach is to factor out the terms depending on $x$:
+
+$
+norm(P_t^(Omega_d) exp(alpha (norm(x)^2 + r^2)))_(L^oo (Omega_d)),
+≤ (max_(x in Q) e^(alpha norm(x)^2)) norm(P_t^(Omega_d) exp(alpha r^2))_(L^oo (Omega_d)),
+$
+
+and then bound $P_t^(Omega_d) exp(alpha r^2)$ using a barrier. 
