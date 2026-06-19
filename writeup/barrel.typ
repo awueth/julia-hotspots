@@ -130,10 +130,10 @@ Consider the diffeomorphism,
 
 $ Phi : F_d (Q, V) -> Q times B_(sqrt(d)/2), quad (x,w) |-> (x, a(x) w) $
 
-where $a(x) := (1 - V(x)/d)^(-1)$, which "compresses" the barrel into a cylinder. The pushforward $Phi_hash mu$ of $mu$ has density
+where $a(x) := (1 - V(x)/d)^(-1)$, which "compresses" the barrel into a cylinder. Let $cal(L)_d$ denote the lebesgue measure on $F_d$. The pushforward $Phi_hash cal(L_d)$ of $cal(L)_d$ has density
 
 $
-dif Phi_hash mu = det(D Phi)^(-1) dif x dif w.
+dif (Phi_hash cal(L)_d)(x, w) = det(D Phi)^(-1) dif x dif w.
 $
 
 And,
@@ -151,10 +151,15 @@ $
 In a sense, $Phi$ is almost mass preserving, more explicitly:
 
 #lemma[
-  Let $cal(L)$ be the Lebesgue measure on $F_d (Q, V)$, normalized such that $cal(L)(F_d (Q, V)) = 1$. 
+  Let $cal(L)$ be the Lebesgue measure on $F_d (Q, V)$ and let $kappa_d$ be the Lebesgue measure on $B_(sqrt(d)/2)$.
+  
+  Then, 
   $
-  (1-epsilon) ≤ abs((dif Phi_hash cal(L))/(dif mu)) ≤ (1 + epsilon)
+  d/(d+norm(V)_oo) ≤ abs((dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d))) ≤ d/(d-norm(V)_oo) exp(norm(V)_oo^2/(d-norm(V)_oo)).
   $
+
+  If $V$ is nonnegative on $Q$, then we even have $1 ≤ abs((dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d)))$.
+
 ]<lem:mass-preservation>
 
 We furthermore claim that $Phi$ is almost an isometry:
@@ -219,7 +224,34 @@ The two lemmas are exactly the assumptions of the following lemma, which shows t
 ]
 
 #proof[Proof of @lem:mass-preservation][
-  TODO
+  We have to bound $abs((dif Phi_hash cal(L))/(dif (mu times.o kappa_d)) - 1)$ uniformly. Recall that
+
+  $
+  dif (Phi_hash cal(L)_d)(x, w) = (1 - V(x)/d)^(d+1) dif x dif w,
+  quad dif(mu times.o kappa_d)(x,w) = e^(-V(x)) dif x dif w.
+  $
+
+  Hence we need a lower and an upper bound on
+
+  $
+  f(x) = underbrace((e^(-V))/((1 - V/d)^d), =: A) dot 1/(1 - V/d).
+  $
+
+  The inequality $1 + t ≤ e^t$ with $t = -V/d$ gives $(1 - V/d)^d ≤ e^(-V)$, hence $A ≥ 1$ pointwise. 
+  
+  For the upper bound write $h(V) := log(A) =  -V - d log(1 - V/d)$, so that $h(0) = 0$ and
+  $
+  h'(V) = -1 + 1/(1 - V/d) = V/(d - V).
+  $
+  Thus $h ≥ 0$, and for $abs(V) ≤ M$, integrating along the segment from $0$ to $V$ (where the integration variable satisfies $abs(s) ≤ M$, so $d - s ≥ d - M$),
+  $
+  0 ≤ h(V) = integral_0^V s/(d-s) dif s ≤ M/(d-M) integral_0^(abs(V)) dif s ≤ M^2/(d-M).
+  $
+  Together with $1 - V/d in [1 - M/d, 1 + M/d]$ this yields the explicit two-sided bound
+  $
+  d/(d+M) ≤ f(x) ≤ d/(d-M) exp(M^2/(d-M)).
+  $
+  In particular, if $V ≥ 0$ on $Q$ then $(1 - V/d)^(d+1) ≤ (1 - V/d)^d ≤ e^(-V)$, so $f ≥ 1$ and the lower side is sharp. 
 ]
 
 #proof[Proof of @lem:isometry][
