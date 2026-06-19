@@ -99,10 +99,10 @@ For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z
 *The first constant.* We want to find $C_1(t_1)$ such that
 
 $
-∫ exp(-abs(x)^2/(t_1) - epsilon V(x)) dif x ≥ 1/C_1.
+∫ exp(-abs(x)^2/(t_1) - V(x)) dif x ≥ 1/C_1^2.
 $
 
-In the core $(-pi/2, pi/2) times (-1,1)$ the potential is approximately $M/2 norm(x)^2$. Let $A := t_1^(-1) + epsilon M$, then
+In the core $(-pi/2, pi/2) times (-1,1)$ the potential is approximately $M/2 norm(x)^2$. Let $A := t_1^(-1) + M$, then
 
 $
 ∫_((-pi/2,pi/2) times (-1,1)) exp(-A abs(x)^2) dif x
@@ -117,7 +117,7 @@ $
 approx pi/16  approx 1/5.
 $
 
-Hence, $C_1 approx 5$.
+Hence, $C_1 approx sqrt(5)$.
 
 *The second constant.* The goal is to find $C_2$ such that
 
@@ -149,13 +149,13 @@ $
 -L_1 G(t,x) &= (2 a(t) + 4 a(t)^2 x_1^2 - 2 a(t) x_1 ∂_1 V) G(t,x_1)
 $
 
-To get an upper bound of $-L_1 G$ we lower bound $x_1 ∂_1 V$. In the core we have $x_1 ∂_1 V approx epsilon M x_1^2$. In the wings $∂_1 V$ is huge, but it does depend on $x_2$, however we claim that is much bigger that $epsilon M x_1^2$ everywhere. We obtain the bound
+To get an upper bound of $-L_1 G$ we lower bound $x_1 ∂_1 V$. In the core we have $x_1 ∂_1 V approx M x_1^2$. In the wings $∂_1 V$ is huge, but it does depend on $x_2$, however we claim that is much bigger that $M x_1^2$ everywhere. We obtain the bound
 
 $
--L_1 G(t,x) ≤ ((4 a(t)^2 - 2 epsilon M a(t)) x_1^2 + 2 a(t)) G(t,x_1).
+-L_1 G(t,x) ≤ ((4 a(t)^2 - 2 M a(t)) x_1^2 + 2 a(t)) G(t,x_1).
 $
 
-If we find $a$ such that $a'(t) = 4 a(t)^2 - 2 epsilon M a(t)$ and $b$ such that $b'(t) = 2a(t)$, then 
+If we find $a$ such that $a'(t) = 4 a(t)^2 - 2 M a(t)$ and $b$ such that $b'(t) = 2a(t)$, then 
 
 $
 -L_1 G(t,x_1) ≤ (a'(t) x_1^2 + b'(t)) G(t,x_1) = ∂_t G(t,x_1)
@@ -164,8 +164,8 @@ $
 and we win. The following functions should to the trick:
 
 $
-a(t) &= (epsilon M) / (2 + ((epsilon M)/alpha - 2) e^(2 epsilon M t)) \
-b(t) &= epsilon M t + 1/2 ln(a(t)/alpha)
+a(t) &= M / (2 + (M/alpha - 2) e^(2 M t)) \
+b(t) &= M t + 1/2 ln(a(t)/alpha)
 $
 
 #let M_calc = 15.0
@@ -198,67 +198,192 @@ $
   X_t approx X_0 - t nabla V.
   $
 
-  Assuming the wing has length $l_"wing"$, then $X_t$ reaches the core boundary at $t = (l_"wing" - X_0) \/ nabla V$. Since $nabla V approx - epsilon 10^(7)$ this time is very small. Now do the analysis from the semester paper. This should lead a constant that is approximately the infinity norm in the core.
+  Assuming the wing has length $l_"wing"$, then $X_t$ reaches the core boundary at $t = (l_"wing" - X_0) \/ nabla V$. Since $nabla V approx - 10^(7)$ this time is very small. Now do the analysis from the semester paper. This should lead a constant that is approximately the infinity norm in the core.
 ]
 
 === Ultracontractivity constants in finite dimensions
 
-Recall from @barrels that radial functions on the barrel are identified with functions on
+In finite dimensions the choice of origin matters. The Wang–Harnack estimate of @thm:wang-harnack relies on the bound
 
 $
-Omega_d = {(x,r): x in Q, 0≤r≤1 - V(x)/d},
+exp(abs(x-y)^2 / (2t)) ≤ exp(abs(x)^2 / (2t)) exp(abs(y)^2 / (2t)),
 $
 
-with operator
+which comes from $abs(x - y)^2 ≤ abs(x)^2 + abs(y)^2$. In infinite dimensions this is harmless, since every point has radius $r = 1$. In finite dimensions, however, the barrel has radius of order $sqrt(d) slash 2$, so applied to the radial coordinate the same bound,
+$
+abs((x,r) - (x',r'))^2 ≤ abs((x,r))^2 + abs((x',r'))^2,
+$
+costs us a factor of order $e^(sqrt(d) slash 2)$.
+
+To avoid this, we move the origin to the boundary of the barrel, where most of the mass concentrates. We replace the radial coordinate $abs(w)$ by
 
 $
-Delta_(x,r) = Delta_x + 4/d ∂_r^2 + 4/r ∂_r.
+s = sqrt(d) slash 2 - abs(w),
 $
 
-on the weighted space
+which measures the distance to the barrel's rim. The estimate
+$
+abs((x,s) - (x',s'))^2 ≤ abs((x,s))^2 + abs((x',s'))^2
+$
+still holds, but now the $s^2$ terms are small precisely where the mass lives, so the integral in @thm:ultracontractivity no longer pays the exponential price. Accordingly, we work on the set
 
 $
-L^2(Omega_d, dif mu_d), quad dif mu_d = r^d dif x dif r,
+S_d (Q, V) = {(x, sqrt(d) slash 2 - abs(w)) : (x, w) in F_d (Q, V)}.
 $
 
-up to the irrelevant angular-volume factor. 
-Let $P_t^(Omega_d)=e^(t Delta_(x,r))$ denote the corresponding Neumann semigroup. At $r=0$ the Neumann condition is the usual regularity condition $∂_r u=0$ for radial lifts, and on the boundary $r=1-V(x)/d$ it is the conormal condition
+In the new coordinate the measure becomes
 
 $
-∂_arrow(n_d) u := nabla V dot nabla_x u + 4 ∂_r u = 0.
+dif mu_d
+= abs(w)^d dif w dif x
+= (sqrt(d) slash 2 - s)^d dif s dif x
+= e^(d log(sqrt(d) slash 2 - s)) dif s dif x,
 $
 
-*The second constant.* 
+corresponding to the potential $W(x,s) = -d log(sqrt(d) slash 2 - s)$.
 
-Change of variables $s = sqrt(d) slash 2 - abs(w)$
-
-$
-  S_d (Q, V) = {(x, sqrt(d) slash 2 - abs(w)) : (x, w) in F_d (Q, V)}
-$
-
-On this set we have the mesaure
+The substitution $s = sqrt(d) slash 2 - abs(w)$ leaves $Delta_x$ unchanged and flips the sign of the radial derivative, so the Laplacian reads
 
 $
-  dif mu_d 
-  = abs(w)^d dif w dif x 
-  = (sqrt(d) slash 2 - s)^d dif s dif x
-  = e^(d log(sqrt(d) slash 2 - s)) dif s dif x
+Delta_(x,s) = Delta_x + ∂_s^2 - d / (sqrt(d) slash 2 - s) ∂_s,
 $
 
-so we have the potetial $W(x,s) = -d log(sqrt(d) slash 2 - s)$.
-
-The Laplacian in these coordinates is
-
-$
-Delta_(x,s) = Delta_x + ∂_s^2 - d / (sqrt(d) / 2 - s) ∂_s,
-$
-
-and the Neumann condition at the boundary $s=V(x)/(2 sqrt(d))$ is
+and the Neumann condition at the boundary $s = V(x) slash (2 sqrt(d))$ becomes
 
 $
 ∂_arrow(n_d) u
 := 1 / (2 sqrt(d)) nabla V dot nabla_x u - ∂_s u = 0.
 $
+
+*The first constant.*
+
+From $Omega_d$ to $S_d$ the map $(x, r) |-> (x, (1-r) sqrt(d) slash 2)$ is mass preserving, therefore
+$
+integral_(S_d) f(x,s) dif mu_(S_d) (x, s) = integral_Omega_d f(x,(1-r)sqrt(d)slash 2) dif mu_(Omega_d) (x, r).
+$
+
+It follows that $C_1^(S_d)$ is defined by
+
+$
+(integral_Omega_d exp(-1/t (abs(x)^2 + (1-r)^2 d slash 4)) dif mu_(Omega_d))^(-1/2) ≤ C_1^(S_d).
+$
+
+#lemma[
+  Let $(X, mu)$ and $(Y, nu)$ be measure spaces, $Phi : X -> Y$. Assume that $Phi$ is approximately mass preserving, i.e. $abs((dif Phi_hash mu)/(dif nu) (y) - 1) < epsilon$ for all $y in Y$.  Then, 
+
+  $
+  (1-epsilon) integral_Y f dif nu ≤ integral_X f compose Phi dif mu ≤ (1+epsilon) integral_Y f dif nu.
+  $
+]
+
+Now from $Omega_d$ to $Q times [0, 1]$ we have the diffeomorphism
+
+$
+Phi(x,r) = (x, a(x) r) quad "with" a(x) = (1-V(x) slash d)^(-1).
+$
+
+On $Omega_d$ the measure carries the radial weight $dif mu_(Omega_d) prop r^d dif r dif x$. Pushing forward by $Phi$, we obtain the density
+$
+dif Phi_hash mu_(Omega_d) prop (1 - V(x) slash d)^(d+1) r^d dif r dif x.
+$
+
+The infinite-dimensional measure on $Q times [0,1]$ has density $dif mu_(Omega_oo) prop e^(-V(x)) r^d dif r dif x$. The shared radial weight $r^d dif r$ cancels, leaving
+
+$
+(dif Phi_hash mu_(Omega_d)) / (dif mu_(Omega_oo))
+= (1 - V(x) slash d)^(d+1) e^(V(x))
+-> 1
+$
+
+as $d -> oo$, so $Phi$ is approximately mass preserving.
+
+#lemma[
+  $
+  1-epsilon ≤ (dif Phi_hash mu_(Omega_d)) / (dif mu_(Omega_oo)) ≤ 1 + epsilon
+  $
+]
+
+We can now bound $C_1^(S_d)$ in terms of the infinite-dimensional constant $C_1^oo$. Throughout, $mu_(Omega_d)$ and $mu_(Omega_oo)$ are the normalized measures, and we define the infinite-dimensional constant on the same space $Omega_oo = Q times [0,1]$,
+
+$
+(C_1^oo)^(-2) := integral_(Omega_oo) e^(-abs(x)^2 slash t) dif mu_(Omega_oo)
+= (integral_Q e^(-abs(x)^2 slash t) e^(-V) dif x) / (integral_Q e^(-V) dif x),
+$ <eq:c1oo>
+
+where the radial weight $r^d dif r$ cancels between numerator and denominator. This is the first constant of the previous subsection.
+
+Since $C_1^(S_d)$ is the smallest admissible constant, it is given by
+
+$
+(C_1^(S_d))^(-2) = integral_(Omega_d) exp(-1/t (abs(x)^2 + (1-r)^2 d slash 4)) dif mu_(Omega_d).
+$
+
+The integrand equals $f compose Phi$ where,
+
+$
+f(x, r) = exp(-1/t (abs(x)^2 + d/4 (1 - (1 - V(x) slash d) r)^2)), quad (x,r) in Q times [0,1].
+$
+
+Applying the lemma with $Phi : Omega_d -> Omega_oo$, $mu = mu_(Omega_d)$, $nu = mu_(Omega_oo)$ - admissible by the density bound just established - the lower-bound half gives
+
+$
+(C_1^(S_d))^(-2) = integral_(Omega_d) (f compose Phi) dif mu_(Omega_d) ≥ (1-epsilon) integral_(Omega_oo) f dif mu_(Omega_oo)
+$ <eq:c1sd-lemma>
+
+It remains to bound $EE[f] := integral_(Omega_oo) f dif mu_(Omega_oo)$ from below. Write 
+
+$
+f(x, r) = exp(-1/t (abs(x)^2 + d/4 u(x)^2)), quad (x,r) in Q times [0,1],
+$
+
+where $c(x)=1-V(x)/d$ and $u(x)=1-c(x) r$.
+
+Suppose we have a uniform bound
+
+$
+EE_r [e^(-d slash (4t) u^2) | x] ≥ 1-eta_d
+$
+
+for all $x$. Then,
+
+$
+EE_(x,r)[f]
+= EE_x [ e^(-abs(x)^2 slash t) EE_r [e^(-d slash (4t) u^2) | x] ]
+≥ (1 - eta_d) EE_x [ e^(-abs(x)^2 slash t) ]
+= (1 - eta_d)(C_1^oo)^(-2).
+$
+
+
+
+Under $mu_(Omega_oo)$ the conditional law of $r$ given $x$ is $(d+1) r^d dif r$ on $[0,1]$. Using $e^(-z) ≥ 1 - z$,
+
+$
+EE[e^(-d/(4t) u(x)^2) | x]_r ≥ 1 - d/(4t) EE_r [u(x)^2 | r].
+$
+
+Since $u = (1-r) + r V slash d$, the inequality $(a+b)^2 ≤ 2a^2 + 2b^2$ gives $u^2 ≤ 2(1-r)^2 + 2 V^2 slash d^2$, decoupling $x$ and $r$. The exact moment $EE_r [(1-r)^2 | x] = 2 slash ((d+2)(d+3))$ then yields, uniformly in $x in Q$,
+
+$
+d/(4t) EE_r [u^2 | x]
+≤ d/(4t) (4/((d+2)(d+3)) + (2 V^2)/d^2)
+≤ 1/(t d) (1 + norm(V)_oo^2 / 2) =: eta_d.
+$
+
+Hence $EE_r [e^(-d slash (4t) u^2) | x] ≥ 1 - eta_d$ for every $x$.
+
+
+
+Combining with @eq:c1sd-lemma,
+
+$
+C_1^(S_d) ≤ C_1^oo / sqrt((1-epsilon)(1 - eta_d)),
+quad eta_d = 1/(t d)(1 + norm(V)_oo^2 / 2).
+$
+
+
+#pagebreak()
+
+*The second constant.*
 
 The relevant bound is now
 
