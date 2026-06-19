@@ -166,17 +166,17 @@ We furthermore claim that $Phi$ is almost an isometry:
 
 #lemma[
   $
-    1-epsilon ≤ norm(D Phi - I)_"op" ≤ 1+epsilon
+  norm(D Phi - I)_"op" ≤ sqrt(norm(V)_oo^2 + d/4 norm(nabla V)_oo^2) / (d-norm(V)_oo) = O(d^(-1/2)).
   $
 ]<lem:isometry>
 
 The two lemmas are exactly the assumptions of the following lemma, which shows that the eigenvalues converge. 
 
 #lemma[
-  Let $(X, mu)$ and $(Y, nu)$ be measure spaces, $Phi : X -> Y$. Assume that $Phi$ is approximately mass preserving, i.e. $abs((dif Phi_hash mu)/(dif nu) (y) - 1) < epsilon$ for all $y in Y$. Assume $norm(D Phi - I)_"op" < epsilon$. Then, 
+  Let $(X, mu)$ and $(Y, nu)$ be measure spaces, $Phi : X -> Y$. Assume that $Phi$ is approximately mass preserving, i.e. $underline(beta) ≤ abs((dif Phi_hash mu)/(dif nu) (y)) ≤ overline(beta)$ for all $y in Y$. Assume $norm(D Phi - I)_"op" < epsilon$. Then,
 
   $
-  (1-epsilon)^3 / (1 + epsilon) lambda_k (nu) ≤ lambda_k (mu) ≤ (1+epsilon)^3 / (1-epsilon) lambda_k (nu).
+  (1-epsilon)^2 underline(beta) / overline(beta) lambda_k (nu) ≤ lambda_k (mu) ≤ (1+epsilon)^2 overline(beta) / underline(beta) lambda_k (nu).
   $
 ]
 
@@ -189,36 +189,36 @@ The two lemmas are exactly the assumptions of the following lemma, which shows t
   m_mu (u compose Phi, v compose Phi) = integral_Y u v dif (Phi_hash mu) = integral_Y u v (dif Phi_hash mu)/(dif nu) dif nu. 
   $
 
-  Therefore, since $(1-epsilon) ≤ (dif Phi_hash mu)/(dif nu) (y) ≤ (1+epsilon)$ for all $y in Y$,
+  Therefore, since $underline(beta) ≤ (dif Phi_hash mu)/(dif nu) (y) ≤ overline(beta)$ for all $y in Y$,
 
   $
-  (1-epsilon) m_nu (u, v) ≤ m_mu (u compose Phi, v compose Phi) ≤ (1+epsilon) m_nu (u, v).
+  underline(beta) m_nu (u, v) ≤ m_mu (u compose Phi, v compose Phi) ≤ overline(beta) m_nu (u, v).
   $
 
   For the Dirichlet energy: Let $M(x) := D Phi(x) D Phi^T (x)$
 
   $
-  a_mu (nabla (u compose Phi), nabla (v compose Phi)) 
-  &= integral_X nabla f(Phi(x))^T M nabla u(Phi(x)) dif mu(x) \
-  &= integral_Y nabla u(y)^T M(Phi^(-1)(y)) nabla u(y) (dif Phi_hash mu)/(dif nu) (y) dif nu(y) \
+  a_mu (u compose Phi, u compose Phi)
+  &= integral_X nabla u(Phi(x))^T M(x) nabla u(Phi(x)) dif mu(x) \
+  &= integral_Y nabla u(y)^T M(Phi^(-1)(y)) nabla u(y) (dif Phi_hash mu)/(dif nu) (y) dif nu(y).
   $
 
-  Therefore, using both assumptions, we have
+  Since $norm(D Phi - I)_"op" < epsilon$, the eigenvalues of $M = D Phi space D Phi^T$ lie in $((1-epsilon)^2, (1+epsilon)^2)$. Combined with the mass-preservation bounds on $(dif Phi_hash mu)/(dif nu)$ this gives
 
   $
-  (1-epsilon)^3 a_nu (u, v) ≤ a_mu (nabla (u compose Phi), nabla (v compose Phi)) ≤ (1+epsilon)^3 a_nu (u, v).
+  (1-epsilon)^2 underline(beta) space a_nu (u, u) ≤ a_mu (u compose Phi, u compose Phi) ≤ (1+epsilon)^2 overline(beta) space a_nu (u, u).
   $
 
   For the Rayleigh quotient it follows that
 
   $
-  (1-epsilon)^3 / (1 + epsilon) R_nu (u) ≤ R_mu (u compose Phi) ≤ (1+epsilon)^3 / (1-epsilon) R_nu (u).
+  (1-epsilon)^2 underline(beta) / overline(beta) R_nu (u) ≤ R_mu (u compose Phi) ≤ (1+epsilon)^2 overline(beta) / underline(beta) R_nu (u).
   $
 
   By Courant-Fischer and the fact that $Phi$ is a bijection, we have
 
   $
-  (1-epsilon)^3 / (1 + epsilon) lambda_k (nu) ≤ lambda_k (mu) ≤ (1+epsilon)^3 / (1-epsilon) lambda_k (nu).
+  (1-epsilon)^2 underline(beta) / overline(beta) lambda_k (nu) ≤ lambda_k (mu) ≤ (1+epsilon)^2 overline(beta) / underline(beta) lambda_k (nu).
   $
 
 ]
@@ -255,15 +255,17 @@ The two lemmas are exactly the assumptions of the following lemma, which shows t
 ]
 
 #proof[Proof of @lem:isometry][
+  We have
+
   $
     D Phi - I =
     mat(
       0_2, 0;
       w (nabla a)^T, (a-1) I_(d+1)
-    )
+    ).
   $
 
-  therefore
+  Therefore,
 
   $
     norm(D Phi - I)_"op" = sqrt((a-1)^2 + abs(w)^2 abs(nabla a)^2).
@@ -277,6 +279,27 @@ The two lemmas are exactly the assumptions of the following lemma, which shows t
   = sqrt(V^2 + d/4 abs(nabla V)^2) / (d-V).
   // ≤ sqrt(4 norm(V)_oo^2 + d norm(nabla V)_oo^2) / (2 (d - norm(V)_oo))
   $
+]
+
+Combining the three lemmas gives the explicit convergence rate.
+
+#corollary[
+  Let $M := norm(V)_oo$ and
+  $
+  epsilon_d := sqrt(M^2 + d/4 norm(nabla V)_oo^2) / (d - M) = O(d^(-1/2)).
+  $
+  With $underline(beta)_d = d/(d+M)$ and $overline(beta)_d = d/(d-M) exp(M^2/(d-M))$, the Neumann eigenvalues of $F_d (Q, V)$ satisfy
+
+  $
+  (1-epsilon_d)^2 underline(beta)_d / overline(beta)_d lambda_k (mu times.o kappa_d) ≤ lambda_k (cal(L)_d) ≤ (1+epsilon_d)^2 overline(beta)_d / underline(beta)_d lambda_k (mu times.o kappa_d).
+  $
+
+  In particular, $lambda_k (cal(L)_d) = (1 + O(d^(-1/2))) lambda_k (mu times.o kappa_d)$ as $d -> oo$.
+
+  If $V ≥ 0$ on $Q$, then $underline(beta)_d = 1$ and the lower bound improves to $(1-epsilon_d)^2 / overline(beta)_d lambda_k (mu times.o kappa_d) ≤ lambda_k (cal(L)_d)$.
+]
+#proof[
+  Apply the convergence lemma with $mu = cal(L)_d$, $nu = mu times.o kappa_d$ and $Phi$ as above. The bounds on $(dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d))$ come from @lem:mass-preservation, giving $underline(beta) = underline(beta)_d$ and $overline(beta) = overline(beta)_d$, and the operator-norm bound $epsilon = epsilon_d$ comes from @lem:isometry. As $d -> oo$ we have $underline(beta)_d, overline(beta)_d -> 1$ and $epsilon_d -> 0$, whence the stated asymptotics.
 ]
 
 == Parity of eigenfunctions
