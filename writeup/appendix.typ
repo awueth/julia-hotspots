@@ -44,7 +44,7 @@ since $lambda < 0$.
 
 For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z J'_alpha (z) + (z^2 - alpha^2) I_alpha (z) = 0$ instead.
 
-== Ultracontractivity
+= Ultracontractivity
 
 #theorem[Wang's Harnack inequality][
   Let $Omega subset RR^n$ be convex. Let $f$ be a bounded continuous function on $Omega$. For any $t≥0$ we have
@@ -57,7 +57,7 @@ For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z
 ]<thm:wang-harnack>
 
 #theorem[Ultracontractivity][
-  If $(integral exp(-abs(x)^2/(2s)) dif mu)^(-1/2) ≤ C_1$ and $norm(P_t exp (abs(x)^2 / (4 s)))_(L^(oo)) ≤ C_2$, then
+  If $(integral exp(-abs(x)^2/s) dif mu)^(-1/2) ≤ C_1$ and $norm(P_t exp (abs(x)^2 / s))_(L^(oo)) ≤ C_2$, then
 
   $
   norm(P_(s + t) f)_(L^oo) ≤ C_1 C_2 norm(f)_(L^2).
@@ -65,23 +65,23 @@ For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z
 ]<thm:ultracontractivity>
 #proof[
 
-  From Wang's Harnack inequality (@thm:wang-harnack) it follows that
+  From Wang's Harnack inequality (@thm:wang-harnack), and using $abs(x-y)^2 ≤ 2abs(x)^2 + 2abs(y)^2$ it follows that
 
   $
-  e^(-abs(y)^2/(2s)) abs(P_s f (x))^2
-  ≤ e^(abs(x)^2/(2s)) P_s abs(f)^2 (y)
+  e^(-abs(y)^2/(s)) abs(P_s f (x))^2
+  ≤ e^(abs(x)^2/(s)) P_s abs(f)^2 (y)
   $
 
   for all $x, y in Omega$. By integrating over $y in Omega$, we obtain
 
   $
-  abs(P_s f (x))^2 integral_Omega e^(-abs(y)^2/(2s)) dif mu(y) ≤ e^(abs(x)^2/(2s)) integral P_s abs(f)^2 (y) dif mu(y) = e^(abs(x)^2/(2s)) norm(f)^2_(L^2),
+  abs(P_s f (x))^2 integral_Omega e^(-abs(y)^2/s) dif mu(y) ≤ e^(abs(x)^2/s) integral P_s abs(f)^2 (y) dif mu(y) = e^(abs(x)^2/s) norm(f)^2_(L^2),
   $
 
   or equivalently,
 
   $
-  abs(P_s f(x)) ≤ (integral_Omega e^(-abs(y)^2/(2 s)) dif mu(y))^(-1/2) e^(abs(x)^2/(4s)) norm(f)_(L^2).
+  abs(P_s f(x)) ≤ (integral_Omega e^(-abs(y)^2/s) dif mu(y))^(-1/2) e^(abs(x)^2/s) norm(f)_(L^2).
   $
 
   Now, using the above and the maximum principle, 
@@ -89,52 +89,35 @@ For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z
   $
   norm(P_(s+t) f)_(L^oo)
   = norm(P_t (P_s f))_(L^oo)
-  ≤ (integral_Omega e^(-abs(y)^2/(2 s)))^(-1/2) norm(f)_(L^2) norm(P_t e^(abs(x)^2/(4s)))_(L^oo)
+  ≤ (integral_Omega e^(-abs(y)^2/s))^(-1/2) norm(f)_(L^2) norm(P_t e^(abs(x)^2/s))_(L^oo)
   ≤ C_1 C_2 norm(f)_(L^2).
   $
 ]
 
-=== Ultracontractivity constants at $d=oo$
+== Ultracontractivity constants at $d=oo$
 
-*The first constant.* We want to find $C_1(t_1)$ such that
-
-$
-∫ exp(-abs(x)^2/(t_1) - V(x)) dif x ≥ 1/C_1^2.
-$
-
-In the core $(-pi/2, pi/2) times (-1,1)$ the potential is approximately $M/2 norm(x)^2$. Let $A := t_1^(-1) + M$, then
+The first constant we want to find is $C_1(t_1)$ such that
 
 $
-∫_((-pi/2,pi/2) times (-1,1)) exp(-A abs(x)^2) dif x
-&= pi/A erf(pi/2 sqrt(A)) erf(sqrt(A)) \
-&≥ pi/A erf(sqrt(M))^2
-
+1/Z_d ∫_Q e^(-abs(x)^2/(t_1)) e^(- V(x)) dif x ≥ 1/C_1^2,
 $
 
-For $M approx 15$ and $t_1 approx 1$ we obtain
+where $Z_d = integral_Q e^(-V) dif x$. Since $V$ is a log-sum-exp, this can we evaluated numerically to high accuracy. 
+
+For the second constant, that is for $C_2 (t_1, t_2)$ such that 
 
 $
-approx pi/16  approx 1/5.
+norm(P_t_2 exp(norm(x)^2/t_1))_oo ≤ C_2,
 $
 
-Hence, $C_1 approx sqrt(5)$.
-
-*The second constant.* The goal is to find $C_2$ such that
-
-$
-norm(P_t_2 exp(norm(x)^2/(4 t_1)))_oo ≤ C_2.
-$
-
-This one we estimate with a barrier, i.e. we want to find $G(t,x)$ such that
+we will use a barrier estimate. We want to find $G(t,x)$ such that
 
 $
 ∂_t G(t,x) + L G(t,x) &≥ 0  \
-G(0,x) &≥ e^(alpha norm(x)^2).
+G(0,x) &≥ e^(alpha norm(x)^2),
 $
 
-Then we have $G(t,x) ≥ P_t e^(alpha norm(x)^2)$.
-
-First we separate out $x_2$, i.e. $P_t e^(alpha norm(x)^2) ≤ e^(alpha x_2^2) P_t e^(alpha x_1^2)$ making the problem effectively one dimensional. We now try to find a supersolution $G(t, x_1)$, i.e.
+where $alpha = t_1^(-1)$ Then we have $G(t,x) ≥ P_t e^(alpha norm(x)^2)$. First we separate out $x_2$, i.e. $P_t e^(alpha norm(x)^2) ≤ e^(alpha x_2^2) P_t e^(alpha x_1^2)$ making the problem effectively one dimensional. We now try to find a supersolution $G(t, x_1)$, i.e.
 
 $
 - L_1 G(t,x_1) &≤ ∂_t G(t,x_1)  \
@@ -168,16 +151,16 @@ a(t) &= M / (2 + (M/alpha - 2) e^(2 M t)) \
 b(t) &= M t + 1/2 ln(a(t)/alpha)
 $
 
-#let M_calc = 15.0
+#let M_calc = 3.0
 #let t_1_calc = 1.0
-#let alpha_calc = 1.0 / (4.0 * t_1_calc)
+#let alpha_calc = 1.0 / t_1_calc
 #let a(t) = M_calc / (2.0 + (M_calc / alpha_calc - 2.0) * calc.exp(2.0 * M_calc * t))
 #let b(t) = M_calc * t + 0.5 * calc.ln(a(t) / alpha_calc)
 #let bound(t) = calc.exp(alpha_calc + 25.0 * a(t) + b(t))
 
 #figure(
   lq.diagram(
-    let ts = lq.linspace(0.1, 1.0),
+    let ts = lq.linspace(0.5, 1.0),
     lq.plot(ts, t => bound(t))
   ),
   caption: [$C_2(t_2)$ evaluated at $t_1 = 1$ for $M=15$ and $max x_1 = 5$]
@@ -200,8 +183,9 @@ $
 
   Assuming the wing has length $l_"wing"$, then $X_t$ reaches the core boundary at $t = (l_"wing" - X_0) \/ nabla V$. Since $nabla V approx - 10^(7)$ this time is very small. Now do the analysis from the semester paper. This should lead a constant that is approximately the infinity norm in the core.
 ]
+#pagebreak()
 
-=== Ultracontractivity constants in finite dimensions
+== Ultracontractivity constants in finite dimensions
 
 In finite dimensions the choice of origin matters. The Wang–Harnack estimate of @thm:wang-harnack relies on the bound
 
@@ -255,7 +239,7 @@ $
 := 1 / (2 sqrt(d)) nabla V dot nabla_x u - ∂_s u = 0.
 $
 
-*The first constant.*
+== The first constant
 
 From $Omega_d$ to $S_d$ the map $(x, r) |-> (x, (1-r) sqrt(d) slash 2)$ is mass preserving, therefore
 $
@@ -381,27 +365,172 @@ quad eta_d = 1/(t d)(1 + norm(V)_oo^2 / 2).
 $
 
 
-#pagebreak()
+== The second constant
 
-*The second constant.*
-
-The relevant bound is now
+Put $rho := abs(w)$. The shifted radial term is $sqrt(d) slash 2 - rho$. The relevant bound is
 
 $
-norm(P_t^(S_d) e^(alpha (abs(x)^2 + abs(s)^2)))_(L^oo)
-≤ (max_(x in Q) e^(alpha abs(x)^2))  norm(P_t^(S_d) e^(alpha abs(s)^2))_(L^oo).
+norm(P_t^(S_d) e^(alpha (abs(x)^2 + (sqrt(d) slash 2 - rho)^2)))_(L^oo)
+≤ exp(alpha max_(x in Q) abs(x)^2)
+   norm(P_t^(S_d) e^(alpha (sqrt(d) slash 2 - rho)^2))_(L^oo).
 $
 
-The key is, that the measure $mu_d$ is concentrated near $s=0$ where $e^(alpha abs(s)^2)$ is small. In the neighborhood of $s=sqrt(d)/2$ there is almost no mass. Now we construct a barrier $b(t, x, s)$ for $e^(alpha abs(s)^2)$, i.e.
+We construct a barrier $b(t, x, rho)$ for $e^(alpha (sqrt(d) slash 2 - rho)^2)$, i.e.
 
 $
-∂_t b - Delta_(x,s) b &≥ 0 \
+∂_t b - Delta_(x,rho) b &≥ 0 \
 ∂_arrow(n_d) b &≥ 0 \
-b(0, x, s) &≥ e^(alpha abs(s)^2).
+b(0, x, rho) &≥ e^(alpha (sqrt(d) slash 2 - rho)^2).
 $
 
-We claim that the following function does the trick:
+The radial Laplacian in the $rho$-coordinate is
 
 $
-b(t, x, s) = ...
+Delta_(x,rho) = Delta_x + ∂_rho^2 + d/rho ∂_rho.
 $
+
+Fix $T>0$, choose $alpha < beta < 2$ and $gamma > 0$. Assume
+
+$
+d ≥ (4 gamma / (beta - alpha))^2.
+$
+
+Set
+
+$
+z(t) := 1 + 4 beta t, quad
+V_+ := max_(x in Q) V(x).
+$
+
+Define
+
+$
+h(t,rho)
+ := exp(beta d slash 4 - gamma sqrt(d))
+    z(t)^(-(d+1)/2)
+    exp(- beta rho^2 / z(t)),
+$
+
+$
+K_(0,d) := exp(alpha ((2 gamma) / (beta - alpha))^2),
+$
+
+$
+A_(d,T) := beta d sup_(x in Q, 0≤tau≤T)
+  h(tau,sqrt(d) slash 2 - V(x)/(2 sqrt(d))) / z(tau),
+$
+
+and choose $A ≥ A_(d,T)$. The barrier is
+
+$
+b(t,x,rho)
+ := K_(0,d) + h(t,rho) + A/d rho^2 + 2 A (1 + 1/d)t.
+$ <eq:finite-ultra-barrier>
+
+We verify the three conditions.
+
+*Interior equation.* The function $h$ is a constant multiple of the heat kernel in $RR^(d+1)$, hence solves
+
+$
+∂_t h = (∂_rho^2 + d/rho ∂_rho) h.
+$
+
+Also $(∂_rho^2 + d/rho ∂_rho) rho^2 = 2(d+1)$, so
+
+$
+∂_t (A/d rho^2 + 2 A (1+1/d)t)
+= Delta_(x,rho)(A/d rho^2).
+$
+
+Thus $∂_t b - Delta_(x,rho) b = 0$.
+
+*Initial condition.* Since $V ≥ 0$, we have $0≤rho≤sqrt(d) slash 2$ on the domain and hence $0≤sqrt(d) slash 2-rho≤sqrt(d) slash 2$. If $sqrt(d) slash 2-rho≤(2 gamma)/(beta - alpha)$, then the constant $K_(0,d)$ already dominates $e^(alpha (sqrt(d) slash 2-rho)^2)$. If $sqrt(d) slash 2-rho>(2 gamma)/(beta - alpha)$, write $eta := sqrt(d) slash 2-rho$. Then
+
+$
+log h(0,rho) - alpha eta^2
+&= beta d slash 4 - beta rho^2 - gamma sqrt(d) - alpha eta^2 \
+&= eta ((beta - alpha) sqrt(d) slash 2 + (alpha + beta) rho) - gamma sqrt(d) \
+&≥ (beta - alpha) sqrt(d) slash 2 eta - gamma sqrt(d) ≥ 0.
+$
+
+Therefore $b(0,x,rho) ≥ e^(alpha (sqrt(d) slash 2-rho)^2)$.
+
+*Boundary inequality.* On the boundary $rho=sqrt(d) slash 2 - V(x)/(2 sqrt(d))$, a function independent of $x$ satisfies $∂_arrow(n_d) b = ∂_rho b$. Therefore
+
+$
+∂_arrow(n_d) b(t,x,sqrt(d) / 2 - V(x)/(2 sqrt(d)))
+&= 2 (sqrt(d) / 2 - V(x)/(2 sqrt(d))) (A/d - beta h(t,sqrt(d) / 2 - V(x)/(2 sqrt(d))) / z(t)) ≥ 0
+$
+
+by the definition of $A_(d,T)$.
+
+The maximum principle gives
+
+$
+P_T^(S_d) e^(alpha (sqrt(d) slash 2-rho)^2) ≤ b(T,x,rho).
+$
+
+Consequently,
+
+$
+norm(P_T^(S_d) e^(alpha (sqrt(d) slash 2-rho)^2))_(L^oo)
+≤ K_(0,d)
+&+ 2 A (1 + 1/d) T
+  + A/4 \
+&+ exp(beta d slash 4 - gamma sqrt(d))
+   (1 + 4 beta T)^(-(d+1)/2).
+$
+
+#corollary[
+  Let $0 < alpha < 2$ and
+
+  $
+  T > (exp((alpha + 2) / 4) - 1) / (2 (alpha + 2)).
+  $
+
+  Then
+
+  $
+  norm(P_T^(S_d) e^(alpha (sqrt(d) slash 2-rho)^2))_(L^oo) -> 1 quad (d -> oo).
+  $
+
+  Consequently, the full second constant tends to $exp(alpha max_(x in Q) abs(x)^2)$.
+]
+#proof[
+  In the estimate above choose
+
+  $
+  beta := (alpha + 2) / 2, quad gamma := d^(-1/4), quad A := A_(d,T).
+  $
+
+  Then $alpha < beta < 2$ and the assumption $d ≥ (4 gamma / (beta - alpha))^2$ holds for all sufficiently large $d$. Moreover
+
+  $
+  K_(0,d) = exp(alpha ((2 gamma) / (beta - alpha))^2) -> 1,
+  $
+
+  Next we control $A_(d,T)$. For $z=z(tau)$,
+
+  $
+  log h(tau,sqrt(d) slash 2 - V(x)/(2 sqrt(d)))
+  &= beta d slash 4 - gamma sqrt(d) - (d+1)/2 log z
+     - beta (sqrt(d) slash 2 - V(x)/(2 sqrt(d)))^2 / z \
+  &≤ - gamma sqrt(d) + beta V_+ / 2
+     + d (beta/4 (1 - 1/z) - 1/2 log z) \
+  &≤ - gamma sqrt(d) + beta V_+ / 2,
+  $
+
+  where $V_+ := max_(x in Q) V(x)$ and we used $log z ≥ 1 - 1/z$ and $beta<2$. Hence
+
+  $
+  A_(d,T) ≤ beta d exp(-d^(1/4) + beta V_+ / 2) -> 0.
+  $
+
+  Finally, the assumption on $T$ is exactly
+
+  $
+  log(1 + 4 beta T) > beta / 2,
+  $
+
+  so the last term in the estimate tends to zero as well. The displayed estimate therefore gives the claimed radial limit, and the full constant follows from the initial separation of the $x$-factor.
+]
