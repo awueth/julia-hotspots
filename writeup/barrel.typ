@@ -376,7 +376,7 @@ Lambda_alpha^J (z) &= Gamma(alpha + 1) (J_alpha (z)) / (z slash 2)^alpha = sum_(
 Lambda_alpha^I (z) &= Gamma(alpha + 1) (I_alpha (x)) / (z slash 2)^alpha = sum_(i ≥ 0) 1/(i! (alpha+1)_i) (z/2)^(2i), 
 $
 
-where $(alpha+1)_i = Gamma(alpha+i+1)/Gamma(alpha+1)$ is the Pochhammer symbol. Each is a power series in $z^2$ which can be computed recursively and converges very quickly for $r<1$. With this definition the $r^(-alpha_d)$ cancels exactly against the $r^(alpha_d)$ hidden in the Bessel function,
+where $(alpha+1)_i = Gamma(alpha+i+1)/Gamma(alpha+1)$. Each is a power series in $z^2$ which can be computed recursively and converges very quickly for $r<1$. With this definition the $r^(-alpha_d)$ cancels exactly against the $r^(alpha_d)$ hidden in the Bessel function,
 
 $
 r^(-alpha_d) J_(alpha_d) (beta_(d,j,k) r) = (beta_(d,j,k) slash 2)^(alpha_d) / Gamma(alpha_d + 1) Lambda_(alpha_d)^J (beta_(d,j,k) r),
@@ -388,30 +388,25 @@ $
 R_(j,k)(r) = (Lambda_(alpha_d)^(I slash J) (beta_(d,j,k) r)) / (Lambda_(alpha_d)^(I slash J) (beta_(d,j,k))).
 $
 
-The series for $Lambda_(alpha_d)^(I slash J)$ is summed by the recurrence $rho_i = rho_(i-1) dot (minus.plus x^2 slash 4) slash (i (i + alpha_d))$, accumulated until the term falls below machine precision relative to the partial sum, and its derivative  is obtained from the analogous series with $alpha_d -> alpha_d + 1$. In the $d = oo$ limit we instead use the Gaussian $exp(-(lambda_(r,j,k) slash 8)(r^2 - 1))$ directly.
+The series for $Lambda_(alpha_d)^(I slash J)$ is summed by the recurrence $rho_i = rho_(i-1) dot (minus.plus x^2 slash 4) slash (i (i + alpha_d))$, accumulated until the term falls below machine precision relative to the partial sum, and its derivative  is obtained from the analogous series with $alpha_d -> alpha_d + 1$.
 
+In the $d = oo$ limit the lambda functions collapse to a Gaussian, which the implementation evaluates directly. Indeed, from $(alpha_d + 1)_i -> alpha_d^i$ as $d -> oo$, it follows that
 
-#inline-note-a[
-  *The following is not yet icorporated*
+$
+Lambda_(alpha_d)^(I slash J) (x) -> sum_(i ≥ 0) 1/(i!) (plus.minus x^2 / (4 alpha_d))^i = exp(plus.minus x^2 / (4 alpha_d)).
+$
 
-  As $d -> oo$
+Setting $x = beta_(d,j,k) r$ and using
 
-  $
-  Lambda_(alpha_d)^(I slash J) (x) -> sum_(i ≥ 0) 1/(i!) (minus.plus x^2 / (4 alpha_d))^i = exp(minus.plus x^2 / (4 alpha_d)).
-  $
+$
+beta_(d,j,k)^2 / (4 alpha_d) = (d abs(lambda_(r,j,k)) slash 4) / (4 dot (d-1) slash 2) = (d abs(lambda_(r,j,k))) / (8(d-1)) -> abs(lambda_(r,j,k)) / 8,
+$
 
-  Setting $x = beta_(d,j,k) r$ and using
+we obtain,
 
-  $
-  beta_(d,j,k)^2 / (4 alpha_d) = (d abs(lambda_(r,j,k)) slash 4) / (4 dot (d-1) slash 2) = (d abs(lambda_(r,j,k))) / (8(d-1)) -> abs(lambda_(r,j,k)) / 8,
-  $
+$
+R_(j,k)(r) ->_(d -> oo) exp(minus.plus abs(lambda_(r,j,k)) / 8 (r^2 - 1)) = exp(- lambda_(r,j,k) / 8 (r^2 - 1)),
+$
 
-  the normalized ratio $R_(j,k)(r) = Lambda_(alpha_d)^(I slash J) (beta_(d,j,k) r) slash Lambda_(alpha_d)^(I slash J) (beta_(d,j,k))$ tends to a Gaussian that is automatically normalized at $r = 1$,
-
-  $
-  R_(j,k)(r) ->_(d -> oo) exp(minus.plus abs(lambda_(r,j,k)) / 8 (r^2 - 1)) = exp(- lambda_(r,j,k) / 8 (r^2 - 1)),
-  $
-
-  since $minus.plus abs(lambda_(r,j,k)) = - lambda_(r,j,k)$ on the $J$/$I$ branch respectively. This is exactly the Gaussian the implementation evaluates directly in the $d = oo$ branch. The same limit follows independently from the radial ODE $-4(d^(-1) R'' + r^(-1) R') = lambda_(r,j,k) R$: inserting $R = e^(c r^2)$ gives $-4(d^(-1)(2c + 4 c^2 r^2) + 2c) -> -8c = lambda_(r,j,k)$, i.e. $c = - lambda_(r,j,k) slash 8$, the discarded terms being $O(1 slash d)$.
-]
+since $minus.plus abs(lambda_(r,j,k)) = - lambda_(r,j,k)$ on the $J$/$I$ branch respectively. // The same limit follows independently from the radial ODE $-4(d^(-1) R'' + r^(-1) R') = lambda_(r,j,k) R$: inserting $R = e^(c r^2)$ gives $-4(d^(-1)(2c + 4 c^2 r^2) + 2c) -> -8c = lambda_(r,j,k)$, i.e. $c = - lambda_(r,j,k) slash 8$, the discarded terms being $O(1 slash d)$.
 
