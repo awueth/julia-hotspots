@@ -44,7 +44,7 @@ since $lambda < 0$.
 
 For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z J'_alpha (z) + (z^2 - alpha^2) I_alpha (z) = 0$ instead.
 
-= Ultracontractivity
+= Ultracontractivity <sec:ultracontractivity>
 
 #theorem[Wang's Harnack inequality][
   Let $Omega subset RR^n$ be convex. Let $f$ be a bounded continuous function on $Omega$. For any $t≥0$ we have

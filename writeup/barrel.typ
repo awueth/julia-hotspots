@@ -297,7 +297,7 @@ Combining the three lemmas gives the explicit convergence rate.
   In particular, $lambda_k (cal(L)_d) = (1 + O(d^(-1/2))) lambda_k (mu times.o kappa_d)$ as $d -> oo$.
 
   If $V ≥ 0$ on $Q$, then $underline(beta)_d = 1$ and the lower bound improves to $(1-epsilon_d)^2 / overline(beta)_d lambda_k (mu times.o kappa_d) ≤ lambda_k (cal(L)_d)$.
-]
+]<thm:eigenvalue-convergence>
 #proof[
   Apply the convergence lemma with $mu = cal(L)_d$, $nu = mu times.o kappa_d$ and $Phi$ as above. The bounds on $(dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d))$ come from @lem:mass-preservation, giving $underline(beta) = underline(beta)_d$ and $overline(beta) = overline(beta)_d$, and the operator-norm bound $epsilon = epsilon_d$ comes from @lem:isometry. As $d -> oo$ we have $underline(beta)_d, overline(beta)_d -> 1$ and $epsilon_d -> 0$, whence the stated asymptotics.
 ]
