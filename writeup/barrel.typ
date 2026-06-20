@@ -369,7 +369,7 @@ $
 
 where $alpha_d = (d-1)/2$ and $beta_(d,j, k) = sqrt(d/4 abs(lambda_(r,j,k)))$. The functions $I_alpha, J_alpha$ denote the (modified) Bessel functions of the first kind of order $alpha$. We defer the proof of $-∆ X_(j, k) = lambda_(x,j,k) X_(j,k)$ to  @sec:mps-radial.
 
-For large $d$ and $r < 1$, $r^(-alpha_d)$ is very small and $I_alpha_d (beta_(d, j, k) r)$ is extremely large. Computing $R_(j, k)$ naively therefore induces fatal floating points round off errors. The solution is to work with the  _Jahnke-Emden lambda functions_
+For large $d$ and $r < 1$, $r^(-alpha_d)$ is very small and $I_alpha_d (beta_(d, j, k) r)$ is extremely large. Computing $R_(j, k)$ naively therefore induces fatal floating points round off errors. The solution is to work with the  _Jahnke-Emden lambda functions_ @jahnke_tables_1945
 
 $
 Lambda_alpha^J (z) &= Gamma(alpha + 1) (J_alpha (z)) / (z slash 2)^alpha = sum_(i ≥ 0) ((-1)^i)/(i! (alpha+1)_i) (z/2)^(2i), \
