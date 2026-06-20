@@ -173,18 +173,27 @@ It is possible to satisfy the three constraints with $J=3$. However, we choose $
 
 == Extending to the wings
 
-In the previous paragraph we built $V_0$ such that the _Neumann_ eigenfunction $psi_1$ has the perscribed boundary profile $q$. In order to mantain this profile at the core-wing interface while extending the domain, we need $V$ to act as a virtual Neumann boundary condition.
+In the previous section we built $V_0$ on the core so that the Neumann eigenfunction $psi_1$ has the prescribed interface profile $q$. We now extend $V$ to the wing so that two things hold: gluing the wing leaves the core eigenfunction essentially unchanged, and the interface profile is carried into the wing as the plateau-trim-plateau structure used in our heuristic for the spatial claim. We get there in three steps. First, any sufficiently steep, outward-increasing potential turns the interface into a virtual Neumann boundary, decoupling the core. Second, such a steep potential forces $psi_1$ to be constant along the flow lines of $-nabla V$. Third, we shape those flow lines so that they transport $q$ into the wing and trim its secondary peaks along the way.
 
-
-*The probabilistic interpretation of the semigroup.* Let $P_t = e^(t L)$ be the semigroup corresponding to $L$. We have that $P_t psi_1 = e^(-lambda_1 t) psi_1$. Let $X_t$ denote the stochastic process described by $dif X_t = - nabla V (X_t) dif t + sqrt(2) dif B_t$, then the action of $P_t$ on a function $f$ can be written as
+The operator $L = -∆ + nabla V dot nabla$ is self-adjoint with respect to the weighted measure $dif mu = e^(-V) dif x$, and $psi_1$ is characterized by
 
 $
-P_t f(x) = EE[f(X_t) | X_0 = x].
+integral_Q nabla psi_1 dot nabla v thin e^(-V) dif x = lambda_1 integral_Q psi_1 thin v thin e^(-V) dif x quad "for all" v in H^1(Q).
+$ <eq:weak-eig>
+
+Suppose that $V$ in the wing grows steeply outward, $V(x) gt.tilde V(pi/2, x_2) + s (abs(x_1) - pi/2)$ for a large constant $s$. Then the weight $e^(-V)$ decays by a factor $e^(-s (abs(x_1) - pi/2))$ across the wing, so $Q_"wing"$ carries an exponentially small fraction of the total mass $mu(Q)$. In @eq:weak-eig the integrals over $Q_"wing"$ are therefore negligible against those over $Q_"core"$, and the identity reduces, up to exponentially small error, to
+
+$
+integral_(Q_"core") nabla psi_1 dot nabla v thin e^(-V) dif x approx lambda_1 integral_(Q_"core") psi_1 thin v thin e^(-V) dif x quad "for all" v in H^1(Q_"core").
 $
 
-The Neumann boundary condition is encoded by haveing $dif X_t$ reflect at the boundary. Therefore, by letting $nabla V$ increase sharply at the interface between $Q_"core"$ and $Q_"wing"$, we can enforce a virtual Neumann boundary condition at $partial Q_"core"$. We can achieve this by setting $V(x) = V(pi/2, 1.0) + 10^7 (abs(x_1)-pi/2)$ in $Q_"wing"$, this way particles coming from $Q_"core"$ have a high probability of reflecting near $x_1 = pi/2$, this simulates the reflecting boundary conditions. 
+This is exactly the weak Neumann eigenproblem on the core, with the interface $x_1 = pi/2$ now a free boundary on which the natural condition $∂_arrow(n) psi_1 = 0$ holds. Hence $psi_1|_(Q_"core")$ agrees, to leading order, with the core eigenfunction constructed before: the steep wing acts as a virtual Neumann boundary condition at $∂ Q_"core"$, without one being imposed.
 
-Next, we establish that the eigenfunction $psi_1$ is approximately constant along the flow lines of $nabla V$ in $Q_"wing"$. Indeed, let $h$ be the extension of $psi_1$, then, near $r=1$ we have $nabla_x V dot nabla_x h(dot, r) approx ∆_x h + lambda_1 h = 0$. Therefore, since $h$ is smooth, we have $nabla V dot nabla psi_1 approx 0$. As a result, we can transport the profile at the core-wing interface via the flow lines of $nabla V$.
+#inline-note-a[
+  TODO: A paragraph explaining why $nabla V dot nabla psi_1 approx 0$ in the wing.
+]
+
+We have turned the construction of the wing potential into a problem about flow lines: since $psi_1$ is constant along the flow lines of $-nabla V$, we may choose $V$ so that these flow lines carry each interface height to the right place in the wing. It is natural to organize the wing into three: a central channel around the main peak at $x_2 = 0$, and two outer channels from the minima of $q$ out to $x_2 = plus.minus 1$. In the central channel the flow lines should run straight and horizontal, so that the main peak is transported across the wing unchanged and $psi_1 approx q(x_2)$ throughout. In the two outer channels the flow must instead be compressed inward: looking from the end of the wing back toward the core, the flow liens of each outer channel converge toward the center. As a result, the strips near $x_2 = plus.minus 1$ at the wing end trace back to the minima of $q$, producing the trimmed profile $tilde(q)$ at the wing end.
 
 == Parametrizing the potential and guaranteed convexity
 
