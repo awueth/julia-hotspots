@@ -195,31 +195,40 @@ This is exactly the weak Neumann eigenproblem on the core, with the interface $x
 
 We have turned the construction of the wing potential into a problem about flow lines: since $psi_1$ is constant along the flow lines of $-nabla V$, we may choose $V$ so that these flow lines carry each interface height to the right place in the wing. It is natural to organize the wing into three: a central channel around the main peak at $x_2 = 0$, and two outer channels from the minima of $q$ out to $x_2 = plus.minus 1$. In the central channel the flow lines should run straight and horizontal, so that the main peak is transported across the wing unchanged and $psi_1 approx q(x_2)$ throughout. In the two outer channels the flow must instead be compressed inward: looking from the end of the wing back toward the core, the flow liens of each outer channel converge toward the center. As a result, the strips near $x_2 = plus.minus 1$ at the wing end trace back to the minima of $q$, producing the trimmed profile $tilde(q)$ at the wing end.
 
+
 == Parametrizing the potential and guaranteed convexity
 
+So far we have constructed the core potential and the wing potential separately, on $Q_"core"$ and $Q_"wing"$. To use them in the eigenvalue problem we need a single potential on all of $Q$ that is smooth across the interface $x_1 = pi\/2$ and globally convex. In the core construction we enforced convexity by adding a quadratic term. Choosing $M_1, M_2$ so that the Hessian (@eq:perturbation-terms) is positive semidefinite, is a condition we can only check numerically. We now describe a parametrization that gives smoothness, convexity, and the gluing of the two pieces all at once.
 
 #definition[
-  Let $x in RR^n$,
+  Let $x in RR^n$ and $T > 0$. The _log-sum-exp_ function with _temperature_ $T$ is
   $
-  LSE_T (x) = T log sum_(i=1)^n e^(x_i slash T),
+  LSE_T (x_1, ..., x_n) = T log sum_(i=1)^n e^(x_i slash T).
   $
-  where $T > 0$ is the _temperature_ parameter.
 ]
 
-We will build the final potential as the $LSE$ of affine planes $l_i (x) = a_i x_1 + b_i x_2 + c_i$,
+We represent the potential as the $LSE$ of a collection of affine planes $l_i (x) = a_i x_1 + b_i x_2 + c_i$,
 
 $
-V_"LSE" (x) = LSE(l_1(x), ..., l_n (x)).
+V_"LSE" (x) = LSE_T (l_1(x), ..., l_n (x)).
 $
 
-It is straightforward to check, that $LSE$ is convex. It follows immediately that $V_"LSE"$ is convex as well. The advantage of this construction, is that $V_"LSE"$ is smooth and convex by definition, we do not have to verify it numericaly.
+The function $LSE_T$ is convex and nondecreasing in each argument, composed with the affine $l_i$ it follows immediately that $V_"LSE"$ is convex. Both convexity and smoothness hold _by construction_, for every choice of planes.
 
-It is well known that
+$LSE_T$ is a smooth approximation of the maximum, with the standard two-sided bound
 
 $
-max{x_1,...,x_n} ≤ LSE_alpha (x_1,...,x_n) ≤ max{x_1,...,x_n} + T log n. 
+max_i l_i (x) ≤ V_"LSE" (x) ≤ max_i l_i (x) + T log n,
 $
 
-We can approximate a given convex potential $tilde(V)$, by sampling $n$ points $(x, r)_i$ on the potential surface $V$ and then choosing $l_i$ to be tangent to $V$ at $(x, r)_i$.
+so $T$ controls the trade-off between accuracy of the approximation (small $T$) and smoothness (large $T$).
 
-Finally, since $V_LSE$ is fully parametrized, it is possible to optimize $V_LSE$ with respect to some objective. 
+To approximate a given convex potential $tilde(V)$ on a region we sample points $x_i$ on a grid and take $l_i$ to be the tangent plane of $tilde(V)$ at $x_i$. Because $tilde(V)$ is convex, each tangent plane is a supporting hyperplane, $l_i (x) ≤ tilde(V)(x)$ everywhere with equality at $x_i$, so $max_i l_i ≤ tilde(V)$ and the bound above sandwiches $V_"LSE"$ within $T log n$ of $tilde(V)$.
+
+The key feature of this representation is that gluing is simple. We fit the core potential on $Q_"core"$ to a set of planes ${l_i^"core"}$ and, independently, the wing potential on $Q_"wing"$ to a set of planes ${l_j^"wing"}$. The global potential is simply the $LSE$ over the union of both collections,
+
+$
+V (x) = LSE_T ({l_i^"core"} union {l_j^"wing"}).
+$
+
+Since $V_"LSE"$ is fully parametrized by the plane coefficients, it can be optimized against any differentiable objective, and crucially convexity is enforced automatically: every point of the parameter space yields a convex potential, so the optimizer does not need to respect a convexity constraint. This opens up several directions. After solving for the eigenfunction $phi.alt_1$ with the MPS, one could turn the problem around and adjust the potential to reduce the $L^oo$ error in the Neumann boundary condition.  More difficulty, one could optimize $V_"LSE"$ directly to, maximizie the gap $max_(Q^circle) h(dot, 1\/8) - max_(∂Q) h(dot, 1\/8)$, and therefore strengthen the counterexample itself.
