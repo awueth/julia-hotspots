@@ -13,8 +13,8 @@
 The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @pont_convex_2024. The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
 
 #figure(
-  image("image.png", width: 30%),
-  caption: [(Preliminary AI slop) The sets $F_1$ look like barells for $Q=[-1,1]$]
+  image("barrel.svg", width: 25%),
+  caption: [For $Q$ an interval $F_1(Q,V)$ looks like a barell. The curved wall corresponds to the graph of the potential $V$. The actual counterexample, the cylinder axis $Q$ is a rectangle.]
 ) <fig:barell>
 
 For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also use a fixed potential $V :Q -> RR$ which is symmetric in both coordinates. We will denote the eigenvalues of the Neumann Laplacian on $F_d (Q,V)$ by $0 = lambda_(0,d) < lambda_(1,d) ≤ lambda_(2,d) ≤ ...$, with multiple eigenvalues listed separately. The corresponding eigenfunctions will be denoted by $phi.alt_(0,d), phi.alt_(1,d), phi.alt_(2,d)$ and so on.  We will refer to $(lambda_(1, d), lambda_(1, d))$ as the "first" eigenvalue and eigenfunction.

@@ -2,6 +2,7 @@
 #import "@preview/drafting:0.2.2": *
 #import "@preview/cetz:0.5.2"
 #import "@preview/lilaq:0.6.0" as lq
+#import "@preview/subpar:0.2.2"
 
 #let template(doc) = [
   #show: show-theorion

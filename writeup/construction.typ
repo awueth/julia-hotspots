@@ -42,31 +42,30 @@ We now describe how we engineer the initial datum $psi_1$ so that the flow @eq:l
 
 We split the base $Q$ of the barrel into two parts: the _core_ $Q_"core" = [-pi/2, pi/2] times [-1, 1]$ and the _wing_ $Q_"wing" = ([-2pi, 2 pi] times [-1, 1]) without Q_"core"$. On a macroscopic scale we want $psi_1$ to look like $sin(x_1)$ in $Q_"core"$, that is, like the principal eigenfunction of $-∆$ on $Q_"core"$, and to be a constant extension of this profile in $Q_"wing"$. On a microscopic scale we perturb $psi_1$ so that at the core-wing interface $x_1 = pi/2$ we have $psi_1(x) approx q(x_2) + "const."$, where $q$ is the solid profile of @fig:q. The profile $q$ has a global maximum at $x_2 = 0$ and two secondary maxima at $x_2 = plus.minus 1$. We transport this profile into the wing in three stages along $x_1$. Just past the interface there is a _plateau_ on which $psi_1$ is, approximately, independent of $x_1$ and equal to $q(x_2) + "const."$. Then comes a _transition region_ in which we _trim_ the profile, cutting off the secondary peaks at $x_2 = plus.minus 1$ (the dashed profile of @fig:q). Finally, near the wing end there is a second plateau on which $psi_1$ is again independent of $x_1$ and equal to the trimmed profile $tilde(q)(x_2) + "const."$. As a result the initial datum $psi_1$ attains its maximum at $x = (2pi, 0)$, the end of the wing, which lies on the boundary.
 
-To see why the maximum diffuses inward, ignore $x_1$ and consider the pure heat flow in $x_2$ of the interface profile $q$ and of its trimmed version $tilde(q)$. Both stay maximized at $x_2 = 0$ for all times, since they are even with a central peak. However, as time increases the flow of $q$ strictly dominates that of $tilde(q)$ at $x_2 = 0$: the untrimmed profile carries more mass in the tails near $x_2 = plus.minus 1$, and diffusion transports this mass toward the center. Thus the interface cross section ends up taller at its center than the trimmed wing-end cross section.
-
-The reason this one-dimensional picture approximates the two dimensional dynamics is the plateau structure described above. On each of the two plateaus we have $∂_(x_1) psi_1 approx 0$, so the $x_1$-diffusion $∂_(x_1)^2 h$ is negligible and the flow @eq:limit-ivp decouples there into an independent $x_2$-heat flow, behaving like its one-dimensional counterpart from the previous paragraph. In the transition region between the plateaus, and right at the interface $x_1 = pi/2$, $psi_1$ does vary in $x_1$ and $∂_(x_1)^2 h$ is not negligible. But the comparison only needs that some point in the interior plateau dominates the wing-ned plateau.
-
-
 #figure(
   lq.diagram(
     let ys = lq.linspace(-1.0, 1.0),
     //let q(y) = 0.5*calc.cos(calc.pi*y) + 0.3*calc.cos(2.0*calc.pi*y) - 0.2*calc.cos(3.0*calc.pi*y),
     let q(y) = 0.2*calc.cos(calc.pi*y) + 1.0*calc.cos(2.0*calc.pi*y) - 0.0*calc.cos(3.0*calc.pi*y),
-    let q_trimmed(y) = if calc.abs(y) < 0.67 {q(y)} else {q(0.67)},
-    lq.plot(ys, q, color: blue, mark: none),
-    lq.plot(ys, q_trimmed, color: red, mark: none, stroke: (dash: "dashed")),
+    let q_trimmed(y) = if calc.abs(y) < 0.55 {q(y)} else {q(0.55)},
+    lq.plot(ys, q, color: blue, mark: none, label: [$q(x_2)$]),
+    lq.plot(ys, q_trimmed, color: red, mark: none, label: [$tilde(q)(x_2)$], stroke: (dash: "dashed")),
   ), 
-  caption: [Cross section of $psi_1$ in $x_2$. Solid: the profile $q$ at the core-wing interface $x_1 = pi/2$. Dashed: the trimmed profile $tilde(q)$ at the end of the wing, with the secondary peaks at $x_2 = plus.minus 1$ cut off.]
+  caption: [Idealized target cross section of $psi_1 - "const."$ in $x_2$. Solid: the target profile $q$ at the core-wing interface $x_1 = pi/2$. Dashed: the trimmed profile $tilde(q)$ at the end of the wing, with the secondary peaks at $x_2 = plus.minus 1$ cut off.]
 )<fig:q>
 
-#figure(
-  grid(
-    columns: 2,
-    image("eigenfunction_split.png", width: 50%),
-    image("eigenfunction_surface.png", width: 50%)
-  ),
-  
-  caption: [Left: The eigenfunction on the full domain.  Center: The green region magnified. Right: Surface plot of the region.]
+To see why the maximum diffuses inward, ignore $x_1$ and consider the pure heat flow in $x_2$ of the interface profile $q$ and of its trimmed version $tilde(q)$. Both stay maximized at $x_2 = 0$ for all times, since they are even with a central peak. However, as time increases the flow of $q$ strictly dominates that of $tilde(q)$ at $x_2 = 0$: the untrimmed profile carries more mass in the tails near $x_2 = plus.minus 1$, and diffusion transports this mass toward the center. Thus the interface cross section ends up taller at its center than the trimmed wing-end cross section.
+
+The reason this one-dimensional picture approximates the two dimensional dynamics is the plateau structure described above. On each of the two plateaus we have $∂_(x_1) psi_1 approx 0$, so the $x_1$-diffusion $∂_(x_1)^2 h$ is negligible and the flow @eq:limit-ivp decouples there into an independent $x_2$-heat flow, behaving like its one-dimensional counterpart from the previous paragraph. In the transition region between the plateaus, and right at the interface $x_1 = pi/2$, $psi_1$ does vary in $x_1$ and $∂_(x_1)^2 h$ is not negligible. But the comparison only needs that some point in the interior plateau dominates the wing-end plateau.
+
+#subpar.grid(
+  figure(image("surface_plot_eigenfunction_boundary.png", width: 100%), caption: [$h(x,t=0)=phi.alt_1 (x,r=1) = psi_1 (x)$]),<a>,
+  figure(image("surface_plot_eigenfunction_interior.png", width: 100%), caption: [$h(x,t=1 slash 8)=phi.alt_1 (x,r=0)$]),<b>,
+  figure(image("heatmap_eigenfunction_boundary.png", width: 100%), caption: [Heatmap of the green region in (a), at $t=0$. The two bands of nearly constant colour are the plateaus on which $psi_1$ is independent of $x_1$.]),<c>,
+  figure(image("heatmap_eigenfunction_interior.png", width: 100%), caption: [Heatmap of the same region, at $t=1 slash 8$. #linebreak() #linebreak() #linebreak()]),<d>,
+  columns:(1fr, 1fr),
+  v(0%),
+  caption: [The computed Barrel eigenfunction $h$ in the reaction-diffusion coordinates of @eq:limit-ivp. Top row: the global eigenfunction at $t=0$ (a), where the maximum sits at the wing end on the boundary, and at $t=1\/8$ (b), where the diffusion has pushed the maximum off the boundary and into the interior. Bottom row: heatmaps of the wing subset marked in green above, at $t=0$ (c) and $t=1\/8$ (d). We show only this subset rather than the full wing because the profile effect driving the maximum inward is small. Including the full wing region, would let the diffusion into the core dominate the colour scale, making the effect invisible.]
 )<fig:initial-datum>
 
 == Construction of the core potential
