@@ -188,9 +188,11 @@ $
 
 This is exactly the weak Neumann eigenproblem on the core, with the interface $x_1 = pi/2$ now a free boundary on which the natural condition $∂_arrow(n) psi_1 = 0$ holds. Hence $psi_1|_(Q_"core")$ agrees, to leading order, with the core eigenfunction constructed before: the steep wing acts as a virtual Neumann boundary condition at $∂ Q_"core"$, without one being imposed.
 
-#inline-note-a[
-  TODO: A paragraph explaining why $nabla V dot nabla psi_1 approx 0$ in the wing.
-]
+For the second step we interpret the eigenvalue equation $(-Delta + nabla V dot nabla) psi_1 = lambda_1 psi_1$ as a transport equation. Rearanging the terms and dividing by $abs(nabla V)$ yields
+$
+(nabla V) / abs(nabla V) dot nabla psi_1 = ((lambda_1 + ∆) psi_1) / abs(nabla V).
+$
+In $Q_"wing"$, $abs(nabla V)$ is large, so the right-hand side is small and the directional derivative of $psi_1$ along $nabla V$ nearly vanishes, $(nabla V) \/ abs(nabla V) dot nabla psi_1 approx 0$. Therefore $psi_1$ is approximately constant along the flow lines of $-nabla V$. We do not justify the assumption that $(lambda_1 + ∆) psi_1$ is small compared to $abs(nabla V)$ here, as it is out of scope for this section. The eigenfunction approximation computed later confirms it a posteriori. The point we need is that the value of $psi_1$ at the core-wing interface is carried into the wing along the flow lines of $-nabla V$.
 
 We have turned the construction of the wing potential into a problem about flow lines: since $psi_1$ is constant along the flow lines of $-nabla V$, we may choose $V$ so that these flow lines carry each interface height to the right place in the wing. It is natural to organize the wing into three: a central channel around the main peak at $x_2 = 0$, and two outer channels from the minima of $q$ out to $x_2 = plus.minus 1$. In the central channel the flow lines should run straight and horizontal, so that the main peak is transported across the wing unchanged and $psi_1 approx q(x_2)$ throughout. In the two outer channels the flow must instead be compressed inward: looking from the end of the wing back toward the core, the flow liens of each outer channel converge toward the center. As a result, the strips near $x_2 = plus.minus 1$ at the wing end trace back to the minima of $q$, producing the trimmed profile $tilde(q)$ at the wing end.
 
