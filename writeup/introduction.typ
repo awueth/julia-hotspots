@@ -9,43 +9,41 @@ $
 ∂_arrow(n) phi.alt_j &= 0 &&"on" ∂Ω,
 $ <eq:ev-problem>
 
-where $phi.alt_0, phi.alt_1, phi.alt_2, ...$ denote the corresponding eigenfunctions. Rauch's hot spots conjecture is commonly stated as:
+where $phi.alt_0, phi.alt_1, phi.alt_2, ...$ denote the corresponding eigenfunctions, normalized such that $(phi.alt_j)$ is an orthonormal basis of $L^2 (Omega)$. Rauch's hot spots conjecture is commonly stated as:
 
 #conjecture[
   For "nice" enough domains $Ω$, the first eigenfunction $phi.alt_1$ attains its global extrema at the boundary $∂Ω$.
 ]<hs-conjecture>
 
 
-In a 1975 lecture, J. Rauch @rauch_lecture_1975 introduced the conjecture as a problem in heat conduction: Suppose $Ω$ is some uniformly heat-conducting medium, that is insulated on the boundary. Let $u(t, x)$ be the temperature at $x in Ω$ at time $t$, and suppose the initial temperature distribution is given by $u_0$. Rauch posed the question of where the function $u(t, dot)$ achieves its maximum as $t -> oo$. The answer is given by @hs-conjecture, which can be stated as follows: _For generic initial conditions $u_0$, the point at which $u(t, dot)$ achieves its maximum converges to a point on the boundary._
+In a 1975 lecture, J. Rauch @rauch_lecture_1975 introduced the conjecture as a problem in heat conduction: Suppose $Ω$ is some uniformly heat-conducting medium that is insulated on the boundary. Let $u(t, x)$ be the temperature at $x in Ω$ at time $t$, and suppose the initial temperature distribution is given by $u_0$. Rauch posed the question of where the function $u(t, dot)$ achieves its maximum as $t -> oo$. The answer is given by @hs-conjecture, which can be stated as follows: _For generic initial conditions $u_0$, the points at which $u(t, dot)$ achieves its extrema accumulate on the boundary._
 
 
 To explain why this statement is implied by @hs-conjecture and define generic initial conditions, we note the temperature distribution can be modeled as
 
 $
 ∂_t u &= ∆ u &&"in" (0, oo) times Ω, \
-∂_arrow(n) u &= 0 &&"on" (0,oo) times ∂Ω \
+∂_arrow(n) u &= 0 &&"on" (0,oo) times ∂Ω, \
 u(0, x) &= u_0 (x) &&"for all" x in Omega.
 $
 
 By separating the variables $t$ and $x$, we can rewrite $u$ as
 
 $
-u(t, x) = ∑_(j≥0) chevron.l u_0, phi.alt_j chevron.r phi.alt_j (x) e^(-lambda_j t),
+u(t, x) = ∑_(j≥0) inner(u_0, phi.alt_j) phi.alt_j (x) e^(-lambda_j t).
 $
 
-normalized such that $(phi.alt_j)$ is an orthonormal basis of $L^2 (Omega)$.
-
-Since $phi.alt_0$ is constant, this shows that $u$ converges to the mean $overline(u) = 1/abs(Omega) ∫_Ω  u_0$ as $t -> oo$ in the $L^2(Ω)$ sense. Convergence in the $L^oo$ sense follows by showing that, under mild regularity conditions on $Ω$, the functions ${u(t, dot)}_t$ are uniformly bounded and equicontinuous. Therefore, assuming for now that $lambda_2 > lambda_1$, for large $t$, the "shape" of $u(t, dot)-overline(u)(t, dot)$ will be dominated by the first non-constant eigenfunction in the sequence $(phi.alt_j)$, for which $chevron.l u_0, phi.alt_j chevron.r ≠ 0$. We say the initial condition $u_0$ is _generic_ if $chevron.l u_0, phi.alt_1 chevron.r ≠ 0$. Hence, under generic initial conditions, $tilde(u)(t, x) = e^(lambda_1 t)(u(t,x) - overline(u))$ achieves its extrema at the same points as $u$, and
+Since $phi.alt_0$ is constant, this shows that $u$ converges to the mean $overline(u) = 1/abs(Omega) ∫_Ω  u_0 dif x$ as $t -> oo$ in the $L^2(Ω)$ sense. Convergence in the $L^oo$ sense follows by showing that, under mild regularity conditions on $Ω$, the families ${u(t, dot)}_(t≥t_0)$ and ${e^(lambda_1 t)(u(t, dot) - overline(u))}_(t≥t_0)$ are uniformly bounded and equicontinuous. Arzelà--Ascoli then upgrades each of the $L^2$ limits below to a uniform one. Therefore, assuming for now that $lambda_2 > lambda_1$, for large $t$, the "shape" of $u(t, dot)-overline(u)$ will be dominated by the first non-constant eigenfunction $phi.alt_(j_0)$ in the sequence $(phi.alt_j)$ for which $inner(u_0, phi.alt_(j_0)) ≠ 0$. We say the initial condition $u_0$ is _generic_ if $inner(u_0, phi.alt_1) ≠ 0$. Hence, under generic initial conditions, $tilde(u)(t, x) = e^(lambda_1 t)(u(t,x) - overline(u))$ achieves its extrema at the same points as $u$, and
 
 $
-tilde(u)(t, x) = chevron.l u_0, phi.alt_1 chevron.r phi.alt_1 + ∑_(j≥2) chevron.l u_0, phi.alt_(j) chevron.r phi.alt_(j)(x) e^(-(lambda_j - lambda_1)t).
+tilde(u)(t, x) = inner(u_0, phi.alt_1) phi.alt_1 + ∑_(j≥2) inner(u_0, phi.alt_(j)) phi.alt_(j)(x) e^(-(lambda_j - lambda_1)t).
 $
 
-As $t -> oo$, the function $tilde(u)$ must converge uniformly and exponentially fast to the function $chevron.l u_0, phi.alt_1 chevron.r phi.alt_1$, and in particular, the extremal points of $u$ converge subsequentially to the extremal points of $phi.alt_1$.
+As $t -> oo$, the function $tilde(u)$ must converge uniformly and exponentially fast to the function $inner(u_0, phi.alt_1) phi.alt_1$, and in particular, the extremal points of $u$ converge subsequentially to the extremal points of $phi.alt_1$.
 
 
 
-*Non-generic initial conditions.* The requirement that the initial condition be generic is essential. If we naively formulate the hot spots conjecture as stating that the point $x_0 in Ω$ at which $u(t, dot)$ achieves its maximum tends to the boundary as $t -> oo$ for any initial condition, it is straightforward to construct a counterexample. Suppose $Ω subset RR^2$ is the unit disk and $u_0$ is a radially symmetric heat distribution that achieves a strict maximum at the origin. By symmetry, $u(t, dot)$ will also achieve its maximum at the origin at any time $t$. Such an initial condition, however, is never generic. The first non-constant eigenfunction $phi.alt_1$ is antisymmetric, and therefore $chevron.l phi.alt_1, u_0 chevron.r = 0$ (see @fig:disk-spectrum).
+*Non-generic initial conditions.* The requirement that the initial condition be generic is essential. If we naively formulate the hot spots conjecture as stating that the point $x_0 in Ω$ at which $u(t, dot)$ achieves its maximum tends to the boundary as $t -> oo$ for any initial condition, it is straightforward to construct a counterexample. Suppose $Ω subset RR^2$ is the unit disk and $u_0$ is a radially symmetric heat distribution that achieves a strict maximum at the origin. By symmetry, $u(t, dot)$ will also achieve its maximum at the origin at any time $t$. Such an initial condition, however, is never generic. The first non-constant eigenfunction $phi.alt_1$ is antisymmetric, and therefore $inner(u_0, phi.alt_1) = 0$ (see @fig:disk-spectrum).
 
 #figure(
   image("my_plot.png"),
