@@ -1,7 +1,13 @@
 #import "template.typ": *
 
-#set heading(numbering: "A.1.1", supplement: [Appendix])
 #counter(heading).update(0)
+#set heading(numbering: "A.1")
+#set-theorion-numbering("A.1")
+
+#set math.equation(numbering: num => {
+    let section = counter(heading).get().first()
+    numbering("(A.1)", section, num)
+  })
 
 = Computations
 

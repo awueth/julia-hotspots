@@ -2,7 +2,7 @@
 
 = Barrel sets <barrels>
 
-#definition([Barrel domain])[
+#definition[Barrel domain][
   Let $Q subset RR^2$ be a bounded convex domain and let $V : Q -> RR$ be a convex potential. We define the convex domain
 
   $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : |w| ≤ 1/2 (sqrt(d) - V(x)/sqrt(d))}, $
