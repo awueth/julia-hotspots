@@ -45,7 +45,7 @@ The method relies on an explicit interpolation constant $C_h$. For the weighted 
   where $h_K = op("diam") K$.
 ]<lem:interp-constant>
 #proof[
-  On a simplex $K$ the Crouzeix–Raviart interpolant $Pi^"CR"$ we have the  the unweighted estimate $norm(u - Pi^"CR" u)_K ≤ C^"CR"(K) norm(nabla(u - Pi^"CR" u))_K$ with $C^"CR"(K) ≤ 0.1893 thin h_K$ @liu_guaranteed_2024. Bounding the weight $e^(-V)$ from above by $e^(-min_(x in K) V)$ in the $L^2$ term and from below by $e^(-max_(x in K) V)$ in the gradient term,
+  On a simplex $K$ the Crouzeix–Raviart interpolant $Pi^"CR"$ we have the unweighted estimate $norm(u - Pi^"CR" u)_K ≤ C^"CR"(K) norm(nabla(u - Pi^"CR" u))_K$ with $C^"CR"(K) ≤ 0.1893 thin h_K$ @liu_guaranteed_2024. Bounding the weight $e^(-V)$ from above by $e^(-min_(x in K) V)$ in the $L^2$ term and from below by $e^(-max_(x in K) V)$ in the gradient term,
   $
   integral_K abs(u - Pi_h u)^2 e^(-V) dif x
   &≤ e^(-min_(x in K) V) integral_K abs(u - Pi_h u)^2 dif x \

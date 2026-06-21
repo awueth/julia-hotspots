@@ -5,44 +5,47 @@
 Let $Ω subset RR^d$ be a connected, bounded domain with a sufficiently regular boundary $∂Ω$. Let $0 = lambda_0 < lambda_1 ≤ lambda_2 ≤ ...$ be the eigenvalues of the Neumann Laplacian on $Ω$ such that
 
 $
--∆ phi_j &= lambda_j phi_j &&"in" Ω, \
-∂_arrow(n) phi_j &= 0 &&"in" ∂Ω.
+-∆ phi.alt_j &= lambda_j phi.alt_j &&"in" Ω, \
+∂_arrow(n) phi.alt_j &= 0 &&"on" ∂Ω,
 $ <eq:ev-problem>
 
-where $phi_0, phi_1, phi_2, ...$ denote the corresponding eigenfunctions. Rauch's hot spots conjecture is commonly stated as:
+where $phi.alt_0, phi.alt_1, phi.alt_2, ...$ denote the corresponding eigenfunctions. Rauch's hot spots conjecture is commonly stated as:
 
 #conjecture[
-  For "nice" enough domains $Ω$, the first eigenfunction $phi_1$ attains its global extrema at the boundary $∂Ω$.
+  For "nice" enough domains $Ω$, the first eigenfunction $phi.alt_1$ attains its global extrema at the boundary $∂Ω$.
 ]<hs-conjecture>
 
 
 In a 1975 lecture, J. Rauch @rauch_lecture_1975 introduced the conjecture as a problem in heat conduction: Suppose $Ω$ is some uniformly heat-conducting medium, that is insulated on the boundary. Let $u(t, x)$ be the temperature at $x in Ω$ at time $t$, and suppose the initial temperature distribution is given by $u_0$. Rauch posed the question of where the function $u(t, dot)$ achieves its maximum as $t -> oo$. The answer is given by @hs-conjecture, which can be stated as follows: _For generic initial conditions $u_0$, the point at which $u(t, dot)$ achieves its maximum converges to a point on the boundary._
 
 
-To explain why this statement is equivalent to @hs-conjecture and define generic initial conditions, we note the temperature distribution can be modeled as
+To explain why this statement is implied by @hs-conjecture and define generic initial conditions, we note the temperature distribution can be modeled as
 
 $
 ∂_t u &= ∆ u &&"in" (0, oo) times Ω, \
-∂_arrow(n) u &= 0 &&"in" (0,oo) times ∂Ω.
+∂_arrow(n) u &= 0 &&"on" (0,oo) times ∂Ω \
+u(0, x) &= u_0 (x) &&"for all" x in Omega.
 $
 
 By separating the variables $t$ and $x$, we can rewrite $u$ as
 
 $
-u(t, x) = ∑_(j≥0) chevron.l u_0, phi_j chevron.r phi_j (x) e^(-lambda_j t).
+u(t, x) = ∑_(j≥0) chevron.l u_0, phi.alt_j chevron.r phi.alt_j (x) e^(-lambda_j t),
 $
 
-Since $phi_0$ is constant, this shows that $u$ converges to the mean $overline(u) = ∫_Ω  u_0$ as $t -> oo$ in the $L^2(Ω)$ sense. Convergence in the $L^oo$ sense follows by showing that, under mild regularity conditions on $Ω$, the functions ${u(t, dot)}_t$ are uniformly bounded and uniformly equicontinuous. Therefore, assuming for now that $lambda_2 > lambda_1$, for large $t$, the "shape" of $u(t, dot)$ will be dominated by the first eigenfunction in the sequence, $phi_j_0$ for which $chevron.l u_0, phi_j_0 chevron.r ≠ 0$. We say the initial condition $u_0$ is _generic_ if $chevron.l u_0, phi_1 chevron.r ≠ 0$. Hence, under generic initial conditions, $tilde(u)(t, x) = e^(lambda_1 t)(u(t,x) - overline(u))$ achieves its extrema at the same points as $u$, and
+normalized such that $(phi.alt_j)$ is an orthonormal basis of $L^2 (Omega)$.
+
+Since $phi.alt_0$ is constant, this shows that $u$ converges to the mean $overline(u) = 1/abs(Omega) ∫_Ω  u_0$ as $t -> oo$ in the $L^2(Ω)$ sense. Convergence in the $L^oo$ sense follows by showing that, under mild regularity conditions on $Ω$, the functions ${u(t, dot)}_t$ are uniformly bounded and equicontinuous. Therefore, assuming for now that $lambda_2 > lambda_1$, for large $t$, the "shape" of $u(t, dot)-overline(u)(t, dot)$ will be dominated by the first non-constant eigenfunction in the sequence $(phi.alt_j)$, for which $chevron.l u_0, phi.alt_j chevron.r ≠ 0$. We say the initial condition $u_0$ is _generic_ if $chevron.l u_0, phi.alt_1 chevron.r ≠ 0$. Hence, under generic initial conditions, $tilde(u)(t, x) = e^(lambda_1 t)(u(t,x) - overline(u))$ achieves its extrema at the same points as $u$, and
 
 $
-tilde(u)(t, x) = chevron.l u_0, phi_1 chevron.r phi_1 + ∑_(j≥2) chevron.l u_0, phi_(j) chevron.r phi_(j)(x) e^(-(lambda_j - lambda_1)t).
+tilde(u)(t, x) = chevron.l u_0, phi.alt_1 chevron.r phi.alt_1 + ∑_(j≥2) chevron.l u_0, phi.alt_(j) chevron.r phi.alt_(j)(x) e^(-(lambda_j - lambda_1)t).
 $
 
-As $t -> oo$, the function $tilde(u)$ must converge exponentially fast to the function $chevron.l u_0, phi_1 chevron.r phi_1$, and in particular, the extremal points of $u$ converge subsequentially to the extremal points of $phi_1$.
+As $t -> oo$, the function $tilde(u)$ must converge uniformly and exponentially fast to the function $chevron.l u_0, phi.alt_1 chevron.r phi.alt_1$, and in particular, the extremal points of $u$ converge subsequentially to the extremal points of $phi.alt_1$.
 
 
 
-*Non-generic initial conditions.* The requirement that the initial condition be generic is essential. If we naively formulate the hot spots conjecture as stating that the point $x_0 in Ω$ at which $u(t, dot)$ achieves its maximum tends to the boundary as $t -> oo$ for any initial condition, it is straightforward to construct a counterexample. Suppose $Ω subset RR^2$ is the unit disk and $u_0$ is a radially symmetric heat distribution that achieves a strict maximum at the origin. By symmetry, $u(t, dot)$ will also achieve its maximum at the origin at any time $t$. Such an initial condition, however, is never generic. The first non-constant eigenfunction $phi_1$ is antisymmetric, and therefore $chevron.l phi_1, u_0 chevron.r = 0$ (see @fig:disk-spectrum).
+*Non-generic initial conditions.* The requirement that the initial condition be generic is essential. If we naively formulate the hot spots conjecture as stating that the point $x_0 in Ω$ at which $u(t, dot)$ achieves its maximum tends to the boundary as $t -> oo$ for any initial condition, it is straightforward to construct a counterexample. Suppose $Ω subset RR^2$ is the unit disk and $u_0$ is a radially symmetric heat distribution that achieves a strict maximum at the origin. By symmetry, $u(t, dot)$ will also achieve its maximum at the origin at any time $t$. Such an initial condition, however, is never generic. The first non-constant eigenfunction $phi.alt_1$ is antisymmetric, and therefore $chevron.l phi.alt_1, u_0 chevron.r = 0$ (see @fig:disk-spectrum).
 
 #figure(
   image("my_plot.png"),
@@ -52,15 +55,15 @@ As $t -> oo$, the function $tilde(u)$ must converge exponentially fast to the fu
 
 *Multiple ground eigenfunctions* The principal eigenspace can be two- or more dimensional; this is often the case if the domain $Ω$ is highly symmetric, such as a square or a disk. In such cases, there are several variations of the conjecture, depending on whether it should hold for all or only some eigenfunctions in the eigenspace. Following Bañuelos and Burdzy @banuelos_hot_1999, we distinguish three formulations:
 
-(HS1) For _every_ eigenfunction $phi_1$ corresponding to $lambda_1$ which is not identically 0, and all $y in Ω$, we have $inf_(x in ∂Ω) phi_1(x) < phi_1(y) < sup_(x in ∂Ω) phi_1(x)$.
+(HS1) For _every_ eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.
 
-(HS2) For _every_ eigenfunction $phi_1$ corresponding to $lambda_1$ and all $y in Ω$, we have $inf_(x in ∂Ω) phi_1(x) ≤ phi_1(y) ≤ sup_(x in ∂Ω) phi_1(x)$.
+(HS2) For _every_ eigenfunction $phi.alt_1$ corresponding to $lambda_1$ and all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) ≤ phi.alt_1(y) ≤ sup_(x in ∂Ω) phi.alt_1(x)$.
 
-(HS3) There _exists_ an eigenfunction $phi_1$ corresponding to $lambda_1$ which is not identically 0, and such that for all $y in Ω$, we have $inf_(x in ∂Ω) phi_1(x) < phi_1(y) < sup_(x in ∂Ω) phi_1(x)$.
+(HS3) There _exists_ an eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and such that for all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.
 
 In this work, we will build counterexamples with one-dimensional eigenspaces and eigenfunctions which attain a strict maximum in the interior, therefore disproving all three versions simultaneously. 
 
-*What are nice enough domains?* The open question is identifying the classes of domains for which the conjecture holds and those for which it fails. The difficulty is that the principal eigenfunction of the Laplacian can be computed in closed form only for very few domains. For example, on a rectangle $phi_1$ is a product of trigonometric functions and the statement of the conjecture is easily verified. 
+*What are nice enough domains?* The open question is identifying the classes of domains for which the conjecture holds and those for which it fails. The difficulty is that the principal eigenfunction of the Laplacian can be computed in closed form only for very few domains. For example, on a rectangle $phi.alt_1$ is a product of trigonometric functions and the statement of the conjecture is easily verified. 
 
 Kawohl @kawohl_rearrangements_1985[Corollary 2.15] showed that (HS1) holds for cylindrical domains $Ω = Ω_0 times (0,l) subset RR^d$ where $Ω_0$ is bounded with $∂Ω_0$ of class $C^(0,1)$. Furthermore, Kawohl conjectured that the property holds for all convex domains @kawohl_rearrangements_1985[p.56].
 Bañuelos and Burdzy @banuelos_hot_1999 later proved that (HS1) holds for certain triangles and for long convex planar domains with sufficient symmetry. Conversely, Burdzy and Werner @burdzy_counterexample_1999 constructed a counterexample consisting of a bounded planar domain with two holes, the number of holes was later reduced to one @burdzy_hot_2004. For numerical counterexamples, see @kleefeld_hot_2021.
@@ -69,34 +72,34 @@ The conjecture was believed to be true for convex sets until it was recently dis
 
 == Convex sets can have interior hot spots
 
-They key to the counteraxample constructed in @pont_convex_2024 is to first pose the log-concave extension of the hot spots conjecture. The eigenfunctions of the Neumann Laplacian $Omega$ are critical points of the Rayleigh quotient $integral_Omega abs(nabla phi.alt)^2 dif x \/ integral_Omega abs(nabla phi.alt)^2 dif x$. The log-concave analogon is obtained by generalizing the Lebesgue measure on $Omega$ to log-concave measures. That is, to measures $mu$ with density $dif mu(x) = e^(-V (x)) dif x$ for some convex function $V$ on $Omega$. The principal eigenfunction $phi.alt_(1, mu)$ is now the minimizer of 
+They key to the counteraxample constructed in @pont_convex_2024 is to first pose the log-concave extension of the hot spots conjecture. The eigenfunctions of the Neumann Laplacian $Omega$ are critical points of the Rayleigh quotient $integral_Omega abs(nabla phi.alt.alt)^2 dif x \/ integral_Omega abs(nabla phi.alt.alt)^2 dif x$. The log-concave analogon is obtained by generalizing the Lebesgue measure on $Omega$ to log-concave measures. That is, to measures $mu$ with density $dif mu(x) = e^(-V (x)) dif x$ for some convex function $V$ on $Omega$. The principal eigenfunction $phi.alt.alt_(1, mu)$ is now the minimizer of 
 $
-(integral_Omega abs(nabla phi)^2 dif mu) / (integral_Omega abs(phi)^2 dif mu).
+(integral_Omega abs(nabla phi.alt)^2 dif mu) / (integral_Omega abs(phi.alt)^2 dif mu).
 $
 
-The log-concave extension of the hot spots conjecture states that $phi.alt_(1, mu)$ attains its maximum on $∂ Omega$, for any log-concave measure $mu$. The authors of @pont_convex_2024 first disprove this version of the conjecture and then transfer the counterexample by approximating $mu$ by a uniform measure on a high-dimensional _barrel set_. Given a convex body $Q subset RR^n$ and a potential $V : Q -> RR$, the barrel set is defined as
+The log-concave extension of the hot spots conjecture states that $phi.alt.alt_(1, mu)$ attains its maximum on $∂ Omega$, for any log-concave measure $mu$. The authors of @pont_convex_2024 first disprove this version of the conjecture and then transfer the counterexample by approximating $mu$ by a uniform measure on a high-dimensional _barrel set_. Given a convex body $Q subset RR^n$ and a potential $V : Q -> RR$, the barrel set is defined as
 
 $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : abs(w) <= sqrt(d)/2 (1 - V(x)/d)}, $
 
-which is a convex body in $RR^(n+d+1)$ for sufficiently large $d$. The diffeomorphism
+which is a convex body in $RR^(n+d+1)$ for sufficiently large $d$. The diffeomorphi.altsm
 
-$ Phi : F_d (Q, V) -> Q times B_(sqrt(d)/2), quad (x,w) |-> (x, (1 - V(x)/d)^(-1) w) $
+$ phi.alt : F_d (Q, V) -> Q times B_(sqrt(d)/2), quad (x,w) |-> (x, (1 - V(x)/d)^(-1) w) $
 
-pushes the uniform measure on $F_d (Q, V)$ forward to a measure that approximates the log-concave measure $e^(-V) dif x dif w$ on $Q times B_(sqrt(d)/2)$ as $d -> oo$. Consequently, the principal eigenfunctions satisfy $norm(phi_(1, d) compose Phi - phi_(1, mu))_(L^2(mu)) -> 0$ as $d -> oo$. Since $phi_(1, mu)$ attains a strict interior maximum, it follows that for all sufficiently large $d$, the principal eigenfunction $phi_(1, d)$ of the Neumann Laplacian on the convex domain $F_d (Q, V)$ must also attain a strict interior maximum, violating (HS1)--(HS3). The threshold dimension $d_"HS"$ above which the hot spots property fails is not made explicit in @pont_convex_2024, and a naive tracking of constants does not yield a satisfactory quantitative bound. The primary goal of this work is to provide an explicit lower bound on $d_"HS"$.
+pushes the uniform measure on $F_d (Q, V)$ forward to a measure that approximates the log-concave measure $e^(-V) dif x dif w$ on $Q times B_(sqrt(d)/2)$ as $d -> oo$. Consequently, the principal eigenfunctions satisfy $norm(phi.alt_(1, d) compose phi.alt - phi.alt_(1, mu))_(L^2(mu)) -> 0$ as $d -> oo$. Since $phi.alt_(1, mu)$ attains a strict interior maximum, it follows that for all sufficiently large $d$, the principal eigenfunction $phi.alt_(1, d)$ of the Neumann Laplacian on the convex domain $F_d (Q, V)$ must also attain a strict interior maximum, violating (HS1)--(HS3). The threshold dimension $d_"HS"$ above which the hot spots property fails is not made explicit in @pont_convex_2024, and a naive tracking of constants does not yield a satisfactory quantitative bound. The primary goal of this work is to provide an explicit lower bound on $d_"HS"$.
 
 == The method of particular solutions and certified numerics
 
-We draw inspiration from @dahne_counterexample_2021, where the authors construct a numerical counterexample to Payne's nodal line conjecture using the method of particular solutions and rigorously certify the counterexample. The idea behind the method is simple. We explain it in context of our eigenvalue problem, but it transfers to any boundary value problem: Choose a set of functions ${f_j}_j$ which satisfy the eigenvalue equation $-∆ f_j = lambda_* f_j$ in the interior, disregarding the boundary conditions. Any linear combination $phi_* = ∑_j c_j f_j$ of functions in ${f_j}_j$ also satisfies the eigenvalue equation $-∆ phi_* = lambda_*$. In order to obtain an approximation of the true eigenfunction $phi_1$ we optimize the coefficients ${c_j}$ and the approximate eigenvalue $lambda^*$ with the objective of minimizing the error on the boundary.
+We draw inspiration from @dahne_counterexample_2021, where the authors construct a numerical counterexample to Payne's nodal line conjecture using the method of particular solutions and rigorously certify the counterexample. The idea behind the method is simple. We explain it in context of our eigenvalue problem, but it transfers to any boundary value problem: Choose a set of functions ${f_j}_j$ which satisfy the eigenvalue equation $-∆ f_j = lambda_* f_j$ in the interior, disregarding the boundary conditions. Any linear combination $phi.alt_* = ∑_j c_j f_j$ of functions in ${f_j}_j$ also satisfies the eigenvalue equation $-∆ phi.alt_* = lambda_*$. In order to obtain an approximation of the true eigenfunction $phi.alt_1$ we optimize the coefficients ${c_j}$ and the approximate eigenvalue $lambda^*$ with the objective of minimizing the error on the boundary.
 
-Once we obtained a candidate approximation $phi_*$, we prove that if the error on the boundary is small $norm(partial_arrow(n) phi_*)_(L^oo (∂Ω))$, then $phi_*$ must be close to the true eigenfunction $phi_1$ point wise. One limitation of the method of particular solutions is that it does not guarantee the position in the spectrum of the approximation $phi_*$, that is, $phi_*$ could have small boundary error but be an approximation of the second eigenfunction $phi_2$ instead of $phi_1$. This can be particularly problematic in settings as in @dahne_counterexample_2021, where the eigenvalue of interest lies in a cluster. Luckily, in our case we have a large enough spectral gap $lambda_2 - lambda_1 > ?$. Furthermore we can show that $phi_1$ is the only eigenfunction satisfying certain geometric properties which are easy to check for the approximation $phi_*$.
+Once we obtained a candidate approximation $phi.alt_*$, we prove that if the error on the boundary is small $norm(partial_arrow(n) phi.alt_*)_(L^oo (∂Ω))$, then $phi.alt_*$ must be close to the true eigenfunction $phi.alt_1$ point wise. One limitation of the method of particular solutions is that it does not guarantee the position in the spectrum of the approximation $phi.alt_*$, that is, $phi.alt_*$ could have small boundary error but be an approximation of the second eigenfunction $phi.alt_2$ instead of $phi.alt_1$. This can be particularly problematic in settings as in @dahne_counterexample_2021, where the eigenvalue of interest lies in a cluster. Luckily, in our case we have a large enough spectral gap $lambda_2 - lambda_1 > ?$. Furthermore we can show that $phi.alt_1$ is the only eigenfunction satisfying certain geometric properties which are easy to check for the approximation $phi.alt_*$.
 
-Since $phi_*$ and $norm(partial_arrow(n) phi_*)_(L^oo (∂Ω))$ are evaluated numerically, they are subject to floating point arithmetic errors. To circumvent this issue, once we have constructed a counterexample $phi_*$, we compute rigorous enclosures of $phi_*$ and $norm(partial_arrow(n) phi_*)_(L^oo (∂Ω))$ using inverval arithmetic.
+Since $phi.alt_*$ and $norm(partial_arrow(n) phi.alt_*)_(L^oo (∂Ω))$ are evaluated numerically, they are subject to floating point arithmetic errors. To circumvent this issue, once we have constructed a counterexample $phi.alt_*$, we compute rigorous enclosures of $phi.alt_*$ and $norm(partial_arrow(n) phi.alt_*)_(L^oo (∂Ω))$ using inverval arithmetic.
 
 
 
 == Outline of the thesis
 
-This thesis is structured as follows: In @barrels we study barrel sets in detail. We explain how Barell sets approximate the log-concave problem in high dimensions. We show that on barel sets the principal eigenfunction $phi.alt_1$ is highly symmetrical allowing us to reduce the effective dimension of the set giving the counterexample to three. On this effectively three dimensional set we construct a basis for the method of particular solutions. \
+This thesis is structured as follows: In @barrels we study barrel sets in detail. We explain how Barell sets approximate the log-concave problem in high dimensions. We show that on barel sets the principal eigenfunction $phi.alt.alt_1$ is highly symmetrical allowing us to reduce the effective dimension of the set giving the counterexample to three. On this effectively three dimensional set we construct a basis for the method of particular solutions. \
 In @construction we explain the construction of the potential $V$ inducing a counterexample log-concave measure in @pont_convex_2024 and derive an adaptation which can be explicitly computed. \
 In @numerics we present our numerical implementation of our method of particular solutions and the resulting approximation. Since the method of particular solutions cannot guarantee the position in the spectrum of the approximate eigenpairs, we derive a priori bounds in @sec:eigenvalues. \
 In @sec:pointwise we derive pointwise bounds for the eigenfunction based on the eigenvalue bounds and the MPS-residual. \
