@@ -33,7 +33,7 @@ $
 u(t, x) = ∑_(j≥0) inner(u_0, phi.alt_j) phi.alt_j (x) e^(-lambda_j t).
 $
 
-Since $phi.alt_0$ is constant, this shows that $u$ converges to the mean $overline(u) = 1/abs(Omega) ∫_Ω  u_0 dif x$ as $t -> oo$ in the $L^2(Ω)$ sense. Convergence in the $L^oo$ sense follows by showing that, under mild regularity conditions on $Ω$, the families ${u(t, dot)}_(t≥t_0)$ and ${e^(lambda_1 t)(u(t, dot) - overline(u))}_(t≥t_0)$ are uniformly bounded and equicontinuous. Arzelà--Ascoli then upgrades each of the $L^2$ limits below to a uniform one. Therefore, assuming for now that $lambda_2 > lambda_1$, for large $t$, the "shape" of $u(t, dot)-overline(u)$ will be dominated by the first non-constant eigenfunction $phi.alt_(j_0)$ in the sequence $(phi.alt_j)$ for which $inner(u_0, phi.alt_(j_0)) ≠ 0$. We say the initial condition $u_0$ is _generic_ if $inner(u_0, phi.alt_1) ≠ 0$. Hence, under generic initial conditions, $tilde(u)(t, x) = e^(lambda_1 t)(u(t,x) - overline(u))$ achieves its extrema at the same points as $u$, and
+Since $phi.alt_0$ is constant, this shows that $u$ converges to the mean $overline(u) = 1/abs(Omega) ∫_Ω  u_0 dif x$ as $t -> oo$ in the $L^2(Ω)$ sense. Convergence in the $L^oo$ sense follows by showing that, under mild regularity conditions on $Ω$, the families ${u(t, dot)}_(t≥t_0)$ and ${e^(lambda_1 t)(u(t, dot) - overline(u))}_(t≥t_0)$ are uniformly bounded and equicontinuous, for some fixed $t_0 > 0$. Arzelà--Ascoli then upgrades each of the $L^2$ limits below to a uniform one. Therefore, assuming for now that $lambda_2 > lambda_1$, for large $t$, the "shape" of $u(t, dot)-overline(u)$ will be dominated by the first non-constant eigenfunction $phi.alt_(j_0)$ in the sequence $(phi.alt_j)$ for which $inner(u_0, phi.alt_(j_0)) ≠ 0$. We say the initial condition $u_0$ is _generic_ if $inner(u_0, phi.alt_1) ≠ 0$. Hence, under generic initial conditions, $tilde(u)(t, x) = e^(lambda_1 t)(u(t,x) - overline(u))$ achieves its extrema at the same points as $u$, and
 
 $
 tilde(u)(t, x) = inner(u_0, phi.alt_1) phi.alt_1 + ∑_(j≥2) inner(u_0, phi.alt_(j)) phi.alt_(j)(x) e^(-(lambda_j - lambda_1)t).
@@ -43,15 +43,15 @@ As $t -> oo$, the function $tilde(u)$ must converge uniformly and exponentially 
 
 
 
-*Non-generic initial conditions.* The requirement that the initial condition be generic is essential. If we naively formulate the hot spots conjecture as stating that the point $x_0 in Ω$ at which $u(t, dot)$ achieves its maximum tends to the boundary as $t -> oo$ for any initial condition, it is straightforward to construct a counterexample. Suppose $Ω subset RR^2$ is the unit disk and $u_0$ is a radially symmetric heat distribution that achieves a strict maximum at the origin. By symmetry, $u(t, dot)$ will also achieve its maximum at the origin at any time $t$. Such an initial condition, however, is never generic. The first non-constant eigenfunction $phi.alt_1$ is antisymmetric, and therefore $inner(u_0, phi.alt_1) = 0$ (see @fig:disk-spectrum).
+*Non-generic initial conditions.* The requirement that the initial condition be generic is essential. If we naively formulate the hot spots conjecture as stating that the point in $Ω$ at which $u(t, dot)$ achieves its maximum tends to the boundary as $t -> oo$ for any initial condition, it is straightforward to construct a counterexample. Suppose $Ω subset RR^2$ is the unit disk and $u_0$ is a radially symmetric heat distribution that achieves a strict maximum at the origin and is radially decreasing. By symmetry and monotonicity, $u(t, dot)$ will also achieve its maximum at the origin at any time $t$. Such an initial condition, however, is never generic. The first non-constant eigenfunction $phi.alt_1$ is antisymmetric, and therefore $inner(u_0, phi.alt_1) = 0$ (see @fig:disk-spectrum).
 
 #figure(
   image("my_plot.png"),
-  caption: [The first eigenfunctions of $-∆$ on a disk. Due to rotational symmetry, each eigenspace is two-dimensional.]
+  caption: [The first eigenfunctions of $-∆$ on a disk. Due to rotational symmetry, the eigenspaces of $phi.alt_1$ and $phi.alt_2$ are two-dimensional.]
 ) <fig:disk-spectrum>
 
 
-*Multiple ground eigenfunctions* The principal eigenspace can be two- or more dimensional; this is often the case if the domain $Ω$ is highly symmetric, such as a square or a disk. In such cases, there are several variations of the conjecture, depending on whether it should hold for all or only some eigenfunctions in the eigenspace. Following Bañuelos and Burdzy @banuelos_hot_1999, we distinguish three formulations:
+*Multiple principal eigenfunctions.* The principal eigenspace can be two- or higher-dimensional; this is often the case if the domain $Ω$ is highly symmetric, such as a square or a disk. In such cases, there are several variations of the conjecture, depending on whether it should hold for all or only some eigenfunctions in the eigenspace. Following Bañuelos and Burdzy @banuelos_hot_1999, we distinguish three formulations:
 
 (HS1) For _every_ eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.
 
@@ -59,12 +59,12 @@ As $t -> oo$, the function $tilde(u)$ must converge uniformly and exponentially 
 
 (HS3) There _exists_ an eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and such that for all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.
 
-In this work, we will build counterexamples with one-dimensional eigenspaces and eigenfunctions which attain a strict maximum in the interior, therefore disproving all three versions simultaneously. 
+In this work, we will build counterexamples with one-dimensional eigenspaces and eigenfunctions which exceed the boundary values in the interior, therefore disproving all three versions simultaneously. 
 
-*What are nice enough domains?* The open question is identifying the classes of domains for which the conjecture holds and those for which it fails. The difficulty is that the principal eigenfunction of the Laplacian can be computed in closed form only for very few domains. For example, on a rectangle $phi.alt_1$ is a product of trigonometric functions and the statement of the conjecture is easily verified. 
+*What are nice enough domains?* The open question is identifying the classes of domains for which the conjecture holds and those for which it fails. The difficulty is that the principal eigenfunction of the Laplacian can be computed in closed form only for very few domains. For example, on a rectangle $phi.alt_1$ is a cosine and the statement of the conjecture is easily verified. 
 
 Kawohl @kawohl_rearrangements_1985[Corollary 2.15] showed that (HS1) holds for cylindrical domains $Ω = Ω_0 times (0,l) subset RR^d$ where $Ω_0$ is bounded with $∂Ω_0$ of class $C^(0,1)$. Furthermore, Kawohl conjectured that the property holds for all convex domains @kawohl_rearrangements_1985[p.56].
-Bañuelos and Burdzy @banuelos_hot_1999 later proved that (HS1) holds for certain triangles and for long convex planar domains with sufficient symmetry. Conversely, Burdzy and Werner @burdzy_counterexample_1999 constructed a counterexample consisting of a bounded planar domain with two holes, the number of holes was later reduced to one @burdzy_hot_2004. For numerical counterexamples, see @kleefeld_hot_2021.
+Bañuelos and Burdzy @banuelos_hot_1999 later proved that (HS1) holds for certain triangles and for long convex planar domains with sufficient symmetry. Conversely, Burdzy and Werner @burdzy_counterexample_1999 constructed a counterexample consisting of a bounded planar domain with two holes; This was later reduced to a single hole @burdzy_hot_2004. For numerical counterexamples, see @kleefeld_hot_2021.
 
 The conjecture was believed to be true for convex sets until it was recently disproven @pont_convex_2024 in high dimensions. This recent work is the subject of the next subsection.
 
