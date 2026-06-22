@@ -1,0 +1,50 @@
+# Copyright 2026 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  reuse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: fsfe/reuse-action@v6
+
+  compile:
+    name: Compile (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [dissertation, thesis, research-plan, assignment]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: typst-community/setup-typst@v5
+      - uses: extractions/setup-just@v3
+
+      - name: Install packages locally
+        run: just link ${{ matrix.package }}
+
+      - name: Use local package in template
+        run: sed -i 's|@preview/ethz-iis-|@local/ethz-iis-|g' ${{ matrix.package }}/template/main.typ
+
+      - name: Compile template
+        run: just compile ${{ matrix.package }}
+
+  format:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run typstyle
+        uses: typstyle-rs/typstyle-action@v1.0.0
+        with:
+          opts: --check

@@ -1,0 +1,30 @@
+version = 1
+
+[[annotations]]
+path = [
+  "**/*.png",
+  "**/*.bib",
+  "**/*.toml",
+  "**/*.md",
+  "**/*.pdf",
+  "LICENSE",
+  "*/LICENSE",
+  ".gitignore",
+]
+SPDX-FileCopyrightText = "2026 ETH Zurich"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["*/template/**"]
+SPDX-FileCopyrightText = "2026 ETH Zurich"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["shared/figures/pulp_logo_icon.svg", "shared/figures/pulp_logo_inline.svg"]
+SPDX-FileCopyrightText = "2026 ETH Zurich"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["shared/figures/eth_logo_kurz_pos.svg"]
+SPDX-FileCopyrightText = "ETH Zürich"
+SPDX-License-Identifier = "LicenseRef-ETH-Trademark"
