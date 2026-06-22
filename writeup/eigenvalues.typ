@@ -16,19 +16,16 @@ lambda_1 ≤ R(phi.alt.alt_1).
 $
 
 #proposition[
-  Evaluating the Rayleigh quotient
-  $
-  lambda_1 ≤ 4.0.
-  $
+  Evaluating the Rayleigh quotient $lambda_1 lt.tilde 4.0.$
 ]<prop:upper-bounds>
 
 == Lower bounds
 
 Lower bounds require more effort. We use the guaranteed lower bounds of the nonconforming Crouzeix–Raviart finite element method.
 
-#inline-note-a[
-  We should note that we assume that the eigenvalues of the discretized problem are computed exactly. Bounding this error as well is out of scope.
-]
+// #inline-note-a[
+//   We should note that we assume that the eigenvalues of the discretized problem are computed exactly. Bounding this error as well is out of scope.
+// ]
 
 #theorem([@liu_guaranteed_2024, Theorem 3.2])[
   Suppose the interpolation operator $Pi_h$ satisfies $integral abs(u - Pi_h u)^2 dif x ≤ C_h^2 integral abs(nabla(u - Pi_h u))^2 dif x$ for all $u in H^1$. Then the discrete eigenvalues $lambda_(k, h)$ yield the lower bound

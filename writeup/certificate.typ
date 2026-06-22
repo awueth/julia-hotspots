@@ -1,4 +1,5 @@
 #import "template.typ": *
+#import "numerical_values.typ": *
 
 = Certifying the numerical counterexample <certificate>
 
@@ -8,7 +9,7 @@ Here goes the conclusion of the proof. It should be some something like "if we m
   table(
     columns: 2,
     [*Quantity*], [*Floating point value*],
-    [$norm((L-lambda_*) phi_*)_oo$], [max_pde_residual],
+    [$norm((L-lambda_*) phi_*)_oo$], [#boundary_error_finite_d],
     [$norm(phi_*)_oo$], [sup_norm_eigenfunction],
     [$underline(lambda_1)$], [eigval_lower],
     [$lambda_*$], [eigval_approx],

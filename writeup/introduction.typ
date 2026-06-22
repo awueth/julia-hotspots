@@ -91,13 +91,13 @@ Bañuelos and Burdzy @banuelos_hot_1999 later proved that (HS1) holds for certai
 The conjecture was believed to be true for convex sets until it was recently disproven @de_dios_convex_2024 in high dimensions. This recent work is the subject of the next subsection.
 
 
-#inline-note-j[Maybe introducing the reader to the Dirichlet energy _before_ this section may be good? I.e. explain why the first eigenfunction is special.]
+// #inline-note-j[Maybe introducing the reader to the Dirichlet energy _before_ this section may be good? I.e. explain why the first eigenfunction is special.]
 
-#inline-note-a[
-  How big of a priority is it? I think that it is the minimizer of the Rayleigh quotient is well known.
-]
+// #inline-note-a[
+//   How big of a priority is it? I think that it is the minimizer of the Rayleigh quotient is well known.
+// ]
 
-#inline-note-j[I mean it's not bad to remind the reader. You don't have to prove it just state it.]
+// #inline-note-j[I mean it's not bad to remind the reader. You don't have to prove it just state it.]
 
 == Convex sets can have interior hot spots
 
@@ -164,4 +164,6 @@ This thesis is structured as follows: In @barrels we study barrel sets in detail
 In @construction we explain the construction of the potential $V$ inducing a counterexample log-concave measure in @de_dios_convex_2024 and derive an adaptation which can be explicitly computed. \
 In @numerics we present our numerical implementation of our method of particular solutions and the resulting approximation. Since the method of particular solutions cannot guarantee the position in the spectrum of the approximate eigenpairs, we derive a priori bounds in @sec:eigenvalues. \
 In @sec:pointwise we derive pointwise bounds for the eigenfunction based on the eigenvalue bounds and the MPS-residual. \
-Finally, in @certificate we present the resulting numerical bounds and discuss improvements needed for a certificate for the failure of the hot spots conjecture. 
+Finally, 
+//in @certificate 
+we present the resulting numerical bounds and discuss improvements needed for a certificate for the failure of the hot spots conjecture. 

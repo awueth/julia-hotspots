@@ -1,7 +1,7 @@
-#let lower_bound_spectral_gap = 2.0 // TODO put the final value
+#let lower_bound_spectral_gap = 0.0 
 #let optimistic_finite_d = 1e9
-#let boundary_error_finite_d = 0.01
-#let boundary_error_limit = 0.01
-#let hot_spot_effect_finite_d = 1e-4
-#let hot_spot_effect_limit = 1e-4
-#let error_pointwise_limit = 1e-2
+#let boundary_error_finite_d = 0.0
+#let boundary_error_limit = 0.0
+#let hot_spot_effect_finite_d = 0.0
+#let hot_spot_effect_limit = 0.0
+#let error_pointwise_limit = 0.0
