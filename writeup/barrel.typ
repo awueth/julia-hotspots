@@ -10,11 +10,11 @@
   which we call a barrel domain.
 ]
 
-The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @de_dios_convex_2024. The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
+The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @de_dios_convex_2024. The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barrel, see @fig:barell.
 
 #figure(
   image("barrel.svg", width: 25%),
-  caption: [For $Q$ an interval $F_1(Q,V)$ looks like a barell. The curved wall corresponds to the graph of the potential $V$. The actual counterexample, the cylinder axis $Q$ is a rectangle.]
+  caption: [For $Q$ an interval $F_1(Q,V)$ looks like a barrel. The curved wall corresponds to the graph of the potential $V$. The actual counterexample, the cylinder axis $Q$ is a rectangle.]
 ) <fig:barell>
 
 For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also use a fixed potential $V :Q -> RR$ which is symmetric in both coordinates. We will denote the eigenvalues of the Neumann Laplacian on $F_d (Q,V)$ by $0 = lambda_(0,d) < lambda_(1,d) ≤ lambda_(2,d) ≤ ...$, with multiple eigenvalues listed separately. The corresponding eigenfunctions will be denoted by $phi.alt_(0,d), phi.alt_(1,d), phi.alt_(2,d)$ and so on.  We will refer to $(lambda_(1, d), lambda_(1, d))$ as the "first" eigenvalue and eigenfunction.
@@ -38,7 +38,7 @@ The counterexample is in high dimension $d$. In order to compute its eigenfuncti
   $
 ] <lem:eig-radial>
 #proof[
-  In cylindrical coordinated the Lapalacian is $∆ = ∆_x +  ∂_r^2 + d/r ∂_r + 1/r^2 ∆_(S_d)$. We separate $phi.alt_(k,d)$ into eigenfunctions of $-(∆_x +  ∂_r^2 + d/r ∂_r)$ and $-1/r^2 ∆_(S_d)$, that is
+  In cylindrical coordinated the Laplacian is $∆ = ∆_x +  ∂_r^2 + d/r ∂_r + 1/r^2 ∆_(S_d)$. We separate $phi.alt_(k,d)$ into eigenfunctions of $-(∆_x +  ∂_r^2 + d/r ∂_r)$ and $-1/r^2 ∆_(S_d)$, that is
 
   $
   phi.alt_(k,d) (x, w) = sum_(ell≥0, m) A_(ell, m)(x, abs(w)) Y_(ell, m) (theta),
@@ -62,7 +62,7 @@ $
 r = 2 abs(w) d^(-1/2), 
 $
 
-transforms the Barel set $F_d (Q, V)$ into
+transforms the barrel set $F_d (Q, V)$ into
 
 $
 Omega_d = {(x,r) in Q times RR_(≥ 0) : r ≤ 1 - V(x)/d}.
@@ -112,7 +112,7 @@ $ <eq:limit-problem>
 
 === The connection to the log-concave problem
 
-In the introduction we claimed that the spectrum of barell sets $F_d (Q, V)$ approximates the spectrum of $Q$ with respect to the log-concave measure $dif mu(x) = e^(-V(x)) dif (x)$, as $d -> oo$. In order to make this connection, note that the divergence form of $L psi_1 = lambda psi_1$ is $-nabla dot (e^(-V) nabla psi_1) = lambda_1 e^(-V) psi_1$. To obtain the weak formulation, we multiply by a test function $v$ and integrate with respect to the Lebesgue measure:
+In the introduction we claimed that the spectrum of barrel sets $F_d (Q, V)$ approximates the spectrum of $Q$ with respect to the log-concave measure $dif mu(x) = e^(-V(x)) dif (x)$, as $d -> oo$. In order to make this connection, note that the divergence form of $L psi_1 = lambda psi_1$ is $-nabla dot (e^(-V) nabla psi_1) = lambda_1 e^(-V) psi_1$. To obtain the weak formulation, we multiply by a test function $v$ and integrate with respect to the Lebesgue measure:
 
 $
 - integral_Q nabla dot (e^(-V) nabla psi_1) v dif x = lambda_1 integral_Q psi_1 v e^(-V) dif x
@@ -237,7 +237,7 @@ The two lemmas are exactly the assumptions of the following lemma, which shows t
   f(x) = underbrace((e^(-V))/((1 - V/d)^d), =: A) dot 1/(1 - V/d).
   $
 
-  The inequality $1 + t ≤ e^t$ with $t = -V/d$ gives $(1 - V/d)^d ≤ e^(-V)$, hence $A ≥ 1$ pointwise. 
+  The inequality $1 + t ≤ e^t$ with $t = -V/d$ gives $(1 - V/d)^d ≤ e^(-V)$, hence $A ≥ 1$ point wise. 
   
   For the upper bound write $h(V) := log(A) =  -V - d log(1 - V/d)$, so that $h(0) = 0$ and
   $

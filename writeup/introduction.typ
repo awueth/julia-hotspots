@@ -70,13 +70,14 @@ As $t -> oo$, the function $tilde(u)$ must converge uniformly and exponentially 
 
 *Multiple principal eigenfunctions.* The principal eigenspace can be two- or higher-dimensional; this is often the case if the domain $Ω$ is highly symmetric, such as a square or a disk. In such cases, there are several variations of the conjecture, depending on whether it should hold for all or only some eigenfunctions in the eigenspace. Following Bañuelos and Burdzy @banuelos_hot_1999, one can distinguish three formulations:
 
-#inline-note-j[maybe so me bullet points/smething like that?]
+#enum(
+  numbering: i => [(HS#i)],
+  [For _every_ eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.],
 
-(HS1) For _every_ eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.
-
-(HS2) For _every_ eigenfunction $phi.alt_1$ corresponding to $lambda_1$ and all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) ≤ phi.alt_1(y) ≤ sup_(x in ∂Ω) phi.alt_1(x)$.
-
-(HS3) There _exists_ an eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and such that for all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.
+  [For _every_ eigenfunction $phi.alt_1$ corresponding to $lambda_1$ and all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) ≤ phi.alt_1(y) ≤ sup_(x in ∂Ω) phi.alt_1(x)$.],
+  
+  [There _exists_ an eigenfunction $phi.alt_1$ corresponding to $lambda_1$ which is not identically 0, and such that for all $y in Ω$, we have $inf_(x in ∂Ω) phi.alt_1(x) < phi.alt_1(y) < sup_(x in ∂Ω) phi.alt_1(x)$.]
+)
 
 In this work, we will build counterexamples with one-dimensional eigenspaces and eigenfunctions which exceed the boundary values in the interior, therefore disproving all three versions simultaneously. 
 
@@ -92,6 +93,11 @@ The conjecture was believed to be true for convex sets until it was recently dis
 
 #inline-note-j[Maybe introducing the reader to the Dirichlet energy _before_ this section may be good? I.e. explain why the first eigenfunction is special.]
 
+#inline-note-a[
+  How big of a priority is it? I think that it is the minimizer of the Rayleigh quotient is well known.
+]
+
+#inline-note-j[I mean it's not bad to remind the reader. You don't have to prove it just state it.]
 
 == Convex sets can have interior hot spots
 
@@ -100,7 +106,7 @@ $
 (integral_Omega abs(nabla phi.alt)^2 dif mu) / (integral_Omega abs(phi.alt)^2 dif mu),
 $
 
-over the all $mu$-mean-zero functions. The log-concave extension of the hot spots conjecture states that $phi.alt_(1, mu)$ attains its maximum on $∂ Omega$, for any log-concave measure $mu$. The authors of @de_dios_convex_2024 first disprove this version of the conjecture and then transfer the counterexample by approximating $mu$ by a uniform measure on a high-dimensional _barrel set_. Given a rectangle $Q subset RR^2$ and a potential $V : Q -> RR$, the _barrel set_ is defined as
+over the all $mu$-mean-zero functions. The log-concave extension of the hot spots conjecture states that $phi.alt_(1, mu)$ attains its maximum on $∂ Omega$, for any log-concave measure $mu$. The argument of of @de_dios_convex_2024 is to first this version of the conjecture and then transfer the counterexample by approximating $mu$ by a uniform measure on a high-dimensional _barrel set_. Given a rectangle $Q subset RR^2$ and a potential $V : Q -> RR$, the _barrel set_ is defined as
 
 $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : abs(w) <= sqrt(d)/2 (1 - V(x)/d)}, $
 
