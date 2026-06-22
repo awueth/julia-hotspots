@@ -94,180 +94,77 @@ $
   which can be optimized over $alpha in (0, 1)$.
 ]
 
+== Pointwise bounds in the finite-dimensional case
 
-/*
-Now, since $Q_t phi.alt_1 = phi.alt_1$ and by the triangle inequality, we have
+In the limit $d = oo$ the eigenvalue problem is effectively an interior one: the mass of the barrel concentrates at the outer boundary, the approximation $phi.alt_*$ satisfies the Neumann condition on $∂Q$ by construction, and the only error left to control is the "interior" residual $(L - lambda_*) phi.alt_*$. In finite dimensions this is no longer the case. The approximation satisfies the interior equation $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly, but it now leaves a residual in the Neumann condition on $Gamma_1 union Gamma_2$. Following @moler_bounds_1968, we first internalize this boundary residual, then the same proof as in @sec:pointwise-limit applies.
 
-$
-norm(phi.alt_* - phi.alt_1)_oo 
-&≤ norm(Q_t phi.alt_* - phi.alt_*)_oo + norm(Q_t phi.alt_* - phi.alt_1)_oo \
-&≤ e^(lambda_1 t)(t epsilon + t abs(lambda_* - lambda_1) norm(phi.alt_*)_oo + C_t norm(phi.alt_* - phi.alt_1)_2),
-$
-
-where we used the Wang-Li-Yau inequality. We reduced the problem to showing that $phi.alt$ is close to $phi.alt_1$ in $L^2$.
-
-
-
-observe that $∂_t Q_t = lambda_1 e^t P_t - L e^t P_t = -(L-lambda_1)Q_t$. Therefore, 
+We correct the boundary condition with a harmonic function $w$ solving
 
 $
-norm(∂_t Q_t phi.alt_*)_oo 
-&= norm(Q_t (L-lambda_1) phi.alt_*)_oo \
-&≤ e^(lambda_1 t) norm((L-lambda_1)phi.alt_*)_oo \
-&≤ e^(lambda_1 t) (norm((L-lambda_*) phi.alt_*)_oo + abs(lambda_* - lambda_1) norm(phi.alt_*)_oo) \
-&≤ e^(lambda_1 t) (epsilon + abs(lambda_* - lambda_1) norm(phi.alt_*)_oo)
-$ <eq:partialQphi.alt-bound>
-
-by the maximum principle. It follows that
+-∆ w &= 0 "in" Omega_d, \
+w &= 0 "on" Gamma_0, \
+∂_arrow(n) w(x, r) &= -∂_arrow(n) phi.alt_*(x, r) "on" Gamma_1 union Gamma_2.
+$<eq:harmonic-correction>
+By construction $phi.alt_* + w$ satisfies the Neumann condition exactly, and since $w$ is harmonic, using $-∆ phi.alt_* = lambda_* phi.alt_*$ and $-∆ w = 0$, we have
 
 $
-norm(Q_t phi.alt_* - phi.alt_*)_oo 
-≤ norm(Q_0 phi.alt_* - phi.alt_*)_oo +  t norm(∂_t (Q_t phi.alt_* - phi.alt_*))_oo
-= t norm(∂_t Q_t phi.alt_*)_oo
-≤ t e^(lambda_1 t) (epsilon + abs(lambda_* - lambda_1) norm(phi.alt_*)_oo)
-$
+(-∆ - lambda_1)(phi.alt_* + w) = (lambda_* - lambda_1) phi.alt_* - lambda_1 w.
+$<eq:internalized-residual>
 
-*Can we get rid of the $e^(lambda_1 t)$ factor?* #margin-note-a[Can you please check this?] In the step $norm(Q_t (L-lambda_1) phi.alt_*)_oo ≤ e^(lambda_1 t) norm((L-lambda_1)phi.alt_*)_oo$ in @eq:partialQphi.alt-bound we only used the maximum principle, which is probably too pessimistic. Remember that $Q_t phi.alt_1 = phi.alt_1$. Since $phi.alt_*$ is a good approximation of $phi.alt_1$, we expect $Q_t phi.alt_* approx phi.alt_*$ and thus $norm(Q_t (L-lambda_1) phi.alt_*)_oo approx epsilon + abs(lambda_* - lambda_1)norm(phi.alt_*)_oo$. Let us write $phi.alt_* = sum_j c_j phi.alt_j$ with $c_j = inner(phi.alt_j, phi.alt_*)$, assume $norm(phi.alt_*)_(L^2(e^(-V))) = 1$ then $sum c_j^2 = 1$ and $c_1 ≤ 1$. Now,
+The corrected function $phi.alt_* + w$ thus takes over the role that $phi.alt_*$ played in the limit case. It remains to control the correction $w$, which we do with a barrier.
 
-$
-Q_t (L-lambda_1) 
-=  sum_(j≥2) e^((lambda_1-lambda_j)t) (lambda_j - lambda_1) c_j phi.alt_j.
-$
-
-By Cauchy-Schwarz we have
-
-$
-abs(sum_(j≥2) e^((lambda_1-lambda_j)t) (lambda_j - lambda_1) c_j phi.alt_j)^2
-&≤ (sum_(j≥2) (lambda_j - lambda_1)^2 c_j^2) (sum_(j≥2) e^(2(lambda_1-lambda_j)t) phi.alt_j^2) \
-&≤ norm((L-lambda_1) phi.alt_*)_(L^2(e^(-V)))^2 (e^(2 lambda_1 t) p_(2t) (x,x) - phi.alt_1(x)^2),
-$
-where $p_t (x,y) = sum_j e^(-lambda_j t) phi.alt_j (x) phi.alt_j (y)$ is the heat kernel. So
-
-$
-norm(Q_t (L-lambda_1) phi.alt_*)_oo
-≤ norm((L-lambda_1) phi.alt_*)_(L^2(e^(-V))) sup_x sqrt(e^(2 lambda_1 t) p_(2t) (x,x) - phi.alt_1(x)^2).
-$
-
-Now we need a bound of $norm((L-lambda_1) phi.alt_*)_(L^2(e^(-V)))$ instead of $norm((L-lambda_1) phi.alt_*)_oo$, which is much better since the point where the residual is worst is in the wing where $e^(-V)$ is very small. 
-
-Lets try a nicer version of the same argument. Let $f in {phi.alt_1}^perp$, then
-
-$
-norm(Q_t f)_2
-= e^(lambda_1 t) norm(P_t f)_2
-≤ e^(lambda_1 t) e^(-lambda_2 t) norm(f)_2
-≤ e^(-(lambda_2-lambda_1) t) norm(f)_2.
-$
-
-Now, we have $norm(Q_(s + t) f)_(oo) ≤ C_s norm(Q_t f)_2 ≤ C_s e^(-(lambda_2-lambda_1)t) norm(f)_2$. Since $(L-lambda_1) phi.alt_*$ is orthogonal to $phi.alt_1$, it follows immediately that
-
-$
-norm(Q_t (L-lambda_1) phi.alt_*)_oo 
-&≤ C_(t\/2) e^(-2(lambda_2-lambda_1)t) norm((L-lambda_1) phi.alt_*)_(L^2(e^(-V))). // \
-// &≤ C_(t\/2) e^(-(lambda_2-lambda_1)t) (norm((L-lambda_*) phi.alt_*)_(L^2(e^(-V))) + abs(lambda_*-lambda_1))
-
-$
-*/
-
-== Barriers for the finite dimensional case
-
-Suppose $phi.alt_*$ is an approximation of $phi.alt_1$ in the sense that
-
-$
--∆ phi.alt_* &= lambda_* phi.alt_* \
-phi.alt_* &= 0 "on" Gamma_0 \
-∂_arrow(n) phi.alt_* &= 0 "on" Gamma_1 \
-norm(∂_arrow(n) phi.alt_*)_oo &≤ epsilon "on" Gamma_2.
-$
-
-We cannot find barriers for $phi.alt$ directly, instead we bound the correction (see Moler-Payne) needed for $phi.alt_*$ satisfy the boundary condition. However then the corrected approximate eigenfunction is not a perfect eigenfunction in the interior any more. Moler-Payne show that this corrected eigenfunction is close to the true eigenfunction in the $L^2$ sense. We then upgrade this $L^2$ estimate to an $L^oo$ estimate using the Wang-Li-Yau inequality.
-
-Let $w$ be the correction we have to add to $phi.alt_*$ to satisfy the Neumann boundary condition, i.e.
-
-$
--∆w &= 0 \
-w &= 0 "on" Gamma_0 \
-∂_arrow(n) w(x,r) &= -∂_arrow(n) phi.alt_*(x,r) "on" Gamma_1 union Gamma_2.
-$
-
-Now $phi.alt_* + w$ satisfies the boundary conditions exactly at the cost $-∆(phi.alt_* + w) = lambda phi.alt_* ≠ lambda_* (phi.alt_* + w)$. According to Moler-Payne it follows that 
-
-#lemma[@moler_bounds_1968][
+#lemma[
+  Let $w$ solve @eq:harmonic-correction, and let $v$ be a supersolution satisfying
   $
-  norm(phi.alt_*-phi.alt_1)_2 ≤ norm(w)_2/alpha (1 + norm(w)_2^2/alpha^2)^(1/2),
+  -∆ v &≥ 0 "in" Omega_d, \
+  v &= 0 "on" Gamma_0, \
+  ∂_arrow(n) v &≥ 0 "on" Gamma_1, \
+  ∂_arrow(n) v(x, r) &≥ abs(∂_arrow(n) phi.alt_*(x, r)) "on" Gamma_2.
   $
-
-  where $alpha= abs(lambda_2 - lambda_*)\/lambda_2 = 1 - lambda_* / lambda_2 ≤ 1 - lambda_* / overline(lambda_2)$. 
-
+  Then $abs(w) ≤ v$ on $Omega_d$, in particular $norm(w)_oo ≤ norm(v)_oo$ and $norm(w)_2 ≤ norm(v)_2$.
+]<lem:barrier>
+#proof[
+  Set $f := w - v$. Then $-∆ f ≤ 0$ in $Omega_d$, with $∂_arrow(n) f ≤ 0$ on $Gamma_1 union Gamma_2$ and $f = 0$ on $Gamma_0$. Testing against the positive part $f^+$ and integrating by parts,
   $
-  abs(lambda_* - lambda_1) ≤ (sqrt(2) norm(w) + norm(w)^2)/(1-norm(w)) lambda_* \
-  lambda_1 ≤ lambda_* / (1-norm(w)_2)
+  norm(nabla f^+)_2^2 = integral_(Omega_d) nabla f dot nabla f^+ = integral_(Omega_d) (-∆ f) f^+ + integral_(Gamma_1 union Gamma_2) (∂_arrow(n) f) f^+ ≤ 0,
   $
+  so $f^+$ is constant. Since it vanishes on $Gamma_0$ it is identically zero, giving $w ≤ v$. Repeating the argument with $-w$ in place of $w$ yields $abs(w) ≤ v$.
 ]
 
+#theorem[
+  Let $phi.alt_1$ be the principal Neumann eigenfunction of $-∆$ on $Omega_d$, and let $phi.alt_*$, normalized by $norm(phi.alt_*)_2 = 1$ and satisfying $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly in the interior, be the approximation produced by the method of particular solutions. Let $w$ be the harmonic correction @eq:harmonic-correction and $v$ a barrier as in @lem:barrier. With the eigenvalue enclosures $underline(lambda_1) ≤ lambda_1 ≤ overline(lambda_1)$ and $underline(lambda_2) ≤ lambda_2 ≤ overline(lambda_2)$ of @sec:eigenvalues,
+  $
+  norm(phi.alt_* - phi.alt_1)_oo
+  ≤& norm(v)_oo + min_(s_1 ≥ 0) [ (abs(lambda_* - lambda_1) norm(phi.alt_*)_oo + overline(lambda_1) norm(v)_oo) (e^(s_1 overline(lambda_1)) - 1) / underline(lambda_1) \
+  &+ (abs(lambda_* - lambda_1) + overline(lambda_1) norm(v)_2) integral_(s_1)^oo C_(s slash 2) e^(-(underline(lambda_2) slash 2 - overline(lambda_1)) s) dif s ],
+  $
+  where $abs(lambda_* - lambda_1) ≤ max(lambda_* - underline(lambda_1), overline(lambda_1) - lambda_*)$.
+]<thm:pointwise-finite>
+#proof[
+  Because $phi.alt_* + w$ satisfies the Neumann condition exactly, the argument of @thm:pointwise-limit applies to $phi.alt_* + w$ in place of $phi.alt_*$ and $-∆$ in place of $L$. The only thing to verify is that $phi.alt_*$ is orthogonal to $phi.alt_0 ≡ 1$ and $phi.alt_1$. The approximate eigenfunction $phi.alt_*$ is odd in $x_1$ by designg and $w$ is odd by @eq:harmonic-correction. The exact Neumann condition makes the boundary terms in Green's identity vanish, so $inner(phi.alt_1, (-∆ - lambda_1)(phi.alt_* + w)) = inner((-∆ - lambda_1) phi.alt_1, phi.alt_* + w) = 0$. Write $P_s$ for the Neumann heat semigroup on $Omega_d$, $Q_s = e^(lambda_1 s) P_s$, and $C_t$ for the ultracontractivity constant of @thm:ultracontractivity. The same time split of @eq:my-favorite-integral at $s_1$, the maximum principle below $s_1$, and the $s slash 2$ ultracontractivity bound above $s_1$, gives
+
+  $
+  norm(phi.alt_* + w - phi.alt_1)_oo ≤& norm((-∆ - lambda_1)(phi.alt_* + w))_oo integral_0^(s_1) e^(lambda_1 s) dif s \
+  &+ norm((-∆ - lambda_1)(phi.alt_* + w))_2 integral_(s_1)^oo C_(s slash 2) e^(-(lambda_2 slash 2 - lambda_1) s) dif s.
+  $
+
+  From @eq:internalized-residual and $norm(phi.alt_*)_2 = 1$ it follows that,
+
+  $
+  norm((-∆ - lambda_1)(phi.alt_* + w))_oo &≤ abs(lambda_* - lambda_1) norm(phi.alt_*)_oo + lambda_1 norm(w)_oo, \
+  norm((-∆ - lambda_1)(phi.alt_* + w))_2 &≤ abs(lambda_* - lambda_1) + lambda_1 norm(w)_2.
+  $
+
+  Inserting the barrier bounds $norm(w)_oo ≤ norm(v)_oo$ and $norm(w)_2 ≤ norm(v)_2$ of @lem:barrier, the eigenvalue enclosures, and $integral_0^(s_1) e^(lambda_1 s) dif s ≤ (e^(s_1 overline(lambda_1)) - 1) slash underline(lambda_1)$, and using the triangle inequality $norm(phi.alt_* - phi.alt_1)_oo ≤ norm(phi.alt_* + w - phi.alt_1)_oo + norm(w)_oo$, gives the stated bound after minimizing over $s_1 ≥ 0$.
+]
+
+
+
 #inline-note-a[
-  Maybe the Rayleigh-quotient is a better upper bound of $lambda_1$:
+  Maybe the Rayleigh-quotient should be computed like this:
   $
   lambda_1 ≤ integral abs(nabla phi.alt_*)^2
   &= -integral phi.alt_* ∆ phi.alt_* + integral phi.alt_* ∂_arrow(n) phi.alt_* \
   &= lambda_* + integral_Gamma_1 phi.alt_* ∂_arrow(n) phi.alt_*
   $
 ]
-
-However, we want pointwise bounds and can now, since we transformed to and interior problem, use the same procedure as in the infinite dimensional case: $norm((-∆-lambda_*)(phi.alt_* + w))_oo = lambda_* norm(w)_oo$, by the same argument as before we conclude that 
-
-#inline-note-a[
-  Let's redo this.
-
-  $
-  norm(phi.alt_* + w - phi.alt_1)_oo \
-  ≤ norm((-∆-lambda_1) (phi.alt_* + w))_oo ∫_0^s_1 e^(lambda_1 s) dif s + norm((-∆-lambda_1) (phi.alt_* + w))_2 ∫_(s_1)^oo C_(s\/2) e^(-2(lambda_2-lambda_1) s) dif s.
-  $
-
-  We have 
-  
-  $
-  norm((-∆-lambda_1) (phi.alt_* + w)) 
-  &≤ norm((-∆-lambda_1) phi.alt_*) + lambda_1 norm(w) \
-  &≤ epsilon + abs(lambda_* - lambda) norm(phi.alt_*) + lambda_1 norm(w),
-  $
-
-  and $abs(lambda_* - lambda_1) ≤ (sqrt(2) norm(w) + norm(w)^2)/(1-norm(w)) lambda_*$. 
-
-]
-
-$
-norm(phi.alt_* + w - phi.alt_1)_oo 
-≤ e^(lambda_1 t)(lambda_* norm(w)_oo + abs(lambda_* - lambda_1) norm(phi.alt_* + w)_oo + C_t norm(phi.alt_* + w - phi.alt_1)_2) \
-≤ e^(lambda_1 t)(lambda_* norm(w)_oo + abs(lambda_* - lambda_1) (norm(phi.alt_*)_oo + norm(w)_oo) + C_t (norm(phi.alt_* - phi.alt_1)_2 + norm(w)_2)) \
-$
-
-
-
-
-
-
-
-In order to bound $w$ we use a barrier estimate, let $v$ be such that
-
-$
--∆v &≥ 0 \
-v &= 0 "on" Gamma_0 \
-∂_arrow(n) v &≥ 0 "on" Gamma_1 \
-∂_arrow(n) v(x,r) &≥ abs(∂_arrow(n) phi.alt_*) "on" Gamma_2.
-$
-
-Let $f := w - v$, then
-
-$
--∆ f &≤ 0 \
-∂_arrow(n) f &≤ 0
-$
-
-Now,
-
-$
-norm(nabla f^+)_2^2 = ∫_Ω nabla f dot nabla f^+ = ∫_Ω (-∆ f) f^+ + ∫_(Gamma_1 + Gamma_2) (∂_arrow(n) f) f^+ ≤ 0,
-$
-
-showing $f^+$ is constant. Since $f^+$ vanishes on $Gamma_0$ it must be zero everywhere, we conclude that $w ≤ v$. The same argument with $-w$ inplace of $w$ gives $abs(w) ≤ v$.
