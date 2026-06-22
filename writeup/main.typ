@@ -1,30 +1,44 @@
 #import "template.typ": template, inline-note-j, margin-note-j, inline-note-a, margin-note-a
-#show: template
+#import "coverpage.typ": coverpage
 
 #set document(
   title: [Low dimensional counter examples to the Hot Spots conjecture]
 )
 
-#title()
-
-#heading(
-  numbering: none,
-  [How to use Typst]
+#coverpage(
+  title: [Numerical counter examples to the convex hot spots conjecture],
+  author: "Adrian Wüthrich",
+  reporttype: "Master Thesis",
+  advisors: (
+    (name: "Dr. Jaume de Dios"),
+    (name: "Prof. Dr. Svitlana Mayboroda"),
+  ),
 )
 
-Sorry for forcing Typst on you, I promise its super easy. There is a guide for Latex users here, the only important thing is the section on math-mode: https://typst.app/docs/guides/for-latex-users/#maths
+#show: template
 
-#inline-note-j[
-  loool no worries this is good!
-  
-  you should cite me as "de Dios", not "Pont"
+#align(center)[
+  #set par(justify: false)
+  #heading(
+    numbering: none,
+    [Aknowledgements]
+    )
+  #lorem(80)
 ]
 
+#pagebreak()
 
-#inline-note-a[
-  My notes will be in blue.
+
+#align(center)[
+  #set par(justify: false)
+  #heading(
+    numbering: none,
+    [Abstract]
+    )
+  #lorem(80)
 ]
 
+#pagebreak()
 
 
 #include "introduction.typ"
