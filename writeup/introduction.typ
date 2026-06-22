@@ -108,7 +108,7 @@ Our first contribution is a modification of the potential $V$ of @pont_convex_20
     max_(F_d (Q, V)) phi.alt_* - max_(∂ F_d (Q, V)) phi.alt_* gt.tilde #hot_spot_effect_finite_d .
   $
   The approximate relations $lt.tilde$ and $gt.tilde$ account for floating-point arithmetic and for the boundary error being estimated by sampling on a uniform $1024 times 1024$ grid in $Q$.
-]
+]<thm:main-finite-dim-result>
 
 #remark[
   For the log-concave extension, that is, the formal limit $d -> oo$, which we denote $F_oo (Q, V)$, the same construction yields the boundary error

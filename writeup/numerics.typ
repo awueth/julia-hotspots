@@ -34,6 +34,4 @@ In $d=oo$ dimensions we target an approximation $phi.alt_*$ that is of unit norm
 
 == Results
 
-#inline-note-a[
-  Here goes the theroem that we have an approximation $phi_*$ at dimension $d$ with a certain boundary error. 
-]
+#theorion-restate(filter: <thm:main-finite-dim-result>)
