@@ -1,13 +1,11 @@
-// Standalone IIS thesis cover page, extracted from
-// iis-typst/thesis/lib.typ so it can be used on its own.
-#import "iis-typst/shared/utils.typ": current-semester
+// Standalone thesis cover page, adapted from the ETH IIS thesis template.
 
 // ETH logo only (the lab/PULP logo from the original eth-header is removed).
 #let eth-header = grid(
   columns: (auto, 1fr),
   rows: 80pt,
   align: (left + horizon, horizon),
-  image("iis-typst/shared/figures/eth_logo_kurz_pos.svg", height: 80%),
+  image("figures/eth_logo_kurz_pos.svg", height: 80%),
   [],
 )
 
