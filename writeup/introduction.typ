@@ -70,20 +70,20 @@ The conjecture was believed to be true for convex sets until it was recently dis
 
 == Convex sets can have interior hot spots
 
-They key to the counteraxample constructed in @pont_convex_2024 is to first pose the log-concave extension of the hot spots conjecture. The eigenfunctions of the Neumann Laplacian $Omega$ are critical points of the Rayleigh quotient $integral_Omega abs(nabla phi.alt.alt)^2 dif x \/ integral_Omega abs(nabla phi.alt.alt)^2 dif x$. The log-concave analogon is obtained by generalizing the Lebesgue measure on $Omega$ to log-concave measures. That is, to measures $mu$ with density $dif mu(x) = e^(-V (x)) dif x$ for some convex function $V$ on $Omega$. The principal eigenfunction $phi.alt.alt_(1, mu)$ is now the minimizer of 
+The key to the counterexample constructed in @pont_convex_2024 is to first pose the log-concave extension of the hot spots conjecture. The eigenfunctions of the Neumann Laplacian on $Omega$ are critical points of the Rayleigh quotient $integral_Omega abs(nabla phi.alt)^2 dif x \/ integral_Omega abs(phi.alt)^2 dif x$. The log-concave analogue is obtained by generalizing the Lebesgue measure on $Omega$ to log-concave measures. That is, to measures $mu$ with density $dif mu(x) = e^(-V (x)) dif x$ for some convex function $V$ on $Omega$. The principal eigenfunction $phi.alt(1, mu)$ is now the minimizer of 
 $
-(integral_Omega abs(nabla phi.alt)^2 dif mu) / (integral_Omega abs(phi.alt)^2 dif mu).
+(integral_Omega abs(nabla phi.alt)^2 dif mu) / (integral_Omega abs(phi.alt)^2 dif mu),
 $
 
-The log-concave extension of the hot spots conjecture states that $phi.alt.alt_(1, mu)$ attains its maximum on $∂ Omega$, for any log-concave measure $mu$. The authors of @pont_convex_2024 first disprove this version of the conjecture and then transfer the counterexample by approximating $mu$ by a uniform measure on a high-dimensional _barrel set_. Given a convex body $Q subset RR^n$ and a potential $V : Q -> RR$, the barrel set is defined as
+over the all $mu$-mean zero functions. The log-concave extension of the hot spots conjecture states that $phi.alt.alt_(1, mu)$ attains its maximum on $∂ Omega$, for any log-concave measure $mu$. The authors of @pont_convex_2024 first disprove this version of the conjecture and then transfer the counterexample by approximating $mu$ by a uniform measure on a high-dimensional _barrel set_. Given a rectangle $Q subset RR^2$ and a potential $V : Q -> RR$, the _barrel set_ is defined as
 
 $ F_d (Q, V) := {(x,w) in Q times RR^(d+1) : abs(w) <= sqrt(d)/2 (1 - V(x)/d)}, $
 
-which is a convex body in $RR^(n+d+1)$ for sufficiently large $d$. The diffeomorphi.altsm
+which is convex in $RR^(2+d+1)$. The diffeomorphism
 
-$ phi.alt : F_d (Q, V) -> Q times B_(sqrt(d)/2), quad (x,w) |-> (x, (1 - V(x)/d)^(-1) w) $
+$ Phi : F_d (Q, V) -> Q times B_(sqrt(d)/2), quad (x,w) |-> (x, (1 - V(x)/d)^(-1) w) $
 
-pushes the uniform measure on $F_d (Q, V)$ forward to a measure that approximates the log-concave measure $e^(-V) dif x dif w$ on $Q times B_(sqrt(d)/2)$ as $d -> oo$. Consequently, the principal eigenfunctions satisfy $norm(phi.alt_(1, d) compose phi.alt - phi.alt_(1, mu))_(L^2(mu)) -> 0$ as $d -> oo$. Since $phi.alt_(1, mu)$ attains a strict interior maximum, it follows that for all sufficiently large $d$, the principal eigenfunction $phi.alt_(1, d)$ of the Neumann Laplacian on the convex domain $F_d (Q, V)$ must also attain a strict interior maximum, violating (HS1)--(HS3). The threshold dimension $d_"HS"$ above which the hot spots property fails is not made explicit in @pont_convex_2024, and a naive tracking of constants does not yield a satisfactory quantitative bound. The primary goal of this work is to provide an explicit lower bound on $d_"HS"$.
+pushes the uniform measure on $F_d (Q, V)$ forward to a measure that approximates, as $d -> oo$, the log-concave measure $dif mu = e^(-V(x)) dif x dif w$ on the product domain $Omega = Q times B_(sqrt(d)/2)$, where $V$ is chosen so that $mu$ is a counterexample to the log-concave conjecture. Consequently, the principal eigenfunctions satisfy $norm(phi.alt_(1, d) compose Phi^(-1) - phi.alt_(1, mu))_(L^2(mu)) -> 0$ as $d -> oo$. This can be upgraded to uniform convergence using Wang--Li--Yau ultracontractivity estimates @rockner_supercontractivity_2003. Since $phi.alt_(1, mu)$ attains a strict interior maximum, it follows that for all sufficiently large $d$, the principal eigenfunction $phi.alt_(1, d)$ of the Neumann Laplacian on the convex domain $F_d (Q, V)$ must also attain a strict interior maximum. Since the principal eigenvalue of $F_d (Q, V)$ is simple, $phi.alt_(1, d)$ is, up to sign, the unique principal eigenfunction, so this violates (HS1)--(HS3) simultaneously. The threshold dimension $d_"HS"$ above which the hot spots property fails is not made explicit in @pont_convex_2024, and a naive tracking of constants does not yield a satisfactory quantitative bound. The primary goal of this work is to provide an explicit upper bound on $d_"HS"$.
 
 == The method of particular solutions and certified numerics
 
