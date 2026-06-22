@@ -10,7 +10,7 @@
   which we call a barrel domain.
 ]
 
-The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @de_dios_convex_2024. The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barrel, see @fig:barell.
+The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @de_dios_convex_2024. The barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barrel, see @fig:barell.
 
 #figure(
   image("barrel.svg", width: 25%),
@@ -29,7 +29,7 @@ For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also u
 
 == The low barrel eigenfunctions are radial
 
-The counterexample is in high dimension $d$. In order to compute its eigenfunction, we have to reduce the number of effective dimensions by showing that the ground eigenfunction is radial in the $w$-coordinate. The proof goes in two steps: First we prove that any eigenfunction with a radial dependence must have a high eigenvalue. In a second step we compute an approximate radial eigenfuntion and compute its Rayleigh quotient, showing that the ground eigenvalue is small. By contradiction the eigenfunction bust be radial. 
+The counterexample is in high dimension $d$. In order to compute its eigenfunction, we have to reduce the number of effective dimensions by showing that the ground eigenfunction is radial in the $w$-coordinate. The proof goes in two steps: First we prove that any eigenfunction with a radial dependence must have a high eigenvalue. In a second step we compute an approximate radial eigenfunction and compute its Rayleigh quotient, showing that the ground eigenvalue is small. By contradiction the eigenfunction must be radial.
 
 #lemma[
   Let $phi.alt_(k, d)$ be the $k$-th Neumann eigenfunction of the Laplacian on $F_d (Q, V)$ and let $lambda_(k, d)$ be the corresponding eigenvalue. If $phi.alt_(k,d)(x, w)$ is not radial in the $w$-coordinate, then 
@@ -85,7 +85,7 @@ On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$ and eigenfu
 
 == The effective problem in infinite dimensions
 
-In this subsection we study the eigenvalue problem on $Omega_d$ as $d -> oo$. Recall that the Laplacian on $Omega_d$ is given by $Delta_x + 4/d ∂_r^2 + 4/r ∂_r -> Delta_x + 4 r^(-1) ∂_r$ as $d-> oo$, therefore, formaly
+In this subsection we study the eigenvalue problem on $Omega_d$ as $d -> oo$. Recall that the Laplacian on $Omega_d$ is given by $Delta_x + 4/d ∂_r^2 + 4/r ∂_r -> Delta_x + 4 r^(-1) ∂_r$ as $d-> oo$, therefore, formally
 
 $
 ∂_r phi.alt_1 = -r/4 (Delta_x + lambda_1) phi.alt_1,
@@ -335,7 +335,7 @@ Since $Q$ is symmetric and $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$, lower eigenfunc
   By Courant's nodal domain theorem, every eigenfunction for $lambda_1$ has at most two nodal domains.
 ]
 
-We know empiricaly that the first eigenspaces are all simple, and, that the first eigenfunction is odd in $x_1$ and even in $x_2$. We will assume from now on that $phi.alt_(1, d)$ indeed has these symmetries. We will prove later on via the eigenvalue bounds, that the obtained approximation of the eigenfunction, indeed approximates the principal eigenfunction. This assumption will allow us to reduce the number of free coefficients in the MPS basis by a factor of 4. 
+We know empirically that the first eigenspaces are all simple, and, that the first eigenfunction is odd in $x_1$ and even in $x_2$. We will assume from now on that $phi.alt_(1, d)$ indeed has these symmetries. We will prove later on via the eigenvalue bounds, that the obtained approximation of the eigenfunction, indeed approximates the principal eigenfunction. This assumption will allow us to reduce the number of free coefficients in the MPS basis by a factor of 4. 
 
 == MPS basis for Barrel sets <mps_basis>
 

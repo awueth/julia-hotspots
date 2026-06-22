@@ -109,7 +109,7 @@ $
 -L_1 G(t,x_1) ≤ (a'(t) x_1^2 + b'(t)) G(t,x_1) = ∂_t G(t,x_1)
 $
 
-and we win. The following functions should to the trick:
+and we win. The following functions should do the trick:
 
 $
 a(t) &= M / (2 + (M/alpha - 2) e^(2 M t)) \

@@ -71,7 +71,7 @@ $
   ≤ e^(lambda_1 s) norm((L - lambda_1) phi.alt_*)_oo.
   $
 
-  We now split the integral in @eq:my-favorite-integral at $s_1$ and write $(L - lambda_1) phi.alt_* = (L - lambda_*) phi.alt_* + (lambda_* - lambda_1) phi.alt_*$. Using $norm(phi.alt_*)_(L^2(mu)) = 1$, and the two derived bounds for the intgral
+  We now split the integral in @eq:my-favorite-integral at $s_1$ and write $(L - lambda_1) phi.alt_* = (L - lambda_*) phi.alt_* + (lambda_* - lambda_1) phi.alt_*$. Using $norm(phi.alt_*)_(L^2(mu)) = 1$, and the two derived bounds for the integral
 
   $
   integral_0^(s_1) norm(Q_s (L - lambda_1) phi.alt_*)_oo dif s ≤ (norm((L - lambda_*) phi.alt_*)_oo + abs(lambda_* - lambda_1) norm(phi.alt_*)_oo) integral_0^(s_1) e^(lambda_1 s) dif s,
@@ -141,7 +141,7 @@ The corrected function $phi.alt_* + w$ thus takes over the role that $phi.alt_*$
   where $abs(lambda_* - lambda_1) ≤ max(lambda_* - underline(lambda_1), overline(lambda_1) - lambda_*)$.
 ]<thm:pointwise-finite>
 #proof[
-  Because $phi.alt_* + w$ satisfies the Neumann condition exactly, the argument of @thm:pointwise-limit applies to $phi.alt_* + w$ in place of $phi.alt_*$ and $-∆$ in place of $L$. The only thing to verify is that $phi.alt_*$ is orthogonal to $phi.alt_0 ≡ 1$ and $phi.alt_1$. The approximate eigenfunction $phi.alt_*$ is odd in $x_1$ by designg and $w$ is odd by @eq:harmonic-correction. The exact Neumann condition makes the boundary terms in Green's identity vanish, so $inner(phi.alt_1, (-∆ - lambda_1)(phi.alt_* + w)) = inner((-∆ - lambda_1) phi.alt_1, phi.alt_* + w) = 0$. Write $P_s$ for the Neumann heat semigroup on $Omega_d$, $Q_s = e^(lambda_1 s) P_s$, and $C_t$ for the ultracontractivity constant of @thm:ultracontractivity. The same time split of @eq:my-favorite-integral at $s_1$, the maximum principle below $s_1$, and the $s slash 2$ ultracontractivity bound above $s_1$, gives
+  Because $phi.alt_* + w$ satisfies the Neumann condition exactly, the argument of @thm:pointwise-limit applies to $phi.alt_* + w$ in place of $phi.alt_*$ and $-∆$ in place of $L$. The only thing to verify is that $phi.alt_*$ is orthogonal to $phi.alt_0 ≡ 1$ and $phi.alt_1$. The approximate eigenfunction $phi.alt_*$ is odd in $x_1$ by design and $w$ is odd by @eq:harmonic-correction. The exact Neumann condition makes the boundary terms in Green's identity vanish, so $inner(phi.alt_1, (-∆ - lambda_1)(phi.alt_* + w)) = inner((-∆ - lambda_1) phi.alt_1, phi.alt_* + w) = 0$. Write $P_s$ for the Neumann heat semigroup on $Omega_d$, $Q_s = e^(lambda_1 s) P_s$, and $C_t$ for the ultracontractivity constant of @thm:ultracontractivity. The same time split of @eq:my-favorite-integral at $s_1$, the maximum principle below $s_1$, and the $s slash 2$ ultracontractivity bound above $s_1$, gives
 
   $
   norm(phi.alt_* + w - phi.alt_1)_oo ≤& norm((-∆ - lambda_1)(phi.alt_* + w))_oo integral_0^(s_1) e^(lambda_1 s) dif s \
