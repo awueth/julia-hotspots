@@ -17,14 +17,18 @@
 
 #show: template
 
-#align(center)[
-  #set par(justify: false)
-  #heading(
-    numbering: none,
-    [Acknowledgements]
-    )
-  #lorem(80)
-]
+// #let ack = [
+//   TODO 
+// ]
+
+// #align(center)[
+//   #set par(justify: false)
+//   #heading(
+//     numbering: none,
+//     [Acknowledgements]
+//     )
+//   #ack
+// ]
 
 #pagebreak()
 

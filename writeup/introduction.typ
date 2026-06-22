@@ -25,9 +25,11 @@ In a 1975 lecture, J. Rauch @rauch_lecture_1975 introduced the conjecture as a p
 Indeed, the evolution of the temperature distribution in a uniform, insulated material can be modeled as
 
 $
-∂_t u &= ∆ u &&"in" (0, oo) times Ω, \
-∂_arrow(n) u &= 0 &&"on" (0,oo) times ∂Ω, \
-u(0, x) &= u_0 (x) &&"for all" x in Omega.
+cases(
+  ∂_t u &= ∆ u &&"in" (0, oo) times Ω,
+  ∂_arrow(n) u &= 0 &&"on" (0,oo) times ∂Ω,
+  u(0, x) &= u_0 (x) &&"for all" x in Omega.
+)
 $
 
 The Neumann Laplacian is a self-adjoint non-positive operator in $L^2(Ω)$. The Neumann eigenfunctions of the Laplace operator in $Ω$, are a sequence of functions ${phi.alt_j}_(j >= 0)$ with eigenvalues $0 = lambda_0 <= lambda_1 <= dots <= lambda_j -> oo$, which satisfy
@@ -45,7 +47,7 @@ $
 By linearity of the heat equation,  we can rewrite $u(x,t)$ as
 
 $
-u(t, x) = ∑_(j≥0) inner(u_0, phi.alt_j) phi.alt_j (x) e^(-lambda_j t).
+u(t, x) = ∑_(j≥0) inner(u_0, phi.alt_j) phi.alt_j (x) e^(-lambda_j t),
 $
 where each of the functions $phi.alt_j (x) e^(-lambda_j t)$ is a solution of the heat equation. It satisfies the equation  
 $(∂_t u - ∆) phi.alt_j (x) e^(-lambda_j t) = (lambda_j - lambda_j) phi.alt_j (x) e^(-lambda_j t) = 0$.

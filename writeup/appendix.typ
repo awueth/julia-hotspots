@@ -11,7 +11,7 @@
 
 = Ultracontractivity <sec:ultracontractivity>
 
-#theorem[Wang's Harnack inequality][
+#theorem[Wang's Harnack inequality @wang_logarithmic_1997][
   Let $Omega subset RR^n$ be convex. Let $f$ be a bounded continuous function on $Omega$. For any $t≥0$ we have
 
   $
@@ -21,7 +21,7 @@
   for all $x, y in Omega$.
 ]<thm:wang-harnack>
 
-#theorem[Ultracontractivity][
+#theorem[Ultracontractivity @rockner_supercontractivity_2003][
   If $(integral exp(-abs(x)^2/s) dif mu)^(-1/2) ≤ C_1$ and $norm(P_t exp (abs(x)^2 / s))_(L^(oo)) ≤ C_2$, then
 
   $
