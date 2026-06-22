@@ -10,7 +10,7 @@
   which we call a barrel domain.
 ]
 
-The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @pont_convex_2024. The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
+The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @de_dios_convex_2024. The sets barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barell, see @fig:barell.
 
 #figure(
   image("barrel.svg", width: 25%),
@@ -22,7 +22,7 @@ For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also u
 // #inline-note-a[
 //   *outdated content:*
 
-//   The constant factor $1/4$ in the radius is completely arbitrary. In the @pont_convex_2024 it was chosen to be $1/2$, however, we chose $1/4$ since it allows us to show that eigenfunctions with eigenvalue less than $4^2$ are radial in $w$ for large $d$. With the factor $1/2$ we can only prove the same result for eigenvalues less than $2^2$. 
+//   The constant factor $1/4$ in the radius is completely arbitrary. In the @de_dios_convex_2024 it was chosen to be $1/2$, however, we chose $1/4$ since it allows us to show that eigenfunctions with eigenvalue less than $4^2$ are radial in $w$ for large $d$. With the factor $1/2$ we can only prove the same result for eigenvalues less than $2^2$. 
 // ]
 
 // Since the boundary of $F_d (Q, V)$ is not differentiable at points $(x, w)$ where $w in ∂ Omega$, we define the Neumann eigenfunctions using the weak formulation. A non-zero function $u in H^1 (Omega)$ is a Neumann eigenfunction with eigenvalue $lambda ≥ 0$ if it satisfies the equality $integral_Omega nabla u dot nabla v dif x = lambda integral_Omega u v dif x$, for all $v in H^1 (Omega)$.

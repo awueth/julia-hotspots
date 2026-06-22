@@ -2,7 +2,7 @@
 
 = Constructing a counterexample set <construction>
 
-In this section we explain the counterexample from @pont_convex_2024 and how we adapted it into a version that can be computed explicitly. Since our proof relies on verified numerics, we do not establish any properties of the counterexample set rigorously here; instead we give the intuition for why we expect it to work. Recall from @eq:limit-problem that the spatial variable $x$ ranges over the base $Q$ of the Barrel, while $r in [0, 1]$ is the radial coordinate, and $psi_1(x) = phi.alt_1(x, r=1)$. Following @pont_convex_2024, we perform the change of variables $t = (1-r^2) slash 8$, which sends the shell $r=1$ to $t=0$ and the axis $r=0$ to $t=1\/8$. Since $partial_r = -r\/4 thin partial_t$, this turns the boundary value problem @eq:limit-problem into a reaction-diffusion initial value problem:
+In this section we explain the counterexample from @de_dios_convex_2024 and how we adapted it into a version that can be computed explicitly. Since our proof relies on verified numerics, we do not establish any properties of the counterexample set rigorously here; instead we give the intuition for why we expect it to work. Recall from @eq:limit-problem that the spatial variable $x$ ranges over the base $Q$ of the Barrel, while $r in [0, 1]$ is the radial coordinate, and $psi_1(x) = phi.alt_1(x, r=1)$. Following @de_dios_convex_2024, we perform the change of variables $t = (1-r^2) slash 8$, which sends the shell $r=1$ to $t=0$ and the axis $r=0$ to $t=1\/8$. Since $partial_r = -r\/4 thin partial_t$, this turns the boundary value problem @eq:limit-problem into a reaction-diffusion initial value problem:
 
 $
 ∂_t h &= ∆_x h+ lambda_1 h "for" t in (0, 1\/8]\
