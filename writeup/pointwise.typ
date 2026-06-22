@@ -1,6 +1,6 @@
 #import "template.typ": *
 
-= Pointwise bounds of the eigenfunction <sec:pointwise>
+= Pointwise bounds on the eigenfunction <sec:pointwise>
 
 The method of particular solutions of @numerics returns an approximate eigenpair $(lambda_*, phi.alt_*)$ that satisfies the interior equation $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly and has a small residual in the boundary condition. In this section we turn this boundary residual into a pointwise bound on the distance to the true principal eigenfunction $phi.alt_1$. We split the boundary of the reduced barrel $Omega_d = {(x, r) in Q times RR_(≥ 0) : r ≤ 1 - V(x)/d}$ into
 $
@@ -160,11 +160,11 @@ The corrected function $phi.alt_* + w$ thus takes over the role that $phi.alt_*$
 
 
 
-#inline-note-a[
-  Maybe the Rayleigh-quotient should be computed like this:
-  $
-  lambda_1 ≤ integral abs(nabla phi.alt_*)^2
-  &= -integral phi.alt_* ∆ phi.alt_* + integral phi.alt_* ∂_arrow(n) phi.alt_* \
-  &= lambda_* + integral_Gamma_1 phi.alt_* ∂_arrow(n) phi.alt_*
-  $
-]
+// #inline-note-a[
+//   Maybe the Rayleigh-quotient should be computed like this:
+//   $
+//   lambda_1 ≤ integral abs(nabla phi.alt_*)^2
+//   &= -integral phi.alt_* ∆ phi.alt_* + integral phi.alt_* ∂_arrow(n) phi.alt_* \
+//   &= lambda_* + integral_Gamma_1 phi.alt_* ∂_arrow(n) phi.alt_*
+//   $
+// ]

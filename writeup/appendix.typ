@@ -9,47 +9,6 @@
     numbering("(A.1)", section, num)
   })
 
-= Computations
-
-== Radial part of the MPS basis <sec:mps-radial>
-
-Let $f(z) = z^(-alpha) I_alpha (z) $
-
-$
-f' (z) = -alpha z^(-alpha-1) I_alpha (z) + z^(-alpha) I'_alpha (z) \
-f''(z) = alpha (alpha + 1) z^(-alpha-2) I_alpha (z) - 2 alpha z^(-alpha-1)I'_alpha (z) + z^(-alpha) I''_(alpha) (z)
-$
-
-$
-f'' (z) + (2alpha + 1)/z f'(z)
-&= z^(-alpha-2) (z^2 I''_alpha (z) + z I'_alpha (z) - alpha^2 I_alpha (z)) \
-&= z^(-alpha-2) (z^2 I_alpha (z)) \
-&= z^(-alpha) I_alpha (z) \
-&= f (z)
-$
-
-For $alpha = (d-1)/2$ this simplifies to
-
-$
-f''(z) + d/z f'(z) = f(z).
-$
-
-Now substitute $z = beta r$
-
-$
-(4/d ∂_r^2 + 4/r ∂_r) f(beta r)
-&= 4/d beta^2 f''(beta r) + 4/r beta f'(r) \
-&= 4/d beta^2 f''(beta r) + 4/(beta r) beta^2 f'(beta r) \
-&= 4/d beta^2 (f''(beta r) + d/(beta r) f'(beta r)) \
-&= 4/d beta^2 f(beta r) \
-&= 4/d sqrt(d/4 abs(lambda))^2 f(beta r) \
-&= -lambda f(beta r)
-$
-
-since $lambda < 0$.
-
-For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z J'_alpha (z) + (z^2 - alpha^2) I_alpha (z) = 0$ instead.
-
 = Ultracontractivity <sec:ultracontractivity>
 
 #theorem[Wang's Harnack inequality][
@@ -157,39 +116,38 @@ a(t) &= M / (2 + (M/alpha - 2) e^(2 M t)) \
 b(t) &= M t + 1/2 ln(a(t)/alpha)
 $
 
-#let M_calc = 3.0
-#let t_1_calc = 1.0
-#let alpha_calc = 1.0 / t_1_calc
-#let a(t) = M_calc / (2.0 + (M_calc / alpha_calc - 2.0) * calc.exp(2.0 * M_calc * t))
-#let b(t) = M_calc * t + 0.5 * calc.ln(a(t) / alpha_calc)
-#let bound(t) = calc.exp(alpha_calc + 25.0 * a(t) + b(t))
+// #let M_calc = 3.0
+// #let t_1_calc = 1.0
+// #let alpha_calc = 1.0 / t_1_calc
+// #let a(t) = M_calc / (2.0 + (M_calc / alpha_calc - 2.0) * calc.exp(2.0 * M_calc * t))
+// #let b(t) = M_calc * t + 0.5 * calc.ln(a(t) / alpha_calc)
+// #let bound(t) = calc.exp(alpha_calc + 25.0 * a(t) + b(t))
 
-#figure(
-  lq.diagram(
-    let ts = lq.linspace(0.5, 1.0),
-    lq.plot(ts, t => bound(t))
-  ),
-  caption: [$C_2(t_2)$ evaluated at $t_1 = 1$ for $M=15$ and $max x_1 = 5$]
-)
+// #figure(
+//   lq.diagram(
+//     let ts = lq.linspace(0.5, 1.0),
+//     lq.plot(ts, t => bound(t))
+//   ),
+//   caption: [$C_2(t_2)$ evaluated at $t_1 = 1$ for $M=15$ and $max x_1 = 5$]
+// )
 
-#inline-note-a[
-  *A better estimate of the second constant at small times.*
+// #inline-note-a[
+//   *A better estimate of the second constant at small times.*
 
-  We have
+//   We have
 
-  $
-  P_(t_2) exp(norm(x)^2/(4 t_1)) = EE[ exp(norm(X_t)^2/(4 t_1)) | X_0 = x ]
-  $
+//   $
+//   P_(t_2) exp(norm(x)^2/(4 t_1)) = EE[ exp(norm(X_t)^2/(4 t_1)) | X_0 = x ]
+//   $
 
-  where $dif X_t = - nabla V(X_t) dif t + sqrt(2) dif B_t$. Int the wings $nabla V$ dominates, therefore, $dif X_t approx - nabla V(X_t) dif t$. Assume for now that $∂_y V = 0$ in the wings, then
+//   where $dif X_t = - nabla V(X_t) dif t + sqrt(2) dif B_t$. Int the wings $nabla V$ dominates, therefore, $dif X_t approx - nabla V(X_t) dif t$. Assume for now that $∂_y V = 0$ in the wings, then
 
-  $
-  X_t approx X_0 - t nabla V.
-  $
+//   $
+//   X_t approx X_0 - t nabla V.
+//   $
 
-  Assuming the wing has length $l_"wing"$, then $X_t$ reaches the core boundary at $t = (l_"wing" - X_0) \/ nabla V$. Since $nabla V approx - 10^(7)$ this time is very small. Now do the analysis from the semester paper. This should lead a constant that is approximately the infinity norm in the core.
-]
-#pagebreak()
+//   Assuming the wing has length $l_"wing"$, then $X_t$ reaches the core boundary at $t = (l_"wing" - X_0) \/ nabla V$. Since $nabla V approx - 10^(7)$ this time is very small. Now do the analysis from the semester paper. This should lead a constant that is approximately the infinity norm in the core.
+// ]
 
 == Ultracontractivity constants in finite dimensions
 
@@ -540,3 +498,44 @@ $
 
   so the last term in the estimate tends to zero as well. The displayed estimate therefore gives the claimed radial limit, and the full constant follows from the initial separation of the $x$-factor.
 ]
+
+= Supporting Computations
+
+== Radial part of the MPS basis <sec:mps-radial>
+
+Let $f(z) = z^(-alpha) I_alpha (z) $
+
+$
+f' (z) = -alpha z^(-alpha-1) I_alpha (z) + z^(-alpha) I'_alpha (z) \
+f''(z) = alpha (alpha + 1) z^(-alpha-2) I_alpha (z) - 2 alpha z^(-alpha-1)I'_alpha (z) + z^(-alpha) I''_(alpha) (z)
+$
+
+$
+f'' (z) + (2alpha + 1)/z f'(z)
+&= z^(-alpha-2) (z^2 I''_alpha (z) + z I'_alpha (z) - alpha^2 I_alpha (z)) \
+&= z^(-alpha-2) (z^2 I_alpha (z)) \
+&= z^(-alpha) I_alpha (z) \
+&= f (z)
+$
+
+For $alpha = (d-1)/2$ this simplifies to
+
+$
+f''(z) + d/z f'(z) = f(z).
+$
+
+Now substitute $z = beta r$
+
+$
+(4/d ∂_r^2 + 4/r ∂_r) f(beta r)
+&= 4/d beta^2 f''(beta r) + 4/r beta f'(r) \
+&= 4/d beta^2 f''(beta r) + 4/(beta r) beta^2 f'(beta r) \
+&= 4/d beta^2 (f''(beta r) + d/(beta r) f'(beta r)) \
+&= 4/d beta^2 f(beta r) \
+&= 4/d sqrt(d/4 abs(lambda))^2 f(beta r) \
+&= -lambda f(beta r)
+$
+
+since $lambda < 0$.
+
+For the branch $lambda ≥ 0$ the proof is analogous with $z^2 J''_alpha (z) + z J'_alpha (z) + (z^2 - alpha^2) I_alpha (z) = 0$ instead.

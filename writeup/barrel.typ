@@ -83,7 +83,7 @@ On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$ and eigenfu
 // ]
 
 
-== The effective problem in the limit of dimension
+== The effective problem in infinite dimensions
 
 In this subsection we study the eigenvalue problem on $Omega_d$ as $d -> oo$. Recall that the Laplacian on $Omega_d$ is given by $Delta_x + 4/d ∂_r^2 + 4/r ∂_r -> Delta_x + 4 r^(-1) ∂_r$ as $d-> oo$, therefore, formaly
 
@@ -110,7 +110,7 @@ phi.alt(x, 1) &= psi (x) && "for" x in Q \
 ∂_arrow(n) h &= 0 && "for" x in ∂ Q.
 $ <eq:limit-problem>
 
-=== The conncection to the log-concave problem
+=== The connection to the log-concave problem
 
 In the introduction we claimed that the spectrum of barell sets $F_d (Q, V)$ approximates the spectrum of $Q$ with respect to the log-concave measure $dif mu(x) = e^(-V(x)) dif (x)$, as $d -> oo$. In order to make this connection, note that the divergence form of $L psi_1 = lambda psi_1$ is $-nabla dot (e^(-V) nabla psi_1) = lambda_1 e^(-V) psi_1$. To obtain the weak formulation, we multiply by a test function $v$ and integrate with respect to the Lebesgue measure:
 

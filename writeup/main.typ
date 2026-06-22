@@ -21,7 +21,7 @@
   #set par(justify: false)
   #heading(
     numbering: none,
-    [Aknowledgements]
+    [Acknowledgements]
     )
   #lorem(80)
 ]
