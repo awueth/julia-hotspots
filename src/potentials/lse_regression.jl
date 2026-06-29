@@ -1,6 +1,14 @@
+module LSERegression
+
 using ForwardDiff
 using Optim
 using Serialization
+
+export LSEModel
+export predict, gradient
+export fit_lse_model, optimize_lse_model
+export pack_parameters, unpack_parameters
+export save_lse_model, load_lse_model
 
 struct LSEModel{A,B}
     A::A
@@ -123,3 +131,5 @@ function load_lse_model(path::AbstractString)
     payload = open(deserialize, path)
     return LSEModel(payload.A, payload.b, payload.temperature)
 end
+
+end # module

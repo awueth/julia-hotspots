@@ -1,12 +1,12 @@
 using Revise
 
 includet("../solver/solver.jl")
-includet("../potentials/potential_interface.jl")
+includet("../potentials/potential_lab.jl")
 includet("../solver/eigenfunction_io.jl")
 includet("../solver/eigenfunction_visualization.jl")
 includet("../solver/barrier_solving.jl")
 
-using .PotentialInterface
+using .PotentialLab
 
 fit = load_fitted_eigenfunction(joinpath(@__DIR__, "..", "..", "checkpoints", "fitted_eigenfunction.chk"))
 

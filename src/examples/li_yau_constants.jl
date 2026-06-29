@@ -3,12 +3,12 @@ using Integrals
 using Optim
 using Printf
 
-includet("../potentials/potential_interface.jl")
+includet("../potentials/potential_lab.jl")
 
-using .PotentialInterface
+using .PotentialLab
 
-t1_initial = inv(8.0)
-t2_initial = inv(8.0)
+t1_initial = inv(4.0)
+t2_initial = inv(4.0)
 t = t1_initial + t2_initial
 
 epsilon = 10.0

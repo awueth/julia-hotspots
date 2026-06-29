@@ -1,16 +1,17 @@
 if !isdefined(@__MODULE__, :PotentialGenerator)
-    include(joinpath(@__DIR__, "..", "potential_generator.jl"))
+    include(joinpath(@__DIR__, "potential_generator.jl"))
 end
-if !isdefined(@__MODULE__, :LSEModel)
-    include(joinpath(@__DIR__, "..", "lse_regression.jl"))
+if !isdefined(@__MODULE__, :LSERegression)
+    include(joinpath(@__DIR__, "lse_regression.jl"))
 end
 
 using .PotentialGenerator
+using .LSERegression
 
 const DEFAULT_LSE_CORE_CHECKPOINT = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_core_potential.chk")
-const DEFAULT_LSE_CORE_NX = 65
-const DEFAULT_LSE_CORE_NY = 129
-const DEFAULT_LSE_CORE_TEMPERATURE = 1e-4
+const DEFAULT_LSE_CORE_NX = 128
+const DEFAULT_LSE_CORE_NY = 128
+const DEFAULT_LSE_CORE_TEMPERATURE = 1e-2
 
 function fit_lse_core_potential(;
     nx::Integer=DEFAULT_LSE_CORE_NX,

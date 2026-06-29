@@ -1,20 +1,26 @@
+# Experimentation layer ("the lab").
+#
+# These potentials exist only to play with shapes and feed the solver. They
+# implement a deliberately minimal evaluation contract -- `potential_value`,
+# `potential_gradient`, and `potential_domain` -- and nothing else. In
+# particular they carry no notion of a density, measure, or normalization;
+# that machinery lives exclusively on the saved product type in
+# `lse_potential.jl` (see `LSEPotentials`). Nothing here is meant for the final
+# verified pipeline, and the lab is not required to produce an LSE model.
+
 if !isdefined(@__MODULE__, :PotentialGenerator)
     include("potential_generator.jl")
 end
-if !isdefined(@__MODULE__, :LSEModel)
+if !isdefined(@__MODULE__, :LSERegression)
     include("lse_regression.jl")
 end
 
-module PotentialInterface
+module PotentialLab
 
 using ForwardDiff
 
 using ..PotentialGenerator
-
-const _lse_predict = getfield(parentmodule(@__MODULE__), :predict)
-const _lse_gradient = getfield(parentmodule(@__MODULE__), :gradient)
-const _load_lse_model = getfield(parentmodule(@__MODULE__), :load_lse_model)
-const _LSEModel = getfield(parentmodule(@__MODULE__), :LSEModel)
+using ..LSERegression
 
 export AbstractCorePotential, AbstractWingPotential, AbstractPotential
 export SmoothMaxPotential
@@ -22,13 +28,16 @@ export GeneratedCorePotential
 export LSECorePotential, load_lse_core_potential
 export HandmadeWingPotential, NonConvexWingPotential
 export LSEWingPotential, load_lse_wing_potential
-export JoinedLSEPotential, join_lse_potentials
 export core_value, core_gradient, wing_value, wing_gradient
 export potential_value, potential_gradient, potential_domain, potential_functions
 
 abstract type AbstractCorePotential end
 abstract type AbstractWingPotential end
 abstract type AbstractPotential end
+
+# ---------------------------------------------------------------------------
+# Evaluation contract (the only interface the lab implements).
+# ---------------------------------------------------------------------------
 
 """
     core_value(core, x, y)
@@ -79,21 +88,13 @@ Return domain metadata as a named tuple with at least `Lx` and `Ly`.
 """
 function potential_domain end
 
-function _gradient_tuple(g)
-    return (g[1], g[2])
-end
-
-function _smooth_max(x::Real, y::Real, strength::Real=10.0)
-    max_val = max(x, y)
-    min_val = min(x, y)
-    return max_val + (1.0 / strength) * log1p(exp(strength * (min_val - max_val)))
-end
+_gradient_tuple(g) = (g[1], g[2])
 
 """
     potential_functions(p; scale=1.0)
 
-Return solver-ready closures `(V, gradV)`. Scaling is applied here so stored
-potential objects always represent the unscaled potential.
+Return solver-ready closures `(V, gradV)`. Scaling is applied here so the
+potential objects themselves always represent the unscaled potential.
 """
 function potential_functions(p::AbstractPotential; scale::Real=1.0)
     scale_value = Float64(scale)
@@ -103,6 +104,16 @@ function potential_functions(p::AbstractPotential; scale::Real=1.0)
         return (scale_value * gx, scale_value * gy)
     end
     return V, gradV
+end
+
+# ---------------------------------------------------------------------------
+# Smooth-max composition of a core and a wing.
+# ---------------------------------------------------------------------------
+
+function _smooth_max(x::Real, y::Real, strength::Real=10.0)
+    max_val = max(x, y)
+    min_val = min(x, y)
+    return max_val + (1.0 / strength) * log1p(exp(strength * (min_val - max_val)))
 end
 
 struct SmoothMaxPotential{C<:AbstractCorePotential,W<:AbstractWingPotential} <: AbstractPotential
@@ -131,6 +142,10 @@ potential_gradient(p::SmoothMaxPotential, x::Real, y::Real) =
     _gradient_tuple(ForwardDiff.gradient(xy -> potential_value(p, xy[1], xy[2]), [x, y]))
 
 potential_domain(p::SmoothMaxPotential) = potential_domain(p.core)
+
+# ---------------------------------------------------------------------------
+# Core potentials.
+# ---------------------------------------------------------------------------
 
 struct GeneratedCorePotential{P} <: AbstractCorePotential
     pot::P
@@ -165,9 +180,9 @@ function LSECorePotential(model; Lx::Real=DEFAULT_LSE_CORE_LX, Ly::Real=DEFAULT_
     return LSECorePotential{typeof(model)}(model, Float64(Lx), Float64(Ly))
 end
 
-core_value(p::LSECorePotential, x::Real, y::Real) = _lse_predict(p.model, x, y)
+core_value(p::LSECorePotential, x::Real, y::Real) = predict(p.model, x, y)
 
-core_gradient(p::LSECorePotential, x::Real, y::Real) = _lse_gradient(p.model, x, y)
+core_gradient(p::LSECorePotential, x::Real, y::Real) = gradient(p.model, x, y)
 
 potential_domain(p::LSECorePotential) = (Lx=p.Lx, Ly=p.Ly)
 
@@ -175,10 +190,14 @@ function load_lse_core_potential(;
     checkpoint_path::AbstractString=DEFAULT_LSE_CORE_CHECKPOINT_PATH,
     Lx::Real=DEFAULT_LSE_CORE_LX,
     Ly::Real=DEFAULT_LSE_CORE_LY,
-    model_loader=_load_lse_model,
+    model_loader=load_lse_model,
 )
     return LSECorePotential(model_loader(checkpoint_path); Lx=Lx, Ly=Ly)
 end
+
+# ---------------------------------------------------------------------------
+# Wing potentials.
+# ---------------------------------------------------------------------------
 
 struct LSEWingPotential{M} <: AbstractWingPotential
     model::M
@@ -196,11 +215,10 @@ function LSEWingPotential(
     return LSEWingPotential{typeof(model)}(model, Float64(Lx), Float64(Ly), Float64(scale))
 end
 
-wing_value(p::LSEWingPotential, x::Real, y::Real) =
-    p.scale * _lse_predict(p.model, x, y)
+wing_value(p::LSEWingPotential, x::Real, y::Real) = p.scale * predict(p.model, x, y)
 
 function wing_gradient(p::LSEWingPotential, x::Real, y::Real)
-    gx, gy = _lse_gradient(p.model, x, y)
+    gx, gy = gradient(p.model, x, y)
     return (p.scale * gx, p.scale * gy)
 end
 
@@ -211,40 +229,9 @@ function load_lse_wing_potential(;
     Lx::Real=DEFAULT_LSE_WING_LX,
     Ly::Real=DEFAULT_LSE_WING_LY,
     scale::Real=DEFAULT_LSE_WING_SCALE,
-    model_loader=_load_lse_model,
+    model_loader=load_lse_model,
 )
     return LSEWingPotential(model_loader(checkpoint_path); Lx=Lx, Ly=Ly, scale=scale)
-end
-
-struct JoinedLSEPotential{M} <: AbstractPotential
-    model::M
-    Lx::Float64
-    Ly::Float64
-end
-
-function JoinedLSEPotential(model; Lx::Real=DEFAULT_LSE_CORE_LX, Ly::Real=DEFAULT_LSE_CORE_LY)
-    return JoinedLSEPotential{typeof(model)}(model, Float64(Lx), Float64(Ly))
-end
-
-potential_value(p::JoinedLSEPotential, x::Real, y::Real) = _lse_predict(p.model, x, y)
-
-potential_gradient(p::JoinedLSEPotential, x::Real, y::Real) = _lse_gradient(p.model, x, y)
-
-potential_domain(p::JoinedLSEPotential) = (Lx=p.Lx, Ly=p.Ly)
-
-function join_lse_potentials(core::LSECorePotential, wing::LSEWingPotential)
-    core_temperature = core.model.temperature
-    wing_temperature = wing.model.temperature
-    isapprox(core_temperature, wing_temperature) ||
-        throw(ArgumentError("Cannot join LSE potentials with different temperatures: core=$core_temperature, wing=$wing_temperature."))
-
-    model = _LSEModel(
-        hcat(core.model.A, wing.scale .* wing.model.A),
-        vcat(core.model.b, wing.scale .* wing.model.b),
-        core_temperature,
-    )
-    domain = potential_domain(core)
-    return JoinedLSEPotential(model; Lx=domain.Lx, Ly=domain.Ly)
 end
 
 struct HandmadeWingPotential <: AbstractWingPotential
@@ -292,8 +279,6 @@ function _smooth_step(x)
 end
 
 function _g(x::Real, y::Real)
-    #y_min = 1 / π * acos((3.0 - 5.0 * sqrt(3.0)) / 12.0)
-    #y_min = 0.6
     y_min = 0.54
     return 2.0 * _smooth_step(2.5 * x - 1.0) * max(0.0, abs(y) - y_min)^2
 end

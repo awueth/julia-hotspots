@@ -1,16 +1,17 @@
-if !isdefined(@__MODULE__, :PotentialInterface)
-    include(joinpath(@__DIR__, "..", "potential_interface.jl"))
+if !isdefined(@__MODULE__, :PotentialLab)
+    include(joinpath(@__DIR__, "..", "potentials", "potential_lab.jl"))
 end
-if !isdefined(@__MODULE__, :LSEModel)
-    include(joinpath(@__DIR__, "..", "lse_regression.jl"))
+if !isdefined(@__MODULE__, :LSERegression)
+    include(joinpath(@__DIR__, "..", "potentials", "lse_regression.jl"))
 end
 
-using .PotentialInterface
+using .PotentialLab
+using .LSERegression
 
 const DEFAULT_LSE_WING_CHECKPOINT = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_wing_potential.chk")
-const DEFAULT_LSE_WING_NX = 65
-const DEFAULT_LSE_WING_NY = 129
-const DEFAULT_LSE_WING_TEMPERATURE = 1e-4
+const DEFAULT_LSE_WING_NX = 128
+const DEFAULT_LSE_WING_NY = 128
+const DEFAULT_LSE_WING_TEMPERATURE = 1e-2
 const DEFAULT_LSE_WING_LX = 0.5 * pi
 const DEFAULT_LSE_WING_LY = 1.0
 const DEFAULT_LSE_WING_LENGTH = 5.0

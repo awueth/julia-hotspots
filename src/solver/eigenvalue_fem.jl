@@ -5,11 +5,8 @@ using Arpack
 using LinearAlgebra
 using SparseArrays
 
-include(joinpath(@__DIR__, "..", "potentials", "potential_interface.jl"))
-using .PotentialInterface
-
-const DEFAULT_EPSILON = 10.0
-const DEFAULT_LSE_CORE_CHECKPOINT_PATH = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_core_potential.chk")
+include(joinpath(@__DIR__, "..", "potentials", "lse_potential.jl"))
+using .LSEPotentials
 
 # 1. Setup Domain and Mesh
 domain = (-pi/2, pi/2, -1.0, 1.0)
@@ -27,8 +24,8 @@ V = FESpace(model, refe; labels=labels, dirichlet_tags="empty_dirichlet")
 U = TrialFESpace(V)
 
 # 3. Load the LSE core potential and define the weight exp(-V)
-core = load_lse_core_potential(checkpoint_path=DEFAULT_LSE_CORE_CHECKPOINT_PATH; Ly=1.0)
-V_pot(x) = DEFAULT_EPSILON * core_value(core, x[1], x[2])
+pot = load_lse_potential(joinpath(@__DIR__, "..", "..", "checkpoints", "lse_global_potential.chk"))
+V_pot(x) = potential_value(pot, x[1], x[2])
 weight(x) = exp(-V_pot(x))
 
 # 4. Define Integration Quadrature

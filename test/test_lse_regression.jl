@@ -1,5 +1,6 @@
 include("../src/potentials/lse_regression.jl")
 
+using .LSERegression
 using Test
 using Statistics
 

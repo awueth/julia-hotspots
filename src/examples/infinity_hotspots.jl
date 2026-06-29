@@ -3,9 +3,9 @@ using Printf
 using Revise
 
 includet("../limit_solvers/spectral_galerkin.jl")
-includet("../potentials/potential_interface.jl")
+includet("../potentials/potential_lab.jl")
 
-using .PotentialInterface
+using .PotentialLab
 using .SpectralGalerkin
 
 begin

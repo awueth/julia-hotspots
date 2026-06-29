@@ -1,8 +1,8 @@
-include("../src/potentials/potential_generator.jl")
-include("../src/potentials/potential_interface.jl")
+include("../src/potentials/potential_lab.jl")
 
 using .PotentialGenerator
-using .PotentialInterface
+using .LSERegression
+using .PotentialLab
 using Test
 
 smooth_max_reference(x, y, strength) = max(x, y) + log1p(exp(strength * (min(x, y) - max(x, y)))) / strength
@@ -12,14 +12,14 @@ struct TestCorePotential <: AbstractCorePotential
     Ly::Float64
 end
 
-PotentialInterface.core_value(p::TestCorePotential, x::Real, y::Real) = x + 2y
-PotentialInterface.core_gradient(p::TestCorePotential, x::Real, y::Real) = (1.0, 2.0)
-PotentialInterface.potential_domain(p::TestCorePotential) = (Lx=p.Lx, Ly=p.Ly)
+PotentialLab.core_value(p::TestCorePotential, x::Real, y::Real) = x + 2y
+PotentialLab.core_gradient(p::TestCorePotential, x::Real, y::Real) = (1.0, 2.0)
+PotentialLab.potential_domain(p::TestCorePotential) = (Lx=p.Lx, Ly=p.Ly)
 
 struct TestWingPotential <: AbstractWingPotential end
 
-PotentialInterface.wing_value(p::TestWingPotential, x::Real, y::Real) = 3x - y
-PotentialInterface.wing_gradient(p::TestWingPotential, x::Real, y::Real) = (3.0, -1.0)
+PotentialLab.wing_value(p::TestWingPotential, x::Real, y::Real) = 3x - y
+PotentialLab.wing_gradient(p::TestWingPotential, x::Real, y::Real) = (3.0, -1.0)
 
 @testset "SmoothMaxPotential composition" begin
     core = TestCorePotential(2.0, 1.0)
@@ -107,44 +107,6 @@ end
         @test wing_value(loaded, 3.25, -0.5) == wing_value(wing, 3.25, -0.5)
         @test wing_gradient(loaded, 3.25, -0.5) == wing_gradient(wing, 3.25, -0.5)
     end
-end
-
-@testset "Joined LSE potential" begin
-    core_model = LSEModel(
-        [1.0 0.0; 0.0 1.0],
-        [0.0, 0.2],
-        0.5,
-    )
-    wing_model = LSEModel(
-        [2.0 -1.0; 3.0 4.0],
-        [0.1, -0.3],
-        0.5,
-    )
-    core = LSECorePotential(core_model; Lx=3.0, Ly=4.0)
-    wing = LSEWingPotential(wing_model; Lx=3.0, Ly=4.0, scale=7.0)
-    joined = join_lse_potentials(core, wing)
-
-    expected_model = LSEModel(
-        hcat(core_model.A, 7.0 .* wing_model.A),
-        vcat(core_model.b, 7.0 .* wing_model.b),
-        core_model.temperature,
-    )
-
-    @test joined isa JoinedLSEPotential
-    @test joined.model.A == expected_model.A
-    @test joined.model.b == expected_model.b
-    @test joined.model.temperature == expected_model.temperature
-    @test potential_value(joined, 0.25, -0.5) == predict(expected_model, 0.25, -0.5)
-    @test potential_gradient(joined, 0.25, -0.5) == gradient(expected_model, 0.25, -0.5)
-    @test potential_domain(joined) == (Lx=3.0, Ly=4.0)
-
-    mismatched_wing = LSEWingPotential(
-        LSEModel(wing_model.A, wing_model.b, 0.25);
-        Lx=3.0,
-        Ly=4.0,
-        scale=7.0,
-    )
-    @test_throws ArgumentError join_lse_potentials(core, mismatched_wing)
 end
 
 @testset "Wing potential adapters" begin
