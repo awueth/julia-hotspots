@@ -58,6 +58,8 @@
 
 #include "numerics.typ"
 
+#include "ultracontractivity.typ"
+
 #include "eigenvalues.typ"
 
 #include "pointwise.typ"

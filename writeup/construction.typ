@@ -232,17 +232,33 @@ $
 V (x) = LSE_T ({l_i^"core"} union {l_j^"wing"}).
 $
 
-The steep outward growth of $V$ in the wing makes $Q_"wing"$ carry only a negligible fraction of the total mass. With the explicit potential at hand this can be approximated quadrature. In future work, this should be replaced by verified quadrature.
+In order to normalize the measure, we have to compute $integral_Q e^(-V) dif x$. Furthermore, the steep outward growth of $V$ in the wing makes $Q_"wing"$ carry only a negligible fraction of the total mass, we need to quantify this mass in order to be able to approximate the eigenvalues of the full domain $Q$ by the eigenvalues of the core $Q_"core"$. We compute an envelope of both quanities by computing them using interval arithmetic quadrature. To this end, we decompose $Q$ into disjoint cells $C_i$. On each cell, we compute an interval enclousre of $e^(-V(Q_i))$. On the first quadrant $V$ is nondecreasing in both coordinates by symmetry and convexity. Therefore, on each cell contained in the first quadrant, an enclosure is given by
+
+$
+exp(-V([a, b] times [c, d])) subset [exp(-V(b, d)), exp(-V(a, c)).
+$
+
+By symmetry it suffices to perform the quadrature over the first integrand only; we obtain an upper bound of the integral by summing over the suprema and a lower bound by summing over the infima of the enclosures. The result is summarized is the following lemma. 
 
 #lemma[
-  $mu(Q_"wing") ≤ 10^(-10).$
+  $
+  integral_(Q_"core") e^(-V(x)) dif x &in [] \
+  integral_(Q_"wing") e^(-V(x)) dif x &in [] \
+  $
+  
+  Therefore, 
+
+  $
+  Z := integral_(Q) e^(-V(x)) dif x &in []
+  $
+  
+  and
+
+  $
+  mu(Q_"wing") in []
+  $
+
+
 ]<lem:wing-mass>
-#proof[
-  By definition $mu(Q_"wing") = (integral_(Q_"wing") e^(-V) dif x) slash (integral_Q e^(-V) dif x)$. To evaluate the integrand $e^(-V) = (sum_i e^(l_i (x) slash T))^(-T)$ without overflow we factor out the dominant plane $M(x) = max_i l_i (x)$,
-  $
-  e^(-V(x)) = (sum_i e^(l_i (x) slash T))^(-T) = e^(-M(x)) (sum_i e^((l_i (x) - M(x)) slash T))^(-T),
-  $
-  so that every exponential lies in $(0, 1]$. The resulting quadrature gives the stated bound.
-]
 
 Since $V_"LSE"$ is fully parametrized by the plane coefficients, it can be optimized against any differentiable objective, and crucially convexity is enforced automatically: every point of the parameter space yields a convex potential, so the optimizer does not need to respect a convexity constraint. This opens up several directions. After solving for the eigenfunction $phi.alt_1$ with the MPS, one could turn the problem around and adjust the potential to reduce the $L^oo$ error in the Neumann boundary condition.  More difficulty, one could optimize $V_"LSE"$ directly to, maximize the gap $max_(Q^circle) h(dot, 1\/8) - max_(∂Q) h(dot, 1\/8)$, and therefore strengthen the counterexample itself.
