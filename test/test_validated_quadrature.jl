@@ -44,6 +44,31 @@ contains(result, expected) = inf(result) <= expected <= sup(result)
         cells=(4, 4),
     )
     @test contains(polynomial_result, 2 / 3)
+
+    x_split_result = integrate_box_adaptive(
+        (x, _y) -> x,
+        [0.0 .. 1.0, 0.0 .. 1.0];
+        init=(1, 1),
+        split_axis=1,
+        atol=0.0,
+        maxcells=2,
+    )
+    y_split_result = integrate_box_adaptive(
+        (x, _y) -> x,
+        [0.0 .. 1.0, 0.0 .. 1.0];
+        init=(1, 1),
+        split_axis=2,
+        atol=0.0,
+        maxcells=2,
+    )
+    @test contains(x_split_result, 0.5)
+    @test contains(y_split_result, 0.5)
+    @test diam(x_split_result) < diam(y_split_result)
+    @test_throws ArgumentError integrate_box_adaptive(
+        (_x, _y) -> 1.0,
+        [0.0 .. 1.0, 0.0 .. 1.0];
+        split_axis=3,
+    )
 end
 
 @testset "Taylor-model quadrature" begin

@@ -2,6 +2,7 @@ include("../src/potentials/lse_potential.jl")
 
 using .LSERegression
 using .LSEPotentials
+using Serialization
 using TaylorModels
 using Test
 
@@ -34,7 +35,8 @@ end
 
     x = interval(0.2, 0.3)
     y = interval(-0.1, 0.4)
-    d_interval = density(p, x, y)
+    im = interval_model(p.model)
+    d_interval = density(im, x, y)
 
     @test isguaranteed(d_interval)
     @test encloses(d_interval, density(p, 0.25, 0.15))
@@ -76,31 +78,39 @@ end
     @test sup(one_cell.quadrant_core) >= 1.0
     @test inf(one_cell.quadrant_wing) <= exp(-3.0)
     @test sup(one_cell.quadrant_wing) >= exp(-1.0)
-    @test_throws ArgumentError LSEPotentials._cell_density(
-        p,
+    @test_throws ArgumentError density_cell_bounds(
+        interval_model(p.model),
         (-0.1) .. 0.1,
         0.0 .. 1.0,
     )
 
     # Normalization is stored as explicit portable Float64 bounds.
+    wing_mass = normalization.Z_wing / normalization.Z
     p_normalized = LSEPotential(
         p.model;
         domain=p.domain,
         normalization=(lo=inf(normalization.Z), hi=sup(normalization.Z)),
+        wing_mass=(lo=inf(wing_mass), hi=sup(wing_mass)),
     )
     @test p_normalized.normalization == (lo=inf(normalization.Z), hi=sup(normalization.Z))
+    @test p_normalized.wing_mass == (lo=inf(wing_mass), hi=sup(wing_mass))
 end
 
-@testset "Stored normalization" begin
+@testset "Stored normalization and wing mass" begin
     model = LSEModel(reshape([1.0, 1.0], 2, 1), [0.0], 0.5)
     p = LSEPotential(model; normalization=(lo=2.0, hi=2.0))
     @test p.normalization == (lo=2.0, hi=2.0)
+    @test p.wing_mass === nothing
+
+    p_with_wing_mass = LSEPotential(model; normalization=(lo=2.0, hi=2.0), wing_mass=(lo=0.9, hi=1.0))
+    @test p_with_wing_mass.normalization == (lo=2.0, hi=2.0)
+    @test p_with_wing_mass.wing_mass == (lo=0.9, hi=1.0)
 end
 
 @testset "Save/load round-trips the full product" begin
     model = LSEModel([1.0 0.0; 0.0 1.0], [0.0, 0.2], 0.5)
     domain = default_domain(Lx=1.0, Ly=1.0, x_max=2.0)
-    p = LSEPotential(model; domain=domain, normalization=(lo=1.5, hi=1.5))
+    p = LSEPotential(model; domain=domain, normalization=(lo=1.5, hi=1.5), wing_mass=(lo=0.25, hi=0.3))
 
     mktempdir() do dir
         path = joinpath(dir, "global.chk")
@@ -109,6 +119,30 @@ end
 
         @test loaded.domain == domain
         @test loaded.normalization == (lo=1.5, hi=1.5)
+        @test loaded.wing_mass == (lo=0.25, hi=0.3)
         @test potential_value(loaded, 0.3, -0.2) ≈ potential_value(p, 0.3, -0.2)
+    end
+end
+
+@testset "Load accepts checkpoints without wing mass" begin
+    model = LSEModel([1.0 0.0; 0.0 1.0], [0.0, 0.2], 0.5)
+    domain = default_domain(Lx=1.0, Ly=1.0, x_max=2.0)
+
+    mktempdir() do dir
+        path = joinpath(dir, "old_global.chk")
+        open(path, "w") do io
+            serialize(io, (
+                A=Matrix(model.A),
+                b=Vector(model.b),
+                temperature=model.temperature,
+                domain=domain,
+                normalization=(lo=1.5, hi=1.5),
+            ))
+        end
+
+        loaded = load_lse_potential(path)
+        @test loaded.domain == domain
+        @test loaded.normalization == (lo=1.5, hi=1.5)
+        @test loaded.wing_mass === nothing
     end
 end

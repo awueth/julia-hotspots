@@ -2,7 +2,7 @@ module ValidatedQuadrature
 
 using TaylorModels
 
-export integrate_box_cells, integrate_taylor_cells
+export integrate_box_cells, integrate_box_adaptive, integrate_taylor_cells
 
 function _validated_domain(domain)
     length(domain) == 2 ||
@@ -77,6 +77,56 @@ function integrate_box_cells(f, domain; cells=(10, 10))
     end
 
     return total
+end
+
+"""
+    integrate_box_adaptive(f, domain; init=(4, 8), split_axis=1, atol=1e-6, maxcells=100_000)
+
+Compute a validated interval-box enclosure of the integral of the scalar
+function `f(x, y)` over a two-dimensional rectangular interval `domain`, using
+adaptive refinement instead of a fixed grid.
+
+Integration starts from a coarse `init[1] × init[2]` grid. On each pass the cells
+whose contribution has the widest interval enclosure are bisected along
+`split_axis` (1 for x, 2 for y). Refinement stops once the total enclosure width
+`diam` drops to `atol`, or once the cell count reaches `maxcells`. Because the
+budget caps subdivision, the returned interval may be wider than `atol` when
+`maxcells` is hit first.
+
+Returns the enclosing `Interval`, matching [`integrate_box_cells`](@ref).
+"""
+function integrate_box_adaptive(f, domain; init=(4, 4), split_axis::Integer=1, atol=1e-6, maxcells=1000)
+    validated_domain = _validated_domain(domain)
+    1 <= split_axis <= 2 ||
+        throw(ArgumentError("split_axis must be 1 or 2"))
+
+    cells = mince(validated_domain, init)
+    contribs = [_integrate_box_value(f(cell[1], cell[2]), cell) for cell in cells]
+
+    while length(cells) < maxcells
+        total = sum(contribs)
+        diam(total) <= atol && break
+
+        wmax = maximum(diam.(contribs))
+        wmax == 0 && break
+
+        new_cells = eltype(cells)[]
+        new_contribs = eltype(contribs)[]
+        for (cell, contrib) in zip(cells, contribs)
+            if diam(contrib) >= wmax / 2
+                for child in bisect(cell, split_axis, 0.5)
+                    push!(new_cells, child)
+                    push!(new_contribs, _integrate_box_value(f(child[1], child[2]), child))
+                end
+            else
+                push!(new_cells, cell)
+                push!(new_contribs, contrib)
+            end
+        end
+        cells, contribs = new_cells, new_contribs
+    end
+
+    return sum(contribs)
 end
 
 """

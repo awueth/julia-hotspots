@@ -59,3 +59,32 @@ using Statistics
         @test gradient(loaded, 0.25, -0.1) == gradient(model, 0.25, -0.1)
     end
 end
+
+@testset "Duplicate tangent planes are pruned" begin
+    affine(x, y) = x
+    affine_model = fit_lse_model(
+        affine;
+        x_domain=(-1.0, 1.0),
+        y_domain=(-0.5, 0.5),
+        nx=7,
+        ny=5,
+        temperature=1e-3,
+    )
+
+    @test length(affine_model.b) == 1
+    @test size(affine_model.A) == (2, 1)
+    @test predict(affine_model, 0.25, -0.4) ≈ affine(0.25, -0.4) atol=1e-14
+
+    flat_y(x, y) = x^2
+    flat_y_model = fit_lse_model(
+        flat_y;
+        x_domain=(-1.0, 1.0),
+        y_domain=(-0.5, 0.5),
+        nx=7,
+        ny=5,
+        temperature=1e-3,
+    )
+
+    @test length(flat_y_model.b) == 7
+    @test size(flat_y_model.A) == (2, 7)
+end

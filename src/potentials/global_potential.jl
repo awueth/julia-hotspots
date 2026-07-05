@@ -20,14 +20,15 @@ using .PotentialGenerator
 using .PotentialLab: HandmadeWingPotential, wing_value
 using .LSERegression: LSEModel, fit_lse_model
 using .LSEPotentials: LSEPotential, default_domain, save_lse_potential, verified_normalization
+using TaylorModels: inf, sup
 
 const CHECKPOINT_PATH = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_global_potential.chk")
 
 x_domain = (-0.5 * pi, 0.5 * pi)
 y_domain = (-1.0, 1.0)
 wing_x_max = 2.0 * pi
-temperature = 0.1
-core_strength = 1.0
+temperature = 0.2
+core_strength = 10.0
 wing_strength = 1e6
 
 # --- Core and wing target potentials  --------------------------
@@ -71,13 +72,16 @@ normalization = verified_normalization(
     cells_core=(128, 128),
     cells_wing=(128, 128),
 )
+wing_mass = normalization.Z_wing / normalization.Z
 potential = LSEPotential(
     full_lse_model;
     domain=domain,
     normalization=(lo=inf(normalization.Z), hi=sup(normalization.Z)),
+    wing_mass=(lo=inf(wing_mass), hi=sup(wing_mass)),
 )
 
 save_lse_potential(CHECKPOINT_PATH, potential)
 
 println("Saved global LSE potential to ", CHECKPOINT_PATH)
 println("Interval arithmetic normalization Z = ", normalization.Z)
+println("Interval arithmetic wing mass Z_wing/Z = ", wing_mass)
