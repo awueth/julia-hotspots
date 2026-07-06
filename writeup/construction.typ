@@ -1,4 +1,5 @@
 #import "template.typ": *
+#let results = toml("../results/summary.toml")
 
 = Constructing a counterexample set <construction>
 
@@ -241,21 +242,26 @@ $
 By symmetry it suffices to perform the quadrature over the first integrand only; we obtain an upper bound of the integral by summing over the suprema and a lower bound by summing over the infima of the enclosures. The result is summarized is the following lemma. 
 
 #lemma[
+  #let un_core_mass =  results.potential_measure.unnormalized_core_mass
+  #let un_wing_mass = results.potential_measure.unnormalized_wing_mass
+  #let Z_norm = results.potential_measure.normalization_constant
+  #let wing_mass = results.potential_measure.relative_wing_mass
+
   $
-  integral_(Q_"core") e^(-V(x)) dif x &in [] \
-  integral_(Q_"wing") e^(-V(x)) dif x &in [] \
+  integral_(Q_"core") e^(-V(x)) dif x &in #interval(un_core_mass.lo, un_core_mass.hi) \
+  integral_(Q_"wing") e^(-V(x)) dif x &in #interval(un_wing_mass.lo, un_wing_mass.hi) \
   $
   
   Therefore, 
 
   $
-  Z := integral_(Q) e^(-V(x)) dif x &in []
+  Z := integral_(Q) e^(-V(x)) dif x &in #interval(Z_norm.lo, Z_norm.hi)
   $
   
   and
 
   $
-  mu(Q_"wing") in []
+  mu(Q_"wing") in #interval(wing_mass.lo, wing_mass.hi).
   $
 
 

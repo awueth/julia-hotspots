@@ -3,6 +3,7 @@
 #import "@preview/cetz:0.5.2"
 #import "@preview/lilaq:0.6.0" as lq
 #import "@preview/subpar:0.2.2"
+#import "@preview/zero:0.6.1": num, set-num, set-round
 
 #let template(doc) = [
   #show: show-theorion
@@ -23,8 +24,22 @@
     numbering("(1.1)", section, num)
   })
 
+  #set-round(
+    mode:       "places",
+    precision:  2,
+    pad:        true,
+    direction:  "nearest",
+    ties:       "away-from-zero"
+  )
+
+  #set-num(
+    exponent: "sci"
+  )
+
   #doc
 ]
+
+#let interval(lo, hi) = [[#num(lo, round: (direction : "towards-negative-infinity")), #num(hi, round: (direction : "towards-infinity"))]]
 
 #let custom-title(prefix, title) = {
   // Catch none, empty strings, empty arrays, and empty Typst sequences
