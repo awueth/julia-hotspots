@@ -20,6 +20,7 @@ evaluate_mps_candidate = "results/2b-evaluate-mps-candidate.toml"
 fem_eigenvalues = "results/1-fem-eigenvalues.toml"
 fit_checkpoint = "checkpoints/first_eigenfunction.chk"
 fit_mps_candidate = "results/2a-fit-mps-candidate.toml"
+make_potential = "results/0-make-potential.toml"
 pointwise_bound = "results/5-pointwise-bounds.toml"
 potential_checkpoint = "checkpoints/lse_global_potential.chk"
 
@@ -44,6 +45,22 @@ pointwise_linf_bound = 43.167588791128466
 s1 = 1.3
 tail_rate = -0.14568442257828274
 tail_term = 19.596713583211198
+
+[potential_measure.normalization_constant]
+hi = 0.6107813112222337
+lo = 0.5833605221642847
+
+[potential_measure.relative_wing_mass]
+hi = 1.1701994046494058e-13
+lo = 5.283025511997598e-14
+
+[potential_measure.unnormalized_core_mass]
+hi = 0.6107813112221654
+lo = 0.5833605221642525
+
+[potential_measure.unnormalized_wing_mass]
+hi = 6.826481357326123e-14
+lo = 3.2267732494384054e-14
 
 [ultracontractivity_lower_bound_step]
 C2_wing_steepness = 999999.9999999999

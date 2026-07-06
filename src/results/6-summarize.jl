@@ -7,6 +7,7 @@ summary_path = joinpath(result_dir, "summary.toml")
 result_file(name) = joinpath(result_dir, name)
 project_relative(path) = relpath(normpath(path), project_root)
 
+potential_path = result_file("0-make-potential.toml")
 fem_path = result_file("1-fem-eigenvalues.toml")
 fit_path = result_file("2a-fit-mps-candidate.toml")
 evaluation_path = result_file("2b-evaluate-mps-candidate.toml")
@@ -14,6 +15,7 @@ upper_path = result_file("3-eigenvalues-upper-bounds.toml")
 lower_path = result_file("4-eigenvalues-lower-bounds.toml")
 pointwise_path = result_file("5-pointwise-bounds.toml")
 
+potential = TOML.parsefile(potential_path)
 fem = TOML.parsefile(fem_path)
 fit = TOML.parsefile(fit_path)
 evaluation = TOML.parsefile(evaluation_path)
@@ -23,14 +25,21 @@ pointwise = TOML.parsefile(pointwise_path)
 
 summary = Dict(
     "inputs" => Dict(
+        "make_potential" => project_relative(potential_path),
         "fem_eigenvalues" => project_relative(fem_path),
         "fit_mps_candidate" => project_relative(fit_path),
         "evaluate_mps_candidate" => project_relative(evaluation_path),
         "eigenvalue_upper_bound" => project_relative(upper_path),
         "eigenvalue_lower_bound" => project_relative(lower_path),
         "pointwise_bound" => project_relative(pointwise_path),
-        "potential_checkpoint" => fit["inputs"]["potential_checkpoint"],
+        "potential_checkpoint" => potential["outputs"]["potential_checkpoint"],
         "fit_checkpoint" => fit["outputs"]["fit_checkpoint"],
+    ),
+    "potential_measure" => Dict(
+        "unnormalized_core_mass" => potential["result"]["unnormalized_core_mass"],
+        "unnormalized_wing_mass" => potential["result"]["unnormalized_wing_mass"],
+        "normalization_constant" => potential["result"]["normalization_constant"],
+        "relative_wing_mass" => potential["result"]["relative_wing_mass"],
     ),
     "mps_candidate" => Dict(
         "lambda" => fit["parameters"]["lambda"],

@@ -16,13 +16,20 @@ include("../potentials/lse_regression.jl")
 include("../potentials/potential_lab.jl")
 include("../potentials/lse_potential.jl")
 
+using TOML
 using .PotentialGenerator
 using .PotentialLab: HandmadeWingPotential, wing_value
 using .LSERegression: LSEModel, fit_lse_model
 using .LSEPotentials: LSEPotential, default_domain, save_lse_potential, verified_normalization
 using TaylorModels: inf, sup
 
+const PROJECT_ROOT = normpath(joinpath(@__DIR__, "..", ".."))
 const CHECKPOINT_PATH = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_global_potential.chk")
+const RESULT_DIR = joinpath(PROJECT_ROOT, "results")
+const RESULT_PATH = joinpath(RESULT_DIR, "0-make-potential.toml")
+
+project_relative(path) = relpath(normpath(path), PROJECT_ROOT)
+interval_bounds(x) = Dict("lo" => inf(x), "hi" => sup(x))
 
 x_domain = (-0.5 * pi, 0.5 * pi)
 y_domain = (-1.0, 1.0)
@@ -82,6 +89,37 @@ potential = LSEPotential(
 
 save_lse_potential(CHECKPOINT_PATH, potential)
 
+mkpath(RESULT_DIR)
+open(RESULT_PATH, "w") do io
+    TOML.print(io, Dict(
+        "step" => "0-make-potential",
+        "outputs" => Dict(
+            "potential_checkpoint" => project_relative(CHECKPOINT_PATH),
+        ),
+        "parameters" => Dict(
+            "x_domain" => collect(x_domain),
+            "y_domain" => collect(y_domain),
+            "wing_x_max" => wing_x_max,
+            "temperature" => temperature,
+            "core_strength" => core_strength,
+            "wing_strength" => wing_strength,
+            "core_fit_grid" => [128, 128],
+            "wing_fit_grid" => [128, 128],
+            "normalization_core_cells" => [128, 128],
+            "normalization_wing_cells" => [128, 128],
+        ),
+        "result" => Dict(
+            "unnormalized_core_mass" => interval_bounds(normalization.Z_core),
+            "unnormalized_wing_mass" => interval_bounds(normalization.Z_wing),
+            "normalization_constant" => interval_bounds(normalization.Z),
+            "relative_wing_mass" => interval_bounds(wing_mass),
+        ),
+    ); sorted=true)
+end
+
 println("Saved global LSE potential to ", CHECKPOINT_PATH)
+println("Result certificate saved to ", RESULT_PATH)
 println("Interval arithmetic normalization Z = ", normalization.Z)
+println("Interval arithmetic core mass Z_core = ", normalization.Z_core)
+println("Interval arithmetic wing mass Z_wing = ", normalization.Z_wing)
 println("Interval arithmetic wing mass Z_wing/Z = ", wing_mass)
