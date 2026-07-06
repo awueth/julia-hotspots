@@ -1,0 +1,61 @@
+[eigenvalue_bounds]
+core_lambda1_lower = 3.788957950605443
+lambda1_lower = 3.7889531450271505
+lambda1_upper = 4.004071092680828
+lambda2_lower = 9.4312625346798
+
+    [eigenvalue_bounds.core_correction_factor]
+    hi = 0.999999558002145
+    lo = 0.9999987316886714
+
+[fem]
+h_K = 0.019868035551773713
+max_oscillation = 2.0276039328541806
+partition = [256, 128]
+
+[inputs]
+eigenvalue_lower_bound = "results/4-eigenvalues-lower-bounds.toml"
+eigenvalue_upper_bound = "results/3-eigenvalues-upper-bounds.toml"
+evaluate_mps_candidate = "results/2b-evaluate-mps-candidate.toml"
+fem_eigenvalues = "results/1-fem-eigenvalues.toml"
+fit_checkpoint = "checkpoints/first_eigenfunction.chk"
+fit_mps_candidate = "results/2a-fit-mps-candidate.toml"
+pointwise_bound = "results/5-pointwise-bounds.toml"
+potential_checkpoint = "checkpoints/lse_global_potential.chk"
+
+[mps_candidate]
+fit_residual_inf = 0.004001734458091197
+high_resolution_residual_inf = 0.004000452214280716
+lambda = 3.80155720841065
+n_modes = [32, 8]
+sampled_linf = 0.21378743849556148
+
+    [mps_candidate.l2_norm]
+    hi = 0.010249726198455857
+    lo = 0.009211441164481844
+
+[pointwise_limit]
+alpha = 0.56
+head_term = 23.570875207917272
+lambda_error = 0.20251388427017813
+normalized_phi_linf_bound = 2.2275034868316315
+normalized_residual_bound = 0.041681687749856366
+pointwise_linf_bound = 43.167588791128466
+s1 = 1.3
+tail_rate = -0.14568442257828274
+tail_term = 19.596713583211198
+
+[ultracontractivity_lower_bound_step]
+C2_wing_steepness = 999999.9999999999
+
+    [ultracontractivity_lower_bound_step.C]
+    hi = 60.05331953826149
+    lo = 52.76218182363883
+
+    [ultracontractivity_lower_bound_step.C1]
+    hi = 1.2302236006921636
+    lo = 1.0808608383770764
+
+    [ultracontractivity_lower_bound_step.C2]
+    hi = 48.81496299085268
+    lo = 48.814962990852536

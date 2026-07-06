@@ -85,7 +85,7 @@ end
 function (sampler::GridSampler)(diam_x::T, diam_y::T) where {T <: AbstractFloat}
     n_x, n_y = sampler.nx, sampler.ny
     xs = collect(range(zero(T), T(0.5) * diam_x, length=n_x))
-    push!(xs, T(0.5) * diam_x)
+    #push!(xs, T(0.5) * pi)
     ys = collect(range(zero(T), T(0.5) * diam_y, length=n_y))
 
     return xs, ys, true

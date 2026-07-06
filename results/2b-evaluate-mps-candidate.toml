@@ -1,0 +1,27 @@
+step = "2b-evaluate-mps-candidate"
+
+[inputs]
+fit_checkpoint = "checkpoints/first_eigenfunction.chk"
+potential_checkpoint = "checkpoints/lse_global_potential.chk"
+
+[parameters]
+d = +inf
+diam_x = 12.566370614359172
+diam_y = 2.0
+lambda = 3.80155720841065
+n_modes = [32, 8]
+residual_sampler = [1024, 128]
+
+[result]
+high_resolution_residual_inf = 0.004000452214280716
+sampled_linf = 0.21378743849556148
+signed_residual_at_max = -0.004000452214280716
+signed_value_at_sampled_linf = 0.21378743849556148
+
+    [result.max_abs_residual_location]
+    x = 1.3266549622197368
+    y = 1.0
+
+    [result.sampled_linf_location]
+    x = 1.6337510182891202
+    y = 1.0
