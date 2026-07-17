@@ -114,6 +114,12 @@ function make_geometry(
     ny = [T(g[2]) for g in grads]
     nr = fill(T(4.0), size(nx)) 
     
+    # inv_len is the wrong normalization factor for the normals if our objective is to compute the physical normal derivative.
+    # However, it does minimize the residual of the Neumann boundary condition.
+    # The true physical normal derivative would underflow in the wings. 
+    # The current normalization lets the eigenfunction converge to what we expect, 
+    # however the scaling is somewhat arbitrary. 
+    # It would be better to introduce the scaling explicitly at some point in the solver.
     inv_len = one(T) ./ sqrt.(nx .^ 2 .+ ny .^ 2 .+ nr .^ 2)
     normals = (x=nx .* inv_len, y=ny .* inv_len, r=nr .* inv_len)
 
@@ -572,7 +578,11 @@ function boundary_residual(
     r = one(T) - geometry.V(x, y) / geometry.d
     ∂xV, ∂yV = geometry.gradV(x, y)
     nr = T(4.0)
-    inv_len = inv(sqrt(T(∂xV^2 + ∂yV^2 + nr^2)))
+    # Unit outward normal on the finite-d barrel: ∇G = (∇V/(2√d), w/|w|) has
+    # length sqrt(4d + |∇V|²)/(2√d), so the assembled numerator ∇V·∇ₓφ + 4∂ᵣφ
+    # becomes the physical normal derivative ∂ₙφ once divided by sqrt(4d + |∇V|²)
+    # (see writeup/barrel.typ).
+    inv_len = inv(sqrt(T(T(4.0) * geometry.d + ∂xV^2 + ∂yV^2)))
     nx, ny, nr_scaled = T(∂xV) * inv_len, T(∂yV) * inv_len, nr * inv_len
     diam_x, diam_y = geometry.diam_x, geometry.diam_y
 
@@ -639,13 +649,12 @@ function boundary_residual(
     norm_x_sq = T(0.5) * geometry.diam_x
     # norm_y_sq depends on whether λy is 0
     norm_y_sq = [ (ly == zero(T)) ? geometry.diam_y : (geometry.diam_y / T(2.0)) for ly in Ly[1, :] ]
-    InvNorm = one(T) ./ sqrt.(norm_x_sq .* norm_y_sq') # (1, my) broadcasting
 
     # 4. Construct Weight Matrices (combining coefficients with basis constants)
     # W1 for nx terms (∂x), W2 for ny terms (∂y), W3 for nr terms (value * rgrad)
-    W1 = C .* InvNorm .* Kx_vec
-    W2 = C .* InvNorm .* (-Ky_vec')
-    W3 = C .* InvNorm .* (T(-0.25) .* Lr)
+    W1 = C .* Kx_vec
+    W2 = C .* (-Ky_vec')
+    W3 = C .* (T(-0.25) .* Lr)
 
     # 5. Evaluate 1D basis functions on the grid
     Sx_grid = sin.(xs .* Kx_vec')  # (nx_grid, mx)
