@@ -69,9 +69,6 @@ function plot_u_edge_profile(
     boundary_inner = profile(x_boundary, (_, _) -> zero(T))
     interior_inner = profile(x0, (_, _) -> zero(T))
     interface_outer = profile(T(0.5*pi), (x, y) -> r_boundary(geometry, x, y))
-    inner_center_difference =
-        u(geometry, coefficients, λx, λy, λr, x0, zero(T), zero(T)) -
-        u(geometry, coefficients, λx, λy, λr, x_boundary, zero(T), zero(T))
 
     outer_plot = Plots.plot(
         ys,
@@ -97,12 +94,6 @@ function plot_u_edge_profile(
         title="Profiles at r = 0"
     )
     Plots.plot!(inner_plot, ys, boundary_inner; color=:blue, linewidth=2, label="Boundary Profile")
-    Plots.annotate!(
-        inner_plot,
-        T(-0.5),
-        u(geometry, coefficients, λx, λy, λr, x0, zero(T), zero(T)),
-        Plots.text("Δ(y=0) = $(round(inner_center_difference, sigdigits=6))")
-    )
 
     plt = Plots.plot(
         outer_plot,

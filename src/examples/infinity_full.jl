@@ -12,24 +12,26 @@ const DEFAULT_SMOOTH_MAX_STRENGTH = 1e-4
 # const DEFAULT_LSE_WING_CHECKPOINT_PATH = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_wing_potential.chk")
 const DEFAULT_WING_SCALE = 1e6
 
-potential = load_lse_potential(joinpath(@__DIR__, "..", "..", "checkpoints", "lse_global_potential.chk"))
+potential = load_lse_potential(joinpath(
+    @__DIR__, "..", "..", "checkpoints", "log_concave_extension", "high-resolution", "lse_global_potential.chk",
+))
 
 d = Inf
 diam_x = 2.0 * (0.5 * pi + DEFAULT_WING_LENGTH)
 diam_y = 2.0
 # sampler = FibonacciSampler(256 * 64)
-sampler = GridSampler(800, 64)
-n_modes = (400, 32)
+sampler = GridSampler(512, 128)
+n_modes = (256, 64)
 λ = 3.80155720841065
 
 V, gradV = potential_functions(potential)
 
 geometry = make_geometry(d, diam_x, diam_y, V, gradV, sampler)
 
-# solver = QRSolver(geometry, n_modes, λ, FibonacciSampler(512))
+#solver = QRSolver(geometry, n_modes, λ, sampler)
 solver = DenseSolver()
 
-# λ, _ = optimize_eigenvalue(geometry, n_modes, (3.8, 3.9), solver)
+# λ, _ = optimize_eigenvalue(geometry, n_modes, (1.0, 4.0), solver)
 coefficients, residual = solve(geometry, n_modes, λ, solver)
 
 # plot_u_boundary(geometry, coefficients, n_modes, λ)

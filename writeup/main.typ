@@ -64,7 +64,7 @@
 
 #include "pointwise.typ"
 
-// #include "certificate.typ"
+#include "certificate.typ"
 
 #bibliography("zotero.bib")
 

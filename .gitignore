@@ -4,3 +4,8 @@
 /src/archive
 /*.png
 /checkpoints
+/results/log_concave_extension/debug
+/results/log_concave_extension/low-resolution
+
+# Caching.jl tuning caches (phase 3)
+/cache/

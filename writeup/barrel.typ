@@ -157,10 +157,14 @@ In a sense, $Phi$ is almost mass preserving, more explicitly:
   
   Then, 
   $
-  d/(d+norm(V)_oo) ≤ abs((dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d))) ≤ d/(d-norm(V)_oo) exp(norm(V)_oo^2/(d-norm(V)_oo)).
+  (d-norm(V)_oo)/d exp(-norm(V)_oo^2/(d-norm(V)_oo))
+  ≤ 
+  abs((dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d))) 
+  ≤ 
+  (d+norm(V)_oo)/d.
   $
 
-  If $V$ is nonnegative on $Q$, then we even have $1 ≤ abs((dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d)))$.
+  If $V$ is nonnegative on $Q$, then we even have $abs((dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d))) ≤ 1$.
 
 ]<lem:mass-preservation>
 
@@ -290,7 +294,7 @@ Combining the three lemmas gives the explicit convergence rate.
   $
   epsilon_d := sqrt(M^2 + d/4 norm(nabla V)_oo^2) / (d - M) = O(d^(-1/2)).
   $
-  With $underline(beta)_d = d/(d+M)$ and $overline(beta)_d = d/(d-M) exp(M^2/(d-M))$, the Neumann eigenvalues of $F_d (Q, V)$ satisfy
+  With $underline(beta)_d = (d-M)/d exp(-M^2/(d-M))$ and $overline(beta)_d = (d+M)/d$, the Neumann eigenvalues of $F_d (Q, V)$ satisfy
 
   $
   (1-epsilon_d)^2 underline(beta)_d / overline(beta)_d lambda_k (mu times.o kappa_d) ≤ lambda_k (cal(L)_d) ≤ (1+epsilon_d)^2 overline(beta)_d / underline(beta)_d lambda_k (mu times.o kappa_d).
@@ -298,7 +302,7 @@ Combining the three lemmas gives the explicit convergence rate.
 
   In particular, $lambda_k (cal(L)_d) = (1 + O(d^(-1/2))) lambda_k (mu times.o kappa_d)$ as $d -> oo$.
 
-  If $V ≥ 0$ on $Q$, then $underline(beta)_d = 1$ and the lower bound improves to $(1-epsilon_d)^2 / overline(beta)_d lambda_k (mu times.o kappa_d) ≤ lambda_k (cal(L)_d)$.
+  If $V ≥ 0$ on $Q$, then $overline(beta)_d = 1$ and the lower bound improves to $(1-epsilon_d)^2 / overline(beta)_d lambda_k (mu times.o kappa_d) ≤ lambda_k (cal(L)_d)$.
 ]<thm:eigenvalue-convergence>
 #proof[
   Apply the convergence lemma with $mu = cal(L)_d$, $nu = mu times.o kappa_d$ and $Phi$ as above. The bounds on $(dif Phi_hash cal(L)_d)/(dif (mu times.o kappa_d))$ come from @lem:mass-preservation, giving $underline(beta) = underline(beta)_d$ and $overline(beta) = overline(beta)_d$, and the operator-norm bound $epsilon = epsilon_d$ comes from @lem:isometry. As $d -> oo$ we have $underline(beta)_d, overline(beta)_d -> 1$ and $epsilon_d -> 0$, whence the stated asymptotics.

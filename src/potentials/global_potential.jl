@@ -22,7 +22,9 @@ using .LSERegression: LSEModel, fit_lse_model
 using .LSEPotentials: LSEPotential, default_domain, save_lse_potential, verified_normalization
 using TaylorModels: inf, sup
 
-const CHECKPOINT_PATH = joinpath(@__DIR__, "..", "..", "checkpoints", "lse_global_potential.chk")
+const CHECKPOINT_PATH = joinpath(
+    @__DIR__, "..", "..", "checkpoints", "log_concave_extension", "high-resolution", "lse_global_potential.chk",
+)
 
 x_domain = (-0.5 * pi, 0.5 * pi)
 y_domain = (-1.0, 1.0)

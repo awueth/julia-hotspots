@@ -44,7 +44,7 @@ using ..LSEPotentials
 using ..LSEPotentials: density
 using ..ValidatedQuadrature
 
-export first_constant, second_constant, total_constant
+export first_constant, second_constant, total_constant, finite_dim_correction_factor, finite_dim_barrier
 
 # Per-cell enclosure of the weighted integrand g(x,y) = e^(-|x|²/t) e^(-V(x,y)).
 #
@@ -234,6 +234,66 @@ function total_constant(
     C2 = second_constant(p; t1=t1, t2=t2, delta=delta, ny_wing=ny_wing).C2
 
     return C1 * C2
+end
+
+function finite_dim_correction_factor(
+    sup_pot_val::Float64,
+    sup_pot_grad::Float64,
+    d::Float64,
+    t::Float64,
+)
+    f1 = ((d - sup_pot_val) / d) * exp(-sup_pot_val^2 / (d - sup_pot_val))
+    η = inv(t * d) * (1 + 0.5 * sup_pot_grad^2)
+    f2 = 1 - η
+
+    return inv(sqrt(f1 * f2))
+end
+
+"""
+    finite_dim_barrier(sup_pot_val, d, alpha, beta, gamma; T=1)
+
+Finite-dimensional radial barrier bound from `writeup/ultracontractivity.typ`
+for the time-`T` estimate
+`‖P_T exp(alpha * (sqrt(d)/2 - rho)^2)‖_∞`.
+
+The parameters must satisfy `0 < alpha < beta < 2`, `gamma > 0`, and
+`sup_pot_val < d`. The returned `Float64` is the bound
+`K₀ + (2(1 + 1/d)T + 1/4) A + H`, where `A` is the boundary derivative
+coefficient and `H` is the heat-kernel tail term.
+"""
+function finite_dim_barrier(
+    sup_pot_val::Float64,
+    d::Float64,
+    alpha::Float64,
+    beta::Float64,
+    gamma::Float64,
+    ;
+    T::Float64=1.0,
+)
+    0 <= sup_pot_val < d ||
+        throw(ArgumentError("expected 0 <= sup_pot_val < d; got sup_pot_val=$sup_pot_val and d=$d"))
+    0 < alpha < beta < 2 ||
+        throw(ArgumentError("expected 0 < alpha < beta < 2; got alpha=$alpha and beta=$beta"))
+    gamma > 0 ||
+        throw(ArgumentError("gamma must be positive; got gamma=$gamma"))
+    T > 0 ||
+        throw(ArgumentError("T must be positive; got T=$T"))
+    d >= (4 * gamma / (beta - alpha))^2 ||
+        throw(ArgumentError("barrier constraint d >= (4gamma/(beta-alpha))^2 is violated"))
+
+    sqrt_d = sqrt(d)
+    z = 1 + 4 * beta * T
+
+    K0 = exp(alpha * (2 * gamma / (beta - alpha))^2)
+
+    # For beta < 2 and sup_pot_val < d, A is maximized at tau = 0 and V = sup_pot_val.
+    A_exponent = -gamma * sqrt_d + beta * (sup_pot_val / 2 - sup_pot_val^2 / (4 * d))
+    A = beta * d * exp(A_exponent)
+
+    heat_exponent = beta * d / 4 - gamma * sqrt_d - ((d + 1) / 2) * log(z)
+    heat_tail = exp(heat_exponent)
+
+    return K0 + (2 * (1 + inv(d)) * T + 0.25) * A + heat_tail
 end
 
 end # module

@@ -1,5 +1,5 @@
 #import "template.typ": *
-#let results = toml("../results/summary.toml")
+#let results = toml("../results/log_concave_extension/high-resolution/summary.toml")
 
 = Constructing a counterexample set <construction>
 

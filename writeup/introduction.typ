@@ -1,5 +1,5 @@
 #import "template.typ": *
-#import "numerical_values.typ": *
+#let results = toml("../results/log_concave_extension/high-resolution/summary.toml")
 
 = Introduction
 
@@ -122,22 +122,22 @@ pushes the uniform measure on $F_d (Q, V)$ forward to a measure that approximate
 
 We draw inspiration from @dahne_counterexample_2021, where the authors construct a numerical counterexample to Payne's nodal line conjecture using the method of particular solutions and rigorously certify it. The idea behind the method is simple. We explain it in the context of our eigenvalue problem, but it transfers to any boundary value problem: choose a set of functions ${f_j}_j$ that satisfy the eigenvalue equation $-∆ f_j = lambda_* f_j$ in the interior, disregarding the boundary conditions. Any linear combination $phi.alt_* = ∑_j c_j f_j$ then also satisfies $-∆ phi.alt_* = lambda_* phi.alt_*$. To obtain an approximation of the true eigenfunction $phi.alt_1$, we optimize the coefficients ${c_j}$ and the approximate eigenvalue $lambda_*$ so as to minimize the error on the boundary.
 
-Once we have obtained a candidate approximation $phi.alt_*$, we prove that if the boundary error $norm(partial_arrow(n) phi.alt_*)_(L^oo (∂Ω))$ is small, then $phi.alt_*$ must be pointwise close to the true eigenfunction $phi.alt_1$. One limitation of the method of particular solutions is that it does not control where in the spectrum the approximation $phi.alt_*$ lies; that is, $phi.alt_*$ could have a small boundary error yet approximate the second eigenfunction $phi.alt_2$ rather than $phi.alt_1$. This is particularly problematic in settings such as that of @dahne_counterexample_2021, where the eigenvalue of interest lies in a cluster. Fortunately, in our case the spectral gap $lambda_2 - lambda_1 gt.tilde #lower_bound_spectral_gap$ is large enough that we can separate $lambda_1$ from $lambda_2$ using a finite element method @liu_guaranteed_2024. The main difficulty compared to @dahne_counterexample_2021 -- apart from the higher ambient dimension -- is that we work with Neumann rather than Dirichlet boundary conditions. For the Dirichlet case, @moler_bounds_1968 describes how to bound the approximation error of the eigenfunction in terms of the boundary error: one introduces a harmonic correction term $w$ that matches $phi.alt_*$ on the boundary. The function $phi.alt_* - w$ then satisfies the Dirichlet boundary condition exactly, at the cost of an error in the interior equation, $-Delta (phi.alt_* - w) = lambda_* (phi.alt_* - w) + lambda_* w$. The argument then relies on $w$ being small. In the Dirichlet case, $norm(w)_(L^oo)$ is bounded immediately by the boundary error via the maximum principle. In the Neumann case, $w$ also attains its maximum on the boundary, but we have no direct control over its boundary values, since we only control the normal derivative of $phi.alt_*$. Bounding $norm(w)_(L^oo)$ therefore requires significantly more effort. We propose a novel approach that constructs a supersolution for $w$ computationally. So far, however, we have not been able to find such a supersolution to sufficient precision.
+Once we have obtained a candidate approximation $phi.alt_*$, we prove that if the boundary error $norm(partial_arrow(n) phi.alt_*)_(L^oo (∂Ω))$ is small, then $phi.alt_*$ must be pointwise close to the true eigenfunction $phi.alt_1$. One limitation of the method of particular solutions is that it does not control where in the spectrum the approximation $phi.alt_*$ lies; that is, $phi.alt_*$ could have a small boundary error yet approximate the second eigenfunction $phi.alt_2$ rather than $phi.alt_1$. This is particularly problematic in settings such as that of @dahne_counterexample_2021, where the eigenvalue of interest lies in a cluster. Fortunately, in our case the spectral gap $lambda_2 - lambda_1 gt.tilde "TODO"$ is large enough that we can separate $lambda_1$ from $lambda_2$ using a finite element method @liu_guaranteed_2024. The main difficulty compared to @dahne_counterexample_2021 -- apart from the higher ambient dimension -- is that we work with Neumann rather than Dirichlet boundary conditions. For the Dirichlet case, @moler_bounds_1968 describes how to bound the approximation error of the eigenfunction in terms of the boundary error: one introduces a harmonic correction term $w$ that matches $phi.alt_*$ on the boundary. The function $phi.alt_* - w$ then satisfies the Dirichlet boundary condition exactly, at the cost of an error in the interior equation, $-Delta (phi.alt_* - w) = lambda_* (phi.alt_* - w) + lambda_* w$. The argument then relies on $w$ being small. In the Dirichlet case, $norm(w)_(L^oo)$ is bounded immediately by the boundary error via the maximum principle. In the Neumann case, $w$ also attains its maximum on the boundary, but we have no direct control over its boundary values, since we only control the normal derivative of $phi.alt_*$. Bounding $norm(w)_(L^oo)$ therefore requires significantly more effort. We propose a novel approach that constructs a supersolution for $w$ computationally. So far, however, we have not been able to find such a supersolution to sufficient precision.
 
 Since $phi.alt_*$ and $norm(partial_arrow(n) phi.alt_*)_(L^oo (∂Ω))$ are evaluated numerically, they are subject to floating-point arithmetic errors. To obtain a truly rigorous counterexample, @dahne_counterexample_2021 employ interval arithmetic to compute rigorous enclosures of the boundary error and the eigenfunction. The counterexamples in this work are implemented in floating-point arithmetic only, for two reasons: the approximation error must first be brought down further, and computing error enclosures over the effectively two-dimensional boundary is computationally expensive.
 
 == Results and contributions
 
-Our first contribution is a modification of the potential $V$ of @de_dios_convex_2024 that is explicitly computable and implemented. Building on it, we implement the method of particular solutions on the barrel set $F_d (Q, V)$ and obtain an approximate principal eigenfunction that attains its maximum in the interior, thereby visualizing the mechanism behind the counterexample of @de_dios_convex_2024. Our approximation scheme is parametrized by the dimension $d$, and in the limit $d -> oo$ it reduces to an approximation of the log-concave extension. We derive pointwise bounds on the eigenfunction: for the log-concave extension, that is, in the limit $d -> oo$, these bounds can be computed explicitly, while in the finite-dimensional case they rely on a numerical supersolution. Finally, we rigorously separate the first two eigenvalues $lambda_1$ and $lambda_2$ by means of a finite element method @liu_guaranteed_2024. Our main numerical finding is made precise in the theorem below: for $d = #optimistic_finite_d$ it gives a candidate convex counterexample in dimension $d + 3$, and hence gives the numerical---not yet certified---bound $d_"HS" <= d + 3$.
+Our first contribution is a modification of the potential $V$ of @de_dios_convex_2024 that is explicitly computable and implemented. Building on it, we implement the method of particular solutions on the barrel set $F_d (Q, V)$ and obtain an approximate principal eigenfunction that attains its maximum in the interior, thereby visualizing the mechanism behind the counterexample of @de_dios_convex_2024. Our approximation scheme is parametrized by the dimension $d$, and in the limit $d -> oo$ it reduces to an approximation of the log-concave extension. We derive pointwise bounds on the eigenfunction: for the log-concave extension, that is, in the limit $d -> oo$, these bounds can be computed explicitly, while in the finite-dimensional case they rely on a numerical supersolution. Finally, we rigorously separate the first two eigenvalues $lambda_1$ and $lambda_2$ by means of a finite element method @liu_guaranteed_2024. Our main numerical finding is made precise in the theorem below: for $d = "TODO"$ it gives a candidate convex counterexample in dimension $d + 3$, and hence gives the numerical---not yet certified---bound $d_"HS" <= d + 3$.
 
 #theorem[
-  Let $Q = [-2pi, 2pi] times [-1, 1] subset RR^2$ and let $d = #optimistic_finite_d$, so that the barrel $F_d (Q, V)$ is a convex set in $RR^(d + 3)$. There exist an explicit smooth convex potential $V$ on $Q$ and a function $phi.alt_*$ on $F_d (Q, V)$ that satisfies the interior eigenvalue equation exactly, $-Delta phi.alt_* = lambda_* phi.alt_*$, with small boundary error
+  Let $Q = [-2pi, 2pi] times [-1, 1] subset RR^2$ and let $d = "TODO"$, so that the barrel $F_d (Q, V)$ is a convex set in $RR^(d + 3)$. There exist an explicit smooth convex potential $V$ on $Q$ and a function $phi.alt_*$ on $F_d (Q, V)$ that satisfies the interior eigenvalue equation exactly, $-Delta phi.alt_* = lambda_* phi.alt_*$, with small boundary error
   $
-    norm(partial_arrow(n) phi.alt_*)_(L^oo (∂ F_d (Q, V))) lt.tilde #boundary_error_finite_d,
+    norm(partial_arrow(n) phi.alt_*)_(L^oo (∂ F_d (Q, V))) lt.tilde "TODO",
   $
   and which attains its maximum in the interior:
   $
-    max_(F_d (Q, V)) phi.alt_* - max_(∂ F_d (Q, V)) phi.alt_* gt.tilde #hot_spot_effect_finite_d .
+    max_(F_d (Q, V)) phi.alt_* - max_(∂ F_d (Q, V)) phi.alt_* gt.tilde "TODO" .
   $
   The approximate relations $lt.tilde$ and $gt.tilde$ account for floating-point arithmetic and for the boundary error being estimated by sampling on a uniform $1024 times 1024$ grid in $Q$.
 ]<thm:main-finite-dim-result>
@@ -145,15 +145,15 @@ Our first contribution is a modification of the potential $V$ of @de_dios_convex
 #remark[
   For the log-concave extension, that is, the formal limit $d -> oo$, which we denote $F_oo (Q, V)$, the same construction yields the boundary error
   $
-    norm(partial_arrow(n) phi.alt_*)_(L^oo (∂ F_oo (Q, V))) lt.tilde #boundary_error_limit
+    norm(partial_arrow(n) phi.alt_*)_(L^oo (∂ F_oo (Q, V))) lt.tilde num(#results.mps_candidate.residual_inf)
   $
   and the interior maximum
   $
-    max_(F_oo (Q, V)) phi.alt_* - max_(∂ F_oo (Q, V)) phi.alt_* gt.tilde #hot_spot_effect_limit .
+    max_(F_oo (Q, V)) phi.alt_* - max_(∂ F_oo (Q, V)) phi.alt_* gt.tilde num(#results.mps_candidate.hot_spot_effect).
   $
   In this case we can moreover bound the pointwise distance to the true principal eigenfunction $phi.alt_1$,
   $
-    norm(phi.alt_* - phi.alt_1)_(L^oo (F_oo (Q, V))) lt.tilde #error_pointwise_limit ,
+    norm(phi.alt_* - phi.alt_1)_(L^oo (F_oo (Q, V))) lt.tilde num(#results.pointwise_limit.pointwise_linf_bound),
   $
   which still exceeds the hot-spot effect and is therefore insufficient to certify the interior maximum.
 ]
