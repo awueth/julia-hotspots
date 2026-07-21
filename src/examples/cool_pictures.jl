@@ -2,7 +2,6 @@ using Revise
 using Printf
 
 includet("../solver/solver.jl")
-includet("../solver/eigenfunction_io.jl")
 includet("../solver/eigenfunction_visualization.jl")
 
 fit = load_fitted_eigenfunction(joinpath(@__DIR__, "..", "..", "checkpoints", "fitted_eigenfunction.chk"))

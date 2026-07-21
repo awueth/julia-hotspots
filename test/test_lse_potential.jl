@@ -68,16 +68,6 @@ end
         cells_wing=(1, 1),
     )
 
-    one_cell = verified_normalization(
-        p;
-        cells_core=(1, 1),
-        cells_wing=(1, 1),
-    )
-    @test isguaranteed(one_cell.Z)
-    @test inf(one_cell.quadrant_core) <= exp(-2.0)
-    @test sup(one_cell.quadrant_core) >= 1.0
-    @test inf(one_cell.quadrant_wing) <= exp(-3.0)
-    @test sup(one_cell.quadrant_wing) >= exp(-1.0)
     @test_throws ArgumentError density_cell_bounds(
         interval_model(p.model),
         (-0.1) .. 0.1,

@@ -10,11 +10,11 @@ include("../src/solver/solver.jl")
     diam_x = 4.0
     diam_y = 2.0
     n_points = 15
-    geometry = make_geometry(d, diam_x, diam_y, V, gradV, n_points)
+    geometry = make_geometry(d, diam_x, diam_y, V, gradV, FibonacciSampler(n_points))
 
     @test length(geometry.points.x) == n_points
     @test length(geometry.points.y) == n_points
-    @test length(geometry.points.r) == n_points
+    @test geometry.points.r === nothing   # d = Inf has no radial samples
     @test length(geometry.normals.x) == n_points
     @test length(geometry.normals.y) == n_points
     @test length(geometry.normals.r) == n_points
@@ -37,5 +37,5 @@ end
     V(_x, _y) = 0.0
     gradV(_x, _y) = (0.0, 0.0)
 
-    @test_throws ArgumentError make_geometry(Inf, 4.0, 2.0, V, gradV, 0)
+    @test_throws ArgumentError make_geometry(Inf, 4.0, 2.0, V, gradV, FibonacciSampler(0))
 end

@@ -1,6 +1,7 @@
 include("../src/solver/eigenfunction_hot_spot.jl")
 
 using Test
+using .MPSFunction
 using .EigenfunctionHotSpot
 using .EigenfunctionLinfNorm
 
@@ -26,8 +27,12 @@ using .EigenfunctionLinfNorm
     @test result.effect == result.interior.value - result.boundary.value
     @test result.interior.location.x < fit.diam_x / 2
 
+    # finite d is supported (radial axis evaluated at the r = 1 normalization point)
     finite_fit = FittedEigenfunction([1.0], 4.0, (1, 1), 4.0, 2.0, 2.0)
+    finite_result = sampled_hot_spot_difference(finite_fit, grid_size)
+    @test finite_result.effect == finite_result.interior.value - finite_result.boundary.value
+
+    # a negative eigenfunction on the reduced domain is rejected
     negative_fit = FittedEigenfunction([-1.0], 4.0, (1, 1), Inf, 2.0, 2.0)
-    @test_throws ArgumentError sampled_hot_spot_difference(finite_fit, grid_size)
     @test_throws ArgumentError sampled_hot_spot_difference(negative_fit, grid_size)
 end

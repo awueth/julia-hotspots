@@ -1,5 +1,6 @@
-include("../src/solver/eigenfunction_io.jl")
+include("../src/functions/mps_function.jl")
 
+using .MPSFunction
 using Serialization
 using TaylorModels
 using Test
@@ -71,6 +72,38 @@ end
     @test_throws ArgumentError value_gradient(finite_fit, 0.1, 0.2)
 
     @test u(fit, x, y, 1.0) == scalar_value
+    evaluator = prepare_u(fit)
+    @test evaluator isa InfiniteEvaluator{Float64}
+    @test u(evaluator, x, y, 1.0) == scalar_value
+
+    radial_fit = FittedEigenfunction([1.0], 1.0, (1, 1), Inf, 4pi, 2.0)
+    radial_outer = u(radial_fit, x, y, 1.0)
+    radial_eigenvalue = radial_fit.λ - (pi / radial_fit.diam_x)^2
+    @test u(radial_fit, x, y, 0.0) ≈ radial_outer * exp(radial_eigenvalue / 8)
+
+    radial_interval_fit = intervalize(radial_fit)
+    radial_interval_value = u(
+        radial_interval_fit,
+        interval(x),
+        interval(y),
+        interval(0.0),
+    )
+    @test isguaranteed(radial_interval_value)
+    @test contains(radial_interval_value, u(radial_fit, x, y, 0.0))
+
+    radial_interval_evaluator = prepare_u(radial_interval_fit)
+    prepared_interval_value = u(
+        radial_interval_evaluator,
+        interval(x),
+        interval(y),
+        interval(0.0),
+    )
+    @test isguaranteed(prepared_interval_value)
+    @test contains(
+        prepared_interval_value,
+        u(radial_fit, x, y, 0.0),
+    )
+    @test_throws ArgumentError prepare_u(finite_fit)
 
     mktempdir() do dir
         path = joinpath(dir, "fit.chk")

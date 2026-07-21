@@ -5,9 +5,7 @@ end
 module EigenfunctionHotSpot
 
 using ..EigenfunctionLinfNorm
-
-const _PARENT = parentmodule(@__MODULE__)
-const FittedEigenfunction = getfield(_PARENT, :FittedEigenfunction)
+using ..MPSFunction: FittedEigenfunction
 
 export sampled_hot_spot_difference
 

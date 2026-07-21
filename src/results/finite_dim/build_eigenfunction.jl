@@ -13,7 +13,6 @@ using TOML
 
 include(joinpath(@__DIR__, "..", "..", "potentials", "lse_potential.jl"))
 include(joinpath(@__DIR__, "..", "..", "solver", "solver.jl"))
-include(joinpath(@__DIR__, "..", "..", "solver", "eigenfunction_io.jl"))
 
 using .LSEPotentials: load_lse_potential, potential_functions
 

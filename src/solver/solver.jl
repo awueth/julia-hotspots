@@ -1,4 +1,19 @@
-include("../functions/basis.jl")
+if !isdefined(@__MODULE__, :MPSFunction)
+    include("../functions/mps_function.jl")
+end
+
+using .MPSFunction: FittedEigenfunction,
+    InfiniteEvaluator,
+    axial_basis,
+    axial_basis_tables,
+    fitted_eigenvalues,
+    intervalize,
+    load_fitted_eigenfunction,
+    prepare_u,
+    save_fitted_eigenfunction,
+    value_gradient,
+    ϕ
+import .MPSFunction: get_eigenvalues, u
 
 using KrylovKit
 using AppleAccelerate
@@ -58,6 +73,10 @@ end
 
 struct FibonacciSampler
     n::Int
+    function FibonacciSampler(n::Integer)
+        n > 0 || throw(ArgumentError("FibonacciSampler requires a positive sample count, got $n"))
+        return new(n)
+    end
 end
 
 function (sampler::FibonacciSampler)(diam_x::T, diam_y::T) where {T <: AbstractFloat}
@@ -126,20 +145,7 @@ function make_geometry(
     return Geometry(isinf(d) ? nothing : d, diam_x, diam_y, V, gradV, points, normals)
 end
 
-function get_eigenvalues(diam_x::T, diam_y::T, n_modes::Tuple{Int,Int}, λ::T) where {T <: AbstractFloat}
-    n_modes_x, n_modes_y = n_modes
-    modes_x = T.(1:2:(2 * n_modes_x - 1))
-    modes_y = T.(0:2:(2 * n_modes_y - 2))
-    λx_modes = (modes_x .* (T(π) / diam_x)) .^ 2
-    λy_modes = (modes_y .* (T(π) / diam_y)) .^ 2
-
-    grid = vec(collect(Iterators.product(λx_modes, λy_modes)))
-    λx = [g[1] for g in grid]
-    λy = [g[2] for g in grid]
-    λr = λ .- (λx .+ λy)
-
-    return λx, λy, λr
-end
+# get_eigenvalues(diam_x, diam_y, n_modes, λ) lives in mps_function.jl (ansatz mode eigenvalues).
 
 function get_eigenvalues(geometry::Geometry{<:Any, T}, n_modes::Tuple{Int,Int}, λ::T) where {T <: AbstractFloat}
     return get_eigenvalues(geometry.diam_x, geometry.diam_y, n_modes, λ)
@@ -327,47 +333,8 @@ function get_interior_matrix(
     return M
 end
 
-function u(
-    d::Nothing,
-    coefficients::AbstractVector{T},
-    λx::AbstractVector{T},
-    λy::AbstractVector{T},
-    λr::AbstractVector{T},
-    diam_x::T,
-    diam_y::T,
-    x::T,
-    y::T,
-    r::T
-) where {T <: AbstractFloat}
-    val = zero(T)
-    for i in eachindex(coefficients)
-        av, _ = axial_basis(λx[i], λy[i], diam_x, diam_y, x, y)
-        rv, _ = ϕ(T(Inf), λr[i], r)
-        val += coefficients[i] * av * rv
-    end
-    return val
-end
-
-function u(
-    d::T,
-    coefficients::AbstractVector{T},
-    λx::AbstractVector{T},
-    λy::AbstractVector{T},
-    λr::AbstractVector{T},
-    diam_x::T,
-    diam_y::T,
-    x::T,
-    y::T,
-    r::T
-) where {T <: AbstractFloat}
-    val = zero(T)
-    for i in eachindex(coefficients)
-        av, _ = axial_basis(λx[i], λy[i], diam_x, diam_y, x, y)
-        rv, _ = ϕ(d, λr[i], r)
-        val += coefficients[i] * av * rv
-    end
-    return val
-end
+# Raw-array u kernels (d::Nothing / finite d) live in mps_function.jl.
+# The Geometry overloads below are thin adapters that unpack a Geometry and delegate to them.
 
 function u(
     geometry::Geometry{<:Any, T},
@@ -383,20 +350,7 @@ function u(
     return u(geometry.d, coefficients, λx, λy, λr, diam_x, diam_y, x, y, r)
 end
 
-function u(
-    d::T,
-    diam_x::T,
-    diam_y::T,
-    coefficients::AbstractVector{T},
-    λ::T,
-    n_modes::Tuple{Int,Int},
-    x::T,
-    y::T,
-    r::T
-) where {T <: AbstractFloat}
-    λx, λy, λr = get_eigenvalues(diam_x, diam_y, n_modes, λ)
-    return u(d, coefficients, λx, λy, λr, diam_x, diam_y, x, y, r)
-end
+# u(d, diam_x, diam_y, coefficients, λ, n_modes, x, y, r) lives in mps_function.jl.
 
 function u(
     geometry::Geometry{<:Any, T},
