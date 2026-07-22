@@ -9,3 +9,4 @@
 
 # Caching.jl tuning caches (phase 3)
 /cache/
+/writeup/*.pdf
