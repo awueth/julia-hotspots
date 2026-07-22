@@ -1,5 +1,6 @@
 #import "template.typ": *
 #let results = toml("results/log_concave_extension/high-resolution/summary.toml")
+#let results_fd_1e9 = toml("results/finite_dim/hot-spot-d1e9/summary.toml")
 
 = Introduction
 
@@ -130,16 +131,16 @@ Since $phi.alt_*$ and $norm(partial_arrow(n) phi.alt_*)_(L^oo (∂Ω))$ are eval
 
 == Results and contributions
 
-Our first contribution is a modification of the potential $V$ of @de_dios_convex_2024 that is explicitly computable and implemented. Building on it, we implement the method of particular solutions on the barrel set $F_d (Q, V)$ and obtain an approximate principal eigenfunction that attains its maximum in the interior, thereby visualizing the mechanism behind the counterexample of @de_dios_convex_2024. Our approximation scheme is parametrized by the dimension $d$, and in the limit $d -> oo$ it reduces to an approximation of the log-concave extension. We derive pointwise bounds on the eigenfunction: for the log-concave extension, that is, in the limit $d -> oo$, these bounds can be computed explicitly, while in the finite-dimensional case they rely on a numerical supersolution. Finally, we rigorously separate the first two eigenvalues $lambda_1$ and $lambda_2$ by means of a finite element method @liu_guaranteed_2024. Our main numerical finding is made precise in the theorem below: for $d = "TODO"$ it gives a candidate convex counterexample in dimension $d + 3$, and hence gives the numerical---not yet certified---bound $d_"HS" <= d + 3$.
+Our first contribution is a modification of the potential $V$ of @de_dios_convex_2024 that is explicitly computable and implemented. Building on it, we implement the method of particular solutions on the barrel set $F_d (Q, V)$ and obtain an approximate principal eigenfunction that attains its maximum in the interior, thereby visualizing the mechanism behind the counterexample of @de_dios_convex_2024. Our approximation scheme is parametrized by the dimension $d$, and in the limit $d -> oo$ it reduces to an approximation of the log-concave extension. We derive pointwise bounds on the eigenfunction: for the log-concave extension, that is, in the limit $d -> oo$, these bounds can be computed explicitly, while in the finite-dimensional case they rely on a numerical supersolution. Finally, we rigorously separate the first two eigenvalues $lambda_1$ and $lambda_2$ by means of a finite element method @liu_guaranteed_2024. Our main numerical finding is made precise in the theorem below: for $d = num(#results_fd_1e9.mps_candidate.dimension)$ it gives a candidate convex counterexample in dimension $d + 3$, and hence gives the numerical---not yet certified---bound $d_"HS" <= d + 3$.
 
 #theorem[
-  Let $Q = [-2pi, 2pi] times [-1, 1] subset RR^2$ and let $d = "TODO"$, so that the barrel $F_d (Q, V)$ is a convex set in $RR^(d + 3)$. There exist an explicit smooth convex potential $V$ on $Q$ and a function $phi.alt_*$ on $F_d (Q, V)$ that satisfies the interior eigenvalue equation exactly, $-Delta phi.alt_* = lambda_* phi.alt_*$, with small boundary error
+  Let $Q = [-2pi, 2pi] times [-1, 1] subset RR^2$ and let $d = num(#results_fd_1e9.mps_candidate.dimension)$, so that the barrel $F_d (Q, V)$ is a convex set in $RR^(d + 3)$. There exist an explicit smooth convex potential $V$ on $Q$ and a function $phi.alt_*$ on $F_d (Q, V)$ that satisfies the interior eigenvalue equation exactly, $-Delta phi.alt_* = lambda_* phi.alt_*$, with small boundary error
   $
-    norm(partial_arrow(n) phi.alt_*)_(L^oo (∂ F_d (Q, V))) lt.tilde "TODO",
+    norm(partial_arrow(n) phi.alt_*)_(L^oo (∂ F_d (Q, V))) lt.tilde num(#results_fd_1e9.residual.normal_derivative_inf),
   $
   and which attains its maximum in the interior:
   $
-    max_(F_d (Q, V)) phi.alt_* - max_(∂ F_d (Q, V)) phi.alt_* gt.tilde "TODO" .
+    max_(F_d (Q, V)) phi.alt_* - max_(∂ F_d (Q, V)) phi.alt_* gt.tilde num(#results_fd_1e9.eigenfunction.hot_spot_effect) .
   $
   The approximate relations $lt.tilde$ and $gt.tilde$ account for floating-point arithmetic and for the boundary error being estimated by sampling on a uniform $1024 times 1024$ grid in $Q$.
 ]<thm:main-finite-dim-result>

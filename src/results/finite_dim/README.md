@@ -9,6 +9,20 @@ the log_concave results (infinite-dimensional eigenvalue bounds + potential
 constants), which it scales to finite `d` via the comparison theorem
 (`writeup/barrel.typ`).
 
+## Hot-spot observation at `d = 10^9`
+
+The hot-spot effect is already visible at `d = 10^9`; only the eigenvalue
+comparison requires the larger certificate dimension. Run the standalone
+diagnostic with
+
+```sh
+julia --project=. src/results/finite_dim/observe_hot_spot.jl
+```
+
+It fits the candidate in memory and uses the shared sampled hot-spot diagnostic, 
+and writes `writeup/results/finite_dim/hot-spot-d1e9/summary.toml`. 
+It does not modify the `d = 10^18` fit checkpoint or certificate summary.
+
 > Rebuild the fit (phase 2) whenever the log_concave potential is rebuilt — a
 > stale fit no longer satisfies the boundary condition.
 
@@ -67,6 +81,7 @@ include("caches.jl"); reset_caches!()
 | file | role |
 |------|------|
 | `build_eigenfunction.jl` | phase 2 |
+| `observe_hot_spot.jl`    | standalone `d = 10^9` hot-spot diagnostic |
 | `bounds.jl`              | phase 3 math (trace quantities here) |
 | `caches.jl`             | disk caches for the phase-3 quadratures |
 | `run.jl`                | phase 3 entry point + `summary.toml` assembly |

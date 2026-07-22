@@ -1,0 +1,54 @@
+step = "summary"
+
+[eigenfunction]
+hot_spot_effect = 0.00016766554914288134
+
+    [eigenfunction.boundary_face_maxima.outer_shell]
+    face = "outer_shell"
+    r = 1.0
+    value = 0.21385404331782795
+    x = 1.6337510182891202
+    y = 1.0
+
+    [eigenfunction.boundary_face_maxima.x_side]
+    face = "x_side"
+    r = 0.0
+    value = 0.3418312437462616
+    x = 6.283185307179586
+    y = 0.0
+
+    [eigenfunction.boundary_face_maxima.y_side]
+    face = "y_side"
+    r = 0.0
+    value = 0.3417333754739489
+    x = 2.972689822751632
+    y = 1.0
+
+    [eigenfunction.boundary_maximum]
+    face = "x_side"
+    r = 0.0
+    value = 0.3418312437462616
+    x = 6.283185307179586
+    y = 0.0
+
+    [eigenfunction.interior_maximum]
+    face = "interior_axis"
+    r = 0.0
+    value = 0.3419989092954045
+    x = 3.2122247464857514
+    y = 0.0
+
+[inputs]
+config = "src/results/finite_dim/finite-dim.toml"
+fit_grid = [512, 32]
+hot_spot_grid = [1024, 128, 128]
+potential_checkpoint = "checkpoints/log_concave_extension/high-resolution/lse_global_potential.chk"
+residual_grid = [1024, 128]
+
+[mps_candidate]
+dimension = 1.0e9
+lambda = 3.80155720841065
+n_modes = [32, 8]
+
+[residual]
+normal_derivative_inf = 0.0036478134067547416
