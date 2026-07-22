@@ -1,12 +1,12 @@
 #import "template.typ": *
-#let results = toml("../results/log_concave_extension/high-resolution/summary.toml")
-#let results_fd = toml("../results/finite_dim/finite-dim/summary.toml")
+#let results = toml("results/log_concave_extension/high-resolution/summary.toml")
+#let results_fd = toml("results/finite_dim/finite-dim/summary.toml")
 
-= Certifying the numerical counterexample <certificate>
-
-Here goes the conclusion of the proof. It should be some something like "if we manage to get down the pde residual to X then we have a counterexample in infinite dimension". And "if we additionally manage to build a numerical barrier at dimension D with sup norm Y then we have a counterexample at dimension D".
+= Certifying the numerical counterexample and further work <certificate>
 
 *$d=oo$*
+
+For the log-concave extension we can compute the pointwise approximation error, the intermediate values are in the table below:
 
 #figure[
   #let linf_residual = results.pointwise_limit.residual_bound
@@ -38,6 +38,8 @@ Here goes the conclusion of the proof. It should be some something like "if we m
 
   )
 ]
+
+This is not enough to verify a counterexample, for this we would need the pde residual to come down to X and the eigenvalue error to Y.
 
 *$d = 10^9$*
 
@@ -74,3 +76,11 @@ We do not have a barrier so we cannot deduce the pointwise error but here are th
     [$integral_(s_1)^(oo) C_(alpha s) e^((lambda_1 - lambda_2 (1 - alpha))s) dif s$], [$≤ num(#results_fd.pointwise.tail_term)$]
   )
 ]
+
+== Further work
+
+This subsection should make the following points:
+
+- The eigenvalue enclosures are good enough to separate the eigenvalues, but not good enough for a certificate. We should only use the FEM eigenvalues to determine the position in the spectrum. Once this is established it should be possible the prove much tighter enclosures from the MPS-residual.
+
+- We only know how to separate the eigenvalues in high dimensions by using the eigenvalues from the log-concave extension and the convergence of the measures. Due to the reliance on measure convergence we already need $d tilde 10^18$. In this dimension we should be able to prove that the lift of the eigenfunction in the log-concave problem is close to the eigenfunction in the finite dimensional problem in the $L^2$ sense. To upgrade to a pointwise bounds we would still need ultracontractivity, but this time the constant would multiply against a quantity that decays in $d$. We would no longer rely on the barrier we do not know how to construct to transfer to an interior problem. 

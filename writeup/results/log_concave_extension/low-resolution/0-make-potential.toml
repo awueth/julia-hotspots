@@ -1,0 +1,52 @@
+step = "0-make-potential"
+
+[outputs]
+potential_checkpoint = "checkpoints/log_concave_extension/low-resolution/lse_global_potential.chk"
+
+[parameters]
+core_fit_grid = [32, 32]
+core_strength = 10.0
+normalization_core_cells = [16, 16]
+normalization_wing_cells = [16, 16]
+quadrant_factor = 4.0
+temperature = 0.2
+wing_fit_grid = [32, 32]
+wing_strength = 1.0e6
+wing_x_max = 6.283185307179586
+x_domain = [-1.5707963267948966, 1.5707963267948966]
+y_domain = [-1.0, 1.0]
+
+[provenance]
+config_sha256 = "f29f3416daec037df9c4dcdc72eb81c16af0a410d8745051c0b639ab55dacb99"
+configuration = "low-resolution"
+generated_at_utc = "2026-07-16T11:03:01.726Z"
+schema_version = 1
+source_sha256 = "3b2040aa5d585ee3636be082ec1cc863b0096ca5af146911b79774425fef74bc"
+step = "0-make-potential"
+step_config_sha256 = "2fa0d478a148fe057e1747a4da0907cb372e0f30b19ca77f3b809eece1541096"
+
+    [provenance.inputs]
+
+    [provenance.outputs.potential_checkpoint]
+    path = "checkpoints/log_concave_extension/low-resolution/lse_global_potential.chk"
+    sha256 = "23d7891648cb4acd746ece9c4ce098cc72bce5805d2fa5b62529c6319d34e0ac"
+
+[result.normalization_constant]
+hi = 0.7230964849980679
+lo = 0.5003550580640779
+
+[result.potential_constants]
+sup_pot_grad = 2.166456821494593e6
+sup_pot_val = 5.139217682042986e6
+
+[result.relative_wing_mass]
+hi = 1.282574877515932e-13
+lo = 4.1271098897613707e-14
+
+[result.unnormalized_core_mass]
+hi = 0.7230964849980036
+lo = 0.5003550580640481
+
+[result.unnormalized_wing_mass]
+hi = 6.417428273110117e-14
+lo = 2.984298654487211e-14

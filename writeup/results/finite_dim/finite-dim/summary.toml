@@ -1,0 +1,38 @@
+step = "summary"
+
+[eigenfunction]
+hot_spot_effect = 0.00017388665555317928
+sampled_linf = 0.3420020253317593
+
+[eigenvalue_bounds]
+beta = 0.9999735887852595
+epsilon = 0.0010832284107528632
+lambda1_lower = 3.780650209974586
+lambda1_upper = 3.8854324303113152
+lambda2_lower = 9.273362638254719
+lambda_error = 0.08387522190066532
+lower_multiplier = 0.9978083625353097
+upper_multiplier = 1.0021940993688658
+
+[inputs]
+config = "finite-dim"
+fit_checkpoint = "checkpoints/first_eigenfunction_finite_dim.chk"
+log_concave_potential = "writeup/results/log_concave_extension/high-resolution/0-make-potential.toml"
+log_concave_summary = "writeup/results/log_concave_extension/high-resolution/summary.toml"
+potential_checkpoint = "checkpoints/log_concave_extension/high-resolution/lse_global_potential.chk"
+
+[mps_candidate]
+dimension = 1.0e18
+lambda = 3.80155720841065
+n_modes = [32, 8]
+
+[pointwise]
+alpha = 0.56
+head_term = 5.953489690217232e6
+s1 = 4.357142857142857
+tail_rate = -0.19484713052076064
+tail_term = 19.506288118119752
+wing_steepness = 999999.9999999999
+
+[residual]
+normal_derivative_inf = 1.8980459102993912e-6

@@ -4,7 +4,7 @@
 #
 # Defaults to low-resolution.toml with disk caching ON (fast tuning). Pass
 # --final for the proof-bearing run: no cache is read, every quantity is
-# recomputed fresh. Output goes to results/log_concave_extension/<name>/summary.toml
+# recomputed fresh. Output goes to writeup/results/log_concave_extension/<name>/summary.toml
 # where <name> is the config's `name` field. The potential artifacts are always
 # the shared high-resolution ones.
 
@@ -14,7 +14,7 @@ include(joinpath(@__DIR__, "caches.jl"))
 using TOML
 
 const POTENTIAL_TOML = joinpath(
-    PROJECT_ROOT, "results", "log_concave_extension", "high-resolution",
+    PROJECT_ROOT, "writeup", "results", "log_concave_extension", "high-resolution",
     "0-make-potential.toml",
 )
 
@@ -65,7 +65,7 @@ function main(args)
         ),
     ))
 
-    out_dir = joinpath(PROJECT_ROOT, "results", "log_concave_extension", config["name"])
+    out_dir = joinpath(PROJECT_ROOT, "writeup", "results", "log_concave_extension", config["name"])
     mkpath(out_dir)
     out = joinpath(out_dir, "summary.toml")
     open(io -> TOML.print(io, summary; sorted=true), out, "w")

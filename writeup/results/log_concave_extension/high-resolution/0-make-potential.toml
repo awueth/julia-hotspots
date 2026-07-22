@@ -4,33 +4,34 @@ step = "0-make-potential"
 potential_checkpoint = "checkpoints/log_concave_extension/high-resolution/lse_global_potential.chk"
 
 [parameters]
-core_fit_grid = [128, 128]
+core_fit_grid = [32, 32]
 core_strength = 10.0
-normalization_core_cells = [128, 128]
-normalization_wing_cells = [128, 128]
+normalization_core_cells = [16, 16]
+normalization_wing_cells = [16, 16]
+quadrant_factor = 4.0
 temperature = 0.2
-wing_fit_grid = [128, 128]
+wing_fit_grid = [32, 32]
 wing_strength = 1.0e6
 wing_x_max = 6.283185307179586
 x_domain = [-1.5707963267948966, 1.5707963267948966]
 y_domain = [-1.0, 1.0]
 
 [result.normalization_constant]
-hi = 0.6107813112222337
-lo = 0.5833605221642847
+hi = 0.723096484997875
+lo = 0.5003550580639174
 
 [result.potential_constants]
 sup_pot_grad = 2.166456821494593e6
-sup_pot_val = 5.139217676270904e6
+sup_pot_val = 5.139217682042986e6
 
 [result.relative_wing_mass]
-hi = 1.1701994046494058e-13
-lo = 5.283025511997598e-14
+hi = 1.282574877515324e-13
+lo = 4.127109889758086e-14
 
 [result.unnormalized_core_mass]
-hi = 0.6107813112221654
-lo = 0.5833605221642525
+hi = 0.7230964849978108
+lo = 0.5003550580638877
 
 [result.unnormalized_wing_mass]
-hi = 6.826481357326123e-14
-lo = 3.2267732494384054e-14
+hi = 6.417428273105017e-14
+lo = 2.98429865448404e-14

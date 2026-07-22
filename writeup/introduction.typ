@@ -1,5 +1,5 @@
 #import "template.typ": *
-#let results = toml("../results/log_concave_extension/high-resolution/summary.toml")
+#let results = toml("results/log_concave_extension/high-resolution/summary.toml")
 
 = Introduction
 
@@ -65,7 +65,7 @@ As $t -> oo$, the function $tilde(u)$ must converge uniformly and exponentially 
 *Non-generic initial conditions.* The requirement that the initial condition be generic is essential. If we naively formulate the hot spots conjecture as stating that the point in $Ω$ at which $u(t, dot)$ achieves its maximum tends to the boundary as $t -> oo$ for any initial condition, it is straightforward to construct a counterexample. Suppose $Ω subset RR^2$ is the unit disk and $u_0$ is a radially symmetric heat distribution that achieves a strict maximum at the origin and is radially decreasing. By symmetry and monotonicity, $u(t, dot)$ will also achieve its maximum at the origin at any time $t$. Such an initial condition, however, is never generic. The first non-constant eigenfunction $phi.alt_1$ is antisymmetric, and therefore $inner(u_0, phi.alt_1) = 0$ (see @fig:disk-spectrum).
 
 #figure(
-  image("my_plot.png"),
+  image("figures/my_plot.png"),
   caption: [The first eigenfunctions of $-∆$ on a disk. Due to rotational symmetry, the eigenspaces of $phi.alt_1$ and $phi.alt_2$ are two-dimensional.]
 ) <fig:disk-spectrum>
 

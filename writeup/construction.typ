@@ -1,5 +1,5 @@
 #import "template.typ": *
-#let results = toml("../results/log_concave_extension/high-resolution/summary.toml")
+#let results = toml("results/log_concave_extension/high-resolution/summary.toml")
 
 = Constructing a counterexample set <construction>
 
@@ -60,10 +60,10 @@ To see why the maximum diffuses inward, ignore $x_1$ and consider the pure heat 
 The reason this one-dimensional picture approximates the two dimensional dynamics is the plateau structure described above. On each of the two plateaus we have $∂_(x_1) psi_1 approx 0$, so the $x_1$-diffusion $∂_(x_1)^2 h$ is negligible and the flow @eq:limit-ivp decouples there into an independent $x_2$-heat flow, behaving like its one-dimensional counterpart from the previous paragraph. In the transition region between the plateaus, and right at the interface $x_1 = pi/2$, $psi_1$ does vary in $x_1$ and $∂_(x_1)^2 h$ is not negligible. But the comparison only needs that some point in the interior plateau dominates the wing-end plateau.
 
 #subpar.grid(
-  figure(image("surface_plot_eigenfunction_boundary.png", width: 100%), caption: [$h(x,t=0)=phi.alt_1 (x,r=1) = psi_1 (x)$]),<a>,
-  figure(image("surface_plot_eigenfunction_interior.png", width: 100%), caption: [$h(x,t=1 slash 8)=phi.alt_1 (x,r=0)$]),<b>,
-  figure(image("heatmap_eigenfunction_boundary.png", width: 100%), caption: [Heatmap of the green region in (a), at $t=0$. The two bands of nearly constant colour are the plateaus on which $psi_1$ is independent of $x_1$.]),<c>,
-  figure(image("heatmap_eigenfunction_interior.png", width: 100%), caption: [Heatmap of the same region, at $t=1 slash 8$. #linebreak() #linebreak() #linebreak()]),<d>,
+  figure(image("figures/surface_plot_eigenfunction_boundary.png", width: 100%), caption: [$h(x,t=0)=phi.alt_1 (x,r=1) = psi_1 (x)$]),<a>,
+  figure(image("figures/surface_plot_eigenfunction_interior.png", width: 100%), caption: [$h(x,t=1 slash 8)=phi.alt_1 (x,r=0)$]),<b>,
+  figure(image("figures/heatmap_eigenfunction_boundary.png", width: 100%), caption: [Heatmap of the green region in (a), at $t=0$. The two bands of nearly constant colour are the plateaus on which $psi_1$ is independent of $x_1$.]),<c>,
+  figure(image("figures/heatmap_eigenfunction_interior.png", width: 100%), caption: [Heatmap of the same region, at $t=1 slash 8$. #linebreak() #linebreak() #linebreak()]),<d>,
   columns:(1fr, 1fr),
   v(0%),
   caption: [The computed Barrel eigenfunction $h$ in the reaction-diffusion coordinates of @eq:limit-ivp. Top row: the global eigenfunction at $t=0$ (a), where the maximum sits at the wing end on the boundary, and at $t=1\/8$ (b), where the diffusion has pushed the maximum off the boundary and into the interior. Bottom row: heatmaps of the wing subset marked in green above, at $t=0$ (c) and $t=1\/8$ (d). We show only this subset rather than the full wing because the profile effect driving the maximum inward is small. Including the full wing region, would let the diffusion into the core dominate the colour scale, making the effect invisible.]

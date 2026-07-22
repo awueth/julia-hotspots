@@ -1,0 +1,63 @@
+step = "summary"
+
+[eigenvalue_bounds]
+core_lambda1_cr_lower = 3.6890268537921633
+core_lambda2_cr_lower = 8.773884323609275
+lambda1_lower = 3.68893325570852
+lambda1_upper = 5.197428963004343
+lambda2_lower = 8.658027784143151
+
+    [eigenvalue_bounds.lambda1_wing_correction_factor]
+    hi = 0.999997612350987
+    lo = 0.9999746279744354
+
+    [eigenvalue_bounds.lambda2_wing_correction_factor]
+    hi = 0.9988222663182658
+    lo = 0.9867952966789898
+
+[fem]
+h_K = 0.026490714069031616
+max_oscillation = 2.8760843663032887
+partition = [192, 96]
+raw_eigenvalues = [1.924265011058789e-14, 3.800026643460958, 9.428940420905233, 17.606118955487773]
+
+[inputs]
+config = "low-resolution"
+fit_checkpoint = "checkpoints/log_concave_extension/high-resolution/first_eigenfunction.chk"
+potential_checkpoint = "checkpoints/log_concave_extension/high-resolution/lse_global_potential.chk"
+
+[mps_candidate]
+hot_spot_effect = 0.0001519456114468798
+lambda = 3.80155720841065
+linf = 0.39031781374721614
+n_modes = [32, 8]
+residual_inf = 0.029880557293161136
+
+[pointwise_limit]
+alpha = 0.35
+coefficient = 0.5747141688176622
+head_term = 658.7833442504906
+lambda_error = 1.3958717545936934
+phi_linf_bound = 0.39031781374721614
+pointwise_linf_bound = 708.7305410797245
+residual_bound = 0.029880557293161136
+s1 = 1.5
+tail_decays = true
+tail_rate = -0.4302890966887052
+tail_term = 574.4045246648852
+
+[potential_measure.normalization_constant]
+hi = 0.723096484997875
+lo = 0.5003550580639174
+
+[potential_measure.relative_wing_mass]
+hi = 1.282574877515324e-13
+lo = 4.127109889758086e-14
+
+[potential_measure.unnormalized_core_mass]
+hi = 0.7230964849978108
+lo = 0.5003550580638877
+
+[potential_measure.unnormalized_wing_mass]
+hi = 6.417428273105017e-14
+lo = 2.98429865448404e-14

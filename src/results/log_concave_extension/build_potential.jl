@@ -4,7 +4,7 @@
 # finite_dim pipeline load the resulting artifacts by their fixed paths, so the
 # output locations below must not change:
 #   checkpoints/log_concave_extension/high-resolution/lse_global_potential.chk
-#   results/log_concave_extension/high-resolution/0-make-potential.toml   (nested
+#   writeup/results/log_concave_extension/high-resolution/0-make-potential.toml   (nested
 #     result.potential_constants.{sup_pot_val,sup_pot_grad} is read by finite_dim)
 #
 # Run once from the repository root:
@@ -32,7 +32,7 @@ const POTENTIAL_CHK = joinpath(
     "lse_global_potential.chk",
 )
 const POTENTIAL_TOML = joinpath(
-    PROJECT_ROOT, "results", "log_concave_extension", "high-resolution",
+    PROJECT_ROOT, "writeup", "results", "log_concave_extension", "high-resolution",
     "0-make-potential.toml",
 )
 

@@ -21,7 +21,9 @@ hot_spot_grid = [1024, 128, 128]
 decay_split = 0.56
 first_constant_cells_core = [16, 16]
 first_constant_cells_wing = [8, 8]
-wing_ny = 256
+# Fixed buffer from the core edge Lx. Its wing mass is enclosed once by adaptive
+# interval quadrature and reused throughout the time-split optimization.
+buffer_delta = 1.0e-3
 # Grid in smoothing time t = alpha*s, where the finite-dim constant changes fast.
 times = [
     0.728, 0.756, 0.784, 0.812, 0.840, 0.896, 0.952, 1.008,

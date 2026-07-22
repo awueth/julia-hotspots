@@ -13,7 +13,7 @@
 The constant factor $1/2$ is completely arbitrary, we chose it for consistency with @de_dios_convex_2024. The barrel sets get their name from the fact that for an interval $I$ the set $F_1 (I, V)$ looks like a barrel, see @fig:barell.
 
 #figure(
-  image("barrel.svg", width: 25%),
+  image("figures/barrel.svg", width: 25%),
   caption: [For $Q$ an interval $F_1(Q,V)$ looks like a barrel. The curved wall corresponds to the graph of the potential $V$. The actual counterexample, the cylinder axis $Q$ is a rectangle.]
 ) <fig:barell>
 
@@ -415,4 +415,3 @@ R_(j,k)(r) ->_(d -> oo) exp(minus.plus abs(lambda_(r,j,k)) / 8 (r^2 - 1)) = exp(
 $
 
 since $minus.plus abs(lambda_(r,j,k)) = - lambda_(r,j,k)$ on the $J$/$I$ branch respectively. // The same limit follows independently from the radial ODE $-4(d^(-1) R'' + r^(-1) R') = lambda_(r,j,k) R$: inserting $R = e^(c r^2)$ gives $-4(d^(-1)(2c + 4 c^2 r^2) + 2c) -> -8c = lambda_(r,j,k)$, i.e. $c = - lambda_(r,j,k) slash 8$, the discarded terms being $O(1 slash d)$.
-

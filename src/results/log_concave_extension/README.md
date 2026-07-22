@@ -12,7 +12,7 @@ Builds the global log-sum-exp potential and its verified normalization / wing
 mass, and writes two artifacts that both this pipeline and `finite_dim` consume:
 
 - `checkpoints/log_concave_extension/high-resolution/lse_global_potential.chk`
-- `results/log_concave_extension/high-resolution/0-make-potential.toml`
+- `writeup/results/log_concave_extension/high-resolution/0-make-potential.toml`
   (the nested `result.potential_constants` table is a contract with `finite_dim`)
 
 ## Step 2 — eigenfunction (build once)
@@ -39,7 +39,7 @@ julia --project=. src/results/log_concave_extension/run.jl \
 ```
 
 `run.jl` loads the two artifacts and computes every certified quantity, writing
-`results/log_concave_extension/<name>/summary.toml` (the only file the writeup
+`writeup/results/log_concave_extension/<name>/summary.toml` (the only file the writeup
 reads). Read [`bounds.jl`](bounds.jl) top-to-bottom to trace how each value is
 produced — it is the whole computation, in order.
 
