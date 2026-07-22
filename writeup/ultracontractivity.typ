@@ -63,99 +63,18 @@ where $Z = integral_Q e^(-V) dif x$. Since $abs(x)^2$ is convex we can integrate
 For the second constant, that is for $C_2 (t_1, t_2)$ such that 
 
 $
-norm(P_t_2 exp(norm(x)^2/t_1))_oo ≤ C_2,
+norm(P_t_2 exp(norm(x)^2/t_1))_oo ≤ C_2.
 $
 
-we will use a barrier estimate. We want to find $G(t,x)$ such that
+To simplify things we factor out the short coordinate $e^(x_2^2 slash t_1) ≤ e^(1 slash t_1)$ (recall $abs(x_2) ≤ 1$ on $Q$) by using the maximum principle for $P_(t_2)$
 
 $
-∂_t G(t,x) + L G(t,x) &≥ 0  \
-G(0,x) &≥ e^(alpha norm(x)^2),
+norm(P_t_2 exp(norm(x)^2/t_1))_oo ≤ e^(1 slash t_1) norm(P_t_2 exp(x_1^2 slash t_1))_oo,
 $
 
-where $alpha = t_1^(-1)$ Then we have $G(t,x) ≥ P_t e^(alpha norm(x)^2)$. First we separate out $x_2$, i.e. $P_t e^(alpha norm(x)^2) ≤ e^(alpha x_2^2) P_t e^(alpha x_1^2)$ making the problem effectively one dimensional. We now try to find a supersolution $G(t, x_1)$, i.e.
+leaving the long coordinate $x_1$, along which the wing extends, to the core reduction below.
 
-$
-- L_1 G(t,x_1) &≤ ∂_t G(t,x_1)  \
-G(0,x_1) &≥ e^(alpha x_1^2),
-$
-
-where $L_1 = -∂_1^2 + (∂_1 V) ∂_1$. We try the ansatz $G(t,x_1) = exp(a(t) x_1^2 + b(t))$, with $a(0) = alpha$ and $b(0) = 0$.
-
-$
-∂_t G(t,x_1) &= (a'(t) x_1^2 + b'(t))G(t,x_1) \
-∂_1 G(t,x_1) &= 2 a(t)x_1 G(t,x_1) \
--L_1 G(t,x) &= (2 a(t) + 4 a(t)^2 x_1^2 - 2 a(t) x_1 ∂_1 V) G(t,x_1)
-$
-
-To get an upper bound of $-L_1 G$ we lower bound $x_1 ∂_1 V$. Let 
-
-$
-M ≤ inf_(x in Q) (∂_1 V(x))/x_1.
-$
-
-We obtain the bound
-
-$
--L_1 G(t,x) ≤ ((4 a(t)^2 - 2 M a(t)) x_1^2 + 2 a(t)) G(t,x_1).
-$
-
-If we find $a$ such that $a'(t) = 4 a(t)^2 - 2 M a(t)$ and $b$ such that $b'(t) = 2a(t)$, then 
-
-$
--L_1 G(t,x_1) ≤ (a'(t) x_1^2 + b'(t)) G(t,x_1) = ∂_t G(t,x_1)
-$
-
-and we win. The following functions should do the trick:
-
-$
-a(t) &= M / (2 + (M/alpha - 2) e^(2 M t)) \
-b(t) &= M t + 1/2 ln(a(t)/alpha)
-$
-
-#inline-note-a[
-  The problem is that with the current potential $M approx 0.1$, therefore $a(t)$ decays too slowly to beat the norm $(2 pi)^2$ at the wing end. We have to choose $t_1$ large enough for $a(t)$ to be decreasing. Therefore, we first should flow for a short time, in order to reduce the problem to the core. 
-
-  Note that increasing the curvature in order to have a larger $M$ does not work. We pay the price by making the eigenvalue larger since the domain becomes effectively shorter.
-]
-
-#let M_calc = 0.1
-#let t_1_calc = 10.0
-#let alpha_calc = 1.0 / t_1_calc
-#let a(t) = M_calc / (2.0 + (M_calc / alpha_calc - 2.0) * calc.exp(2.0 * M_calc * t))
-#let b(t) = M_calc * t + 0.5 * calc.ln(a(t) / alpha_calc)
-#let bound(t) = calc.exp(alpha_calc + (0.5 * calc.pi) * (0.5 * calc.pi) * a(t) + b(t))
-
-#figure(
-  lq.diagram(
-    let ts = lq.linspace(1.0, 3.0),
-    lq.plot(ts, t => bound(t))
-  ),
-  caption: [$C_2(t_2)$ evaluated at $t_1 = #t_1_calc$ for $M=#M_calc$ and $max x_1 = 2 pi$]
-)
-
-// #inline-note-a[
-//   *A better estimate of the second constant at small times.*
-
-//   We have
-
-//   $
-//   P_(t_2) exp(norm(x)^2/(4 t_1)) = EE[ exp(norm(X_t)^2/(4 t_1)) | X_0 = x ]
-//   $
-
-//   where $dif X_t = - nabla V(X_t) dif t + sqrt(2) dif B_t$. Int the wings $nabla V$ dominates, therefore, $dif X_t approx - nabla V(X_t) dif t$. Assume for now that $∂_y V = 0$ in the wings, then
-
-//   $
-//   X_t approx X_0 - t nabla V.
-//   $
-
-//   Assuming the wing has length $l_"wing"$, then $X_t$ reaches the core boundary at $t = (l_"wing" - X_0) \/ nabla V$. Since $nabla V approx - 10^(7)$ this time is very small. Now do the analysis from the semester paper. This should lead a constant that is approximately the infinity norm in the core.
-// ]
-
-
-=== Reduction to the core
-
-We first let the drift act for a short time $tau$, so that the strong inward push in the wings carries the mass into the core before we invoke the barrier #margin-note-a[Probably just using the maximum principle instead of the barrier is better.]). Write the one-dimensional semigroup $P_t = e^(-t L_1)$ as the reflected diffusion
+For the second factor we make use of the fact that the potential in the wing region makes the semigroup $P_t$ strongly compressing inwards. We first let the drift act for a short time $tau$, so that the strong inward push in the wings carries the mass into the core before we invoke the maximum principle. Write the one-dimensional semigroup $P_t = e^(-t L_1)$ as the reflected diffusion
 
 $
 dif X_t = -∂_1 V(X_t) dif t + sqrt(2) dif B_t, quad X_t in [0, R],
@@ -206,7 +125,7 @@ $
 q_delta (tau) := sup_(x_0) PP_(x_0)(X_tau in W_delta)
 $
 
-is negligible. The worst start is $x_0 = R^2$. Let $sigma := inf {t : X_t ≤ ell}$ be the first entry into the unbuffered core $C_0$. We decompose according to whether the path has entered $C_0$ by time $tau$:
+is negligible. Let $x_0$ be an arbitrary staring point. Let $sigma := inf {t : X_t ≤ ell}$ be the first entry into the unbuffered core $C_0$. We decompose according to whether the path has entered $C_0$ by time $tau$:
 
 $
 PP_(x_0)(X_tau in W_delta)
@@ -437,29 +356,17 @@ $
 
 == The second constant
 
-Put $rho := abs(w)$. The shifted radial term is $sqrt(d) slash 2 - rho$. The relevant bound is
+Put $rho := abs(w)$, so the shifted radial term is $sqrt(d) slash 2 - rho$. We must bound $norm(P_t^(S_d) e^(alpha (abs(x)^2 + (sqrt(d) slash 2 - rho)^2)))_(L^oo)$. Bounding the short coordinate trivially, $e^(alpha x_2^2) ≤ e^(alpha)$, and applying Cauchy--Schwarz for the semigroup, $(P_t (f g))^2 ≤ (P_t f^2) (P_t g^2)$, to the remaining factors $f = e^(alpha x_1^2)$ and $g = e^(alpha (sqrt(d) slash 2 - rho)^2)$,
 
 $
 norm(P_t^(S_d) e^(alpha (abs(x)^2 + (sqrt(d) slash 2 - rho)^2)))_(L^oo)
-≤ exp(alpha max_(x in Q) abs(x)^2)
-   norm(P_t^(S_d) e^(alpha (sqrt(d) slash 2 - rho)^2))_(L^oo).
+≤ e^(alpha) norm(P_t^(S_d) e^(2 alpha x_1^2))_(L^oo)^(1 slash 2)
+  norm(P_t^(S_d) e^(2 alpha (sqrt(d) slash 2 - rho)^2))_(L^oo)^(1 slash 2).
 $
 
-#inline-note-a[
-  Maybe it would be better to use Cauchy--Schwarz on $P_t$, that is $(P_t (f g))^2 ≤ (P_t f^2) (P_t g^2)$. We would obtain
+We bound the radial factor $norm(P_t e^(2 alpha (sqrt(d) slash 2 - rho)^2))_oo$ here; the base factor $norm(P_t e^(2 alpha x_1^2))_oo$ is bounded in @sec:finite-core-reduction, where the exponentially small mass of the wing lets us replace the full width of $Q$ by the width of the core.
 
-  $
-  norm(P_t^(S_d) e^(alpha (abs(x)^2 + (sqrt(d) slash 2 - rho)^2)))_(L^oo)
-  ≤ norm(P_t^(S_d) e^(2 alpha abs(x)^2))_(L^oo)^(1 slash 2)
-    norm(P_t^(S_d) e^(2 alpha (sqrt(d) slash 2 - rho)^2))_(L^oo)^(1 slash 2).
-  $
-
-  Physically, $P_t^(S_d) e^(2 alpha abs(x)^2)$ should behave like $P_t^V e^(2 alpha abs(x)^2)$ as $d -> oo$. Can we deduce something like $P_t^(S_d) (f compose pi) -> (P_t^V f) compose pi$ from the convergence of the measures?
-]
-
-The prefactor $exp(alpha max_Q abs(x)^2) = e^(alpha ((2 pi)^2 + 1))$ is the finite-dimensional analogue of the factor $e^(alpha R^2)$ that we could not afford at $d = oo$. We remove it in @sec:finite-core-reduction below, using the bound of the present subsection as a crude but finite input. For now we keep the factor and bound the radial term.
-
-We construct a barrier $b(t, x, rho)$ for $e^(alpha (sqrt(d) slash 2 - rho)^2)$, i.e.
+We construct a barrier $b(t, x, rho)$ for $e^(alpha (sqrt(d) slash 2 - rho)^2)$, treating $alpha in (0, 2)$ as a free parameter (in the Cauchy--Schwarz bound above it is applied at twice the base exponent), i.e.
 
 $
 ∂_t b - Delta_(x,rho) b &≥ 0 \
@@ -577,8 +484,6 @@ $
   $
   norm(P_T^(S_d) e^(alpha (sqrt(d) slash 2-rho)^2))_(L^oo) -> 1 quad (d -> oo).
   $
-
-  Consequently, the full second constant tends to $exp(alpha max_(x in Q) abs(x)^2)$.
 ]
 #proof[
   In the estimate above choose
@@ -616,45 +521,31 @@ $
   log(1 + 4 beta T) > beta / 2,
   $
 
-  so the last term in the estimate tends to zero as well. The displayed estimate therefore gives the claimed radial limit, and the full constant follows from the initial separation of the $x$-factor.
+  so the last term in the estimate tends to zero as well. The displayed estimate therefore gives the claimed radial limit.
 ]
 
 == Reduction to the core in finite dimensions <sec:finite-core-reduction>
 
-#inline-note-a[
-  This section is generated by Claude but I believe the upshot is the following technique which we could apply in several places: Suppose the domain $A$ decomposes into $A_"mass" union A_"tail"$ with the measure concentrated in $A_"mass"$. Then
+We now bound the base factor $norm(P_(t_2)^(S_d) e^(2 alpha x_1^2))_(L^oo)$ left by the Cauchy--Schwarz split. Because $mu_(S_d)$ concentrates in the core $abs(x_1) ≤ ell$, we split $e^(2 alpha x_1^2)$ into a core part and a wing indicator, bound the core part by its maximum, and control the wing through its small mass together with a crude smoothing estimate.
 
-  1. Start with a crude ultracontractivity bound $C_"crude"$, e.g. use maximum principle. 
-  2. Use the pointwise bound $e^(x^2) ≤ bold(1)_(A_"mass") e^(x^2) + bold(1)_(A_"tail") sup_(x in A_"tail") e^(x^2)$. Therefore, $norm(P_t e^(x^2))_oo ≤ norm(P_t (bold(1)_(A_"mass") e^(x^2)))_oo + sup_(x in A_"tail") e^(x^2) norm(P_t bold(1)_(A_"tail"))_oo$.
-  3. Apply the crude ultracontractivity bound: $norm(P_t bold(1)_(A_"tail"))_oo ≤ C_"crude" (t) norm(bold(1_(A_"tail")))_(L^2 (mu)) = C_"crude" (t) mu(A_"tail")^(1 slash 2)$.
-  4. This should give a better constant since $mu(A_"tail")$ is small. If the constant is not good enough, then bootstrap.
+At $d = oo$ the wing suppression came from the drift $-∂_1 V$, which sweeps the wings empty in time $tilde w slash Lambda$. In finite dimensions the generator is the plain Laplacian and has no drift, the mechanism is instead driven by the reflecting boundary. The outward normal of the barrel wall is proportional to $(nabla V slash (2 sqrt(d)), 1)$ in the $(x, rho)$-coordinates, so every reflection at the wall directs the particle towards the core. Meanwhile the radial drift $-d slash (sqrt(d) slash 2 - s) ≤ -2 sqrt(d)$ (in the $s$-coordinate) presses the particle onto the wall, and in the wing the particle again feels an effective inward drift of order $∂_1 V ≥ Lambda$.
 
-  If the crude ultracontractivity bound is $L^1 -> L^oo$ instead, then we get $mu(A_"tail")$ instead of the square root.
-]
-
-It remains to remove the factor $exp(alpha max_Q abs(x)^2)$. At $d = oo$ we did this through the drift $-∂_1 V$, which sweeps the wings empty in time $tilde w slash Lambda$. In finite dimensions the generator is the plain Laplacian and has no drift; the same physics is instead driven by the reflecting boundary. The outward normal of the barrel wall is proportional to $(nabla V slash (2 sqrt(d)), 1)$ in the $(x, rho)$-coordinates, so every reflection at the wall kicks the particle towards the core, with horizontal component of order $∂_1 V slash (2 sqrt(d))$ per unit of boundary local time. Meanwhile the radial drift $-d slash (sqrt(d) slash 2 - s) ≤ -2 sqrt(d)$ (in the $s$-coordinate) presses the particle onto the wall, so local time accrues at rate $tilde 2 sqrt(d)$. The two factors of $sqrt(d)$ cancel, and in the wing the particle again feels an effective inward drift of order $∂_1 V ≥ Lambda$.
-
-Rather than quantifying boundary local time, we observe that this mechanism is already encoded in objects we control:
-
-+ the invariant measure $mu_(S_d)$ gives the wing exponentially small mass, and
-+ the crude constant of the previous subsections --- unaffordable as a final answer, but finite --- bounds $norm(P_t^(S_d))_(L^1 -> L^oo)$, which makes the process forget its starting point; afterwards it sits in the wing with probability at most the wing mass.
-
-This replaces the pathwise estimate @eq:core-error of the infinite-dimensional case. Throughout, $mu_(S_d)$ denotes the normalized invariant measure and all $L^p$ norms are taken with respect to it. Define the (full-fiber) wing region with buffer $delta > 0$,
+This replaces the pathwise estimate @eq:core-error of the infinite-dimensional case. Throughout, $mu_(S_d)$ denotes the normalized invariant measure and all $L^p$ norms are taken with respect to it. Define the wing region with buffer $delta > 0$,
 
 $
 cal(W)_delta := {(x, s) in S_d : abs(x_1) ≥ ell + delta}.
 $
 
 #lemma[Crude $L^1 -> L^oo$ smoothing][
-  For $t > 0$ and any splitting $t slash 2 = t_1' + t_2'$,
+  For $t > 0$ and any splitting $t slash 2 = t'_1 + t'_2$,
 
   $
   norm(P_t^(S_d))_(L^1 -> L^oo)
   ≤ norm(P_(t slash 2)^(S_d))_(L^2 -> L^oo)^2
-  ≤ (C_1^(S_d)(t_1') thin C_2^(S_d)(t_1', t_2'))^2 =: N(t),
+  ≤ (C_1^(S_d)(t'_1) thin C_2^(S_d)(t'_1, t'_2))^2 =: N(t),
   $
 
-  where $C_1^(S_d), C_2^(S_d)$ are the constants of the previous subsections, including the crude factor $e^(alpha' ((2pi)^2 + 1))$ with $alpha' = 1 slash t_1'$.
+  where $C_1^(S_d), C_2^(S_d)$ are the finite-dimensional constants of the previous subsections.
 ]<lem:crude-smoothing>
 #proof[
   The semigroup is self-adjoint on $L^2(mu_(S_d))$, so by duality $norm(P_(t slash 2))_(L^1 -> L^2) = norm(P_(t slash 2))_(L^2 -> L^oo)$, and
@@ -683,38 +574,37 @@ $
 
 The integral in the middle is exactly the buffered wing mass at $d = oo$, which we enclose by interval-arithmetic quadrature.#margin-note-a[TODO: rerun the wing-mass quadrature with the cutoff at $ell + delta$ instead of $ell$; the pipeline in `global_potential.jl` already computes $Z_"wing" slash Z$.]
 
-*Core reduction.* Since $abs(x_1) ≤ 2 pi$ on $Q$, we have the pointwise splitting (at time zero, no flow involved)
+Consider now the pointwise splitting
 
 $
 e^(2 alpha x_1^2) ≤ e^(2 alpha (ell + delta)^2) + e^(2 alpha (2 pi)^2) bold(1)_(cal(W)_delta).
 $
 
-Applying the positivity-preserving contraction $P_t^(S_d)$ (with $P_t 1 = 1$) and bounding
-$norm(P_t bold(1)_(cal(W)_delta))_(L^oo) ≤ norm(P_t)_(1 -> oo) norm(bold(1)_(cal(W)_delta))_(L^1) = N(t) thin mu_(S_d)(cal(W)_delta)$
-via @lem:crude-smoothing, we obtain
+Applying $P_t^(S_d)$ (with $P_t 1 = 1$) and bounding
+$norm(P_t bold(1)_(cal(W)_delta))_(L^oo) ≤ norm(P_t)_(1 -> oo) norm(bold(1)_(cal(W)_delta))_(L^1) = N(t) thin mu_(S_d)(cal(W)_delta)$ via @lem:crude-smoothing, we obtain
 
 $
 norm(P_t^(S_d) e^(2 alpha x_1^2))_(L^oo)
 ≤ e^(2 alpha (ell + delta)^2) + e^(2 alpha (2 pi)^2) N(t) thin mu_(S_d)(cal(W)_delta).
 $ <eq:finite-core-reduction>
 
-Note that $sup_z P_t bold(1)_(cal(W)_delta)(z) = sup_(z) PP_z (X_t in cal(W)_delta)$ is precisely the quantity $q_delta$ of the infinite-dimensional argument: the $L^1 -> L^oo$ bound plays the role that the pathwise wing-crossing estimate played there, and the small wing mass plays the role of the inward drift.
-
-*Assembly.* By Cauchy--Schwarz for the Markov kernel, $P_t (f g) ≤ (P_t f^2)^(1 slash 2) (P_t g^2)^(1 slash 2)$ pointwise. With $f = e^(alpha x_1^2)$, $g = e^(alpha (sqrt(d) slash 2 - rho)^2)$ and the trivial bound $e^(alpha x_2^2) ≤ e^(alpha)$,
+Substituting the above equation for the base factor, and the radial barrier of the previous subsection at exponent $2 alpha$ for the radial factor, into the Cauchy--Schwarz split gives
 
 $
-norm(P_(t_2)^(S_d) e^(alpha (abs(x)^2 + (sqrt(d) slash 2 - rho)^2)))_(L^oo)
+norm(P_(t_2)^(S_d) e^(alpha (abs(x)^2 + (sqrt(d) slash 2 - rho)^2)))_oo
 ≤ e^(alpha)
-  (e^(2 alpha (ell + delta)^2) + e^(2 alpha (2 pi)^2) N(t_2) thin mu_(S_d)(cal(W)_delta))^(1 slash 2)
-  norm(P_(t_2)^(S_d) e^(2 alpha (sqrt(d) slash 2 - rho)^2))_(L^oo)^(1 slash 2).
+  (e^(2 alpha (ell + delta)^2) + e^(2 alpha (2 pi)^2) N(t_2) thin mu_(S_d)(cal(W)_delta))^(1 / 2)
+  norm(P_(t_2)^(S_d) e^(2 alpha (sqrt(d) slash 2 - rho)^2))_oo^(1 / 2).
 $ <eq:c2-core>
 
-The radial factor is the barrier bound of the previous subsection, instantiated at exponent $2 alpha$; this requires $2 alpha < beta < 2$, i.e. $t_1 > 1$.
-
-*In numbers.* Take $alpha = 0.1$, i.e. $t_1 = 10$. The crude constant satisfies $N(t_2) tilde (C_1^(S_d))^2 e^(2 alpha' ((2pi)^2 + 1)) dot O(1)$, so $e^(2 alpha (2pi)^2) N(t_2)$ is of order $10^7$--$10^8$. Against this, with wing slope $Lambda = 10^6$ and buffer $delta = 10^(-4)$ the wing mass is at most of order $e^(-Lambda delta) = e^(-100) approx 10^(-43)$, so the second term in @eq:finite-core-reduction is utterly negligible, while the buffer changes the core radius imperceptibly: $e^(2 alpha (ell + delta)^2) approx e^(2 alpha ell^2) approx 1.6$ for $ell = pi slash 2$. Altogether @eq:c2-core gives
+The wing slope $Lambda$ is large, so a buffer $delta < ell$ with $Lambda delta$ exceeding $2 alpha (2 pi)^2 + log N(t_2)$ is available. The second term of @eq:finite-core-reduction is then controlled, so
 
 $
-C_2^"core" approx e^(alpha (1 + ell^2)) norm(P_(t_2) e^(2 alpha (sqrt(d) slash 2 - rho)^2))_(L^oo)^(1 slash 2),
+norm(P_(t_2)^(S_d) e^(2 alpha x_1^2))_(L^oo) lt.tilde e^(2 alpha (ell + delta)^2) (1 + o(1)).
 $
 
-with $e^(alpha (1 + ell^2)) approx 1.4$, in place of the factor $e^(alpha ((2pi)^2 + 1)) approx 57$.
+Inserted into @eq:c2-core, the base contribution to the second constant is governed by the core radius $ell$ rather than the full width $2 pi$ of $Q$:
+
+$
+C_2^"core" approx e^(alpha (1 + ell^2)) norm(P_(t_2) e^(2 alpha (sqrt(d) slash 2 - rho)^2))_(L^oo)^(1 slash 2).
+$
