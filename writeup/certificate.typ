@@ -45,7 +45,7 @@ This is not enough to verify a counterexample, for this we would need the pde re
 
 At this dimension we can observe the hot spot effect and visualized it. However, we cannot separate the eigenvalues because they only converge at rate $O(d^(-1 slash 2))$.
 
-*$d = 10^18$*
+*$d = num(#results_fd.mps_candidate.dimension)$*
 
 We do not have a barrier so we cannot deduce the pointwise error but here are the intermediate values.
 
@@ -83,4 +83,4 @@ This subsection should make the following points:
 
 - The eigenvalue enclosures are good enough to separate the eigenvalues, but not good enough for a certificate. We should only use the FEM eigenvalues to determine the position in the spectrum. Once this is established it should be possible the prove much tighter enclosures from the MPS-residual.
 
-- We only know how to separate the eigenvalues in high dimensions by using the eigenvalues from the log-concave extension and the convergence of the measures. Due to the reliance on measure convergence we already need $d tilde 10^18$. In this dimension we should be able to prove that the lift of the eigenfunction in the log-concave problem is close to the eigenfunction in the finite dimensional problem in the $L^2$ sense. To upgrade to a pointwise bounds we would still need ultracontractivity, but this time the constant would multiply against a quantity that decays in $d$. We would no longer rely on the barrier we do not know how to construct to transfer to an interior problem. 
+- We only know how to separate the eigenvalues in high dimensions by using the eigenvalues from the log-concave extension and the convergence of the measures. Due to the reliance on measure convergence we already need $d tilde num(#results_fd.mps_candidate.dimension)$. In this dimension we should be able to prove that the lift of the eigenfunction in the log-concave problem is close to the eigenfunction in the finite dimensional problem in the $L^2$ sense. To upgrade to a pointwise bounds we would still need ultracontractivity, but this time the constant would multiply against a quantity that decays in $d$. We would no longer rely on the barrier we do not know how to construct to transfer to an interior problem.

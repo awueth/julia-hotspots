@@ -1,4 +1,13 @@
 #import "template.typ": *
+#let results = toml("results/log_concave_extension/high-resolution/summary.toml")
+#let eigenvalue_bounds = results.eigenvalue_bounds
+#let lambda1_core_lower = eigenvalue_bounds.core_lambda1_cr_lower
+#let lambda2_core_lower = eigenvalue_bounds.core_lambda2_cr_lower
+#let lambda1_lower = eigenvalue_bounds.lambda1_lower
+#let lambda1_upper = eigenvalue_bounds.lambda1_upper
+#let lambda2_lower = eigenvalue_bounds.lambda2_lower
+#let wing_mass_upper = results.potential_measure.relative_wing_mass.hi
+#let spectral_gap_lower = lambda2_lower - lambda1_upper
 
 = Bounds for the eigenvalues <sec:eigenvalues>
 
@@ -16,7 +25,7 @@ lambda_1 ≤ R(phi.alt.alt_1).
 $
 
 #proposition[
-  Evaluating the Rayleigh quotient $lambda_1 lt.tilde 4.0.$
+  Evaluating the Rayleigh quotient gives $lambda_1 ≤ num(#lambda1_upper).$
 ]<prop:upper-bounds>
 
 == Lower bounds
@@ -104,15 +113,12 @@ Bounding both eigenfunction norms by ultracontractivity yields the analogue of t
 
 === Certified enclosures
 
-#let lambda1_core_lower = 0
-#let lambda2_core_lower = 0
-
 Applying the Crouzeix–Raviart method on the core with Gridap.jl, on a mesh fine enough that @lem:interp-constant keeps the constant $C_h$ small, and inserting the discrete eigenvalues into @thm:guaranteed-lower, we obtain
 $
-lambda_(1, h)^"core" ≥ #lambda1_core_lower, quad lambda_(2, h)^"core" ≥ #lambda2_core_lower.
+lambda_(1, h)^"core" ≥ num(#lambda1_core_lower), quad lambda_(2, h)^"core" ≥ num(#lambda2_core_lower).
 $
-With $mu(Q_"wing") ≤ 10^(-10)$ from @lem:wing-mass, the upper bounds $overline(lambda_1) = 4.0$ and $overline(lambda_2) = 10.0$ from @prop:upper-bounds, and the smoothing constant $C_t$ at the chosen time $t$, the correction factors of @lem:lambda1-core and @lem:lambda2-core, and combining them with @prop:upper-bounds gives the enclosures
+With $mu(Q_"wing") ≤ num(#wing_mass_upper)$ from @lem:wing-mass, the upper bound $overline(lambda_1) = num(#lambda1_upper)$ from @prop:upper-bounds, the auxiliary upper bound $overline(lambda_2) = 10.0$, and the smoothing constant $C_t$ at the chosen time $t$, the correction factors of @lem:lambda1-core and @lem:lambda2-core give the enclosures
 $
-lambda_1 in [#lambda1_core_lower, 4.0], quad lambda_2 in [#lambda2_core_lower, 10.0].
+lambda_1 in #interval(lambda1_lower, lambda1_upper), quad lambda_2 in #interval(lambda2_lower, 10.0).
 $
-In particular $lambda_1 < lambda_2$: the principal eigenvalue is simple and is separated from the rest of the spectrum by a gap $lambda_2 - lambda_1 ≥ 0$.
+In particular $lambda_1 < lambda_2$: the principal eigenvalue is simple and is separated from the rest of the spectrum by a gap $lambda_2 - lambda_1 ≥ num(#spectral_gap_lower)$.
