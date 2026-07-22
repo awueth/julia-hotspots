@@ -572,7 +572,7 @@ $
   All our changes of variables ($F_d -> Omega_d -> S_d$ and $Phi : Omega_d -> Q times [0,1]$) act only on the radial coordinate and preserve $x$. Hence the $x$-marginal of $mu_(S_d)$ equals the $x$-marginal of $Phi_hash mu_(Omega_d)$, and the density bound $dif Phi_hash mu_(Omega_d) slash dif mu_(Omega_oo) ≤ 1 + epsilon$ gives the first inequality. The second follows from $V(x) ≥ Lambda (abs(x_1) - ell) ≥ Lambda delta$ on the wing (so $e^(-V) ≤ e^(-Lambda delta)$ there) together with $abs({abs(x_1) ≥ ell + delta}) ≤ abs(Q)$.
 ]
 
-The integral in the middle is exactly the buffered wing mass at $d = oo$, which we enclose by interval-arithmetic quadrature.#margin-note-a[TODO: rerun the wing-mass quadrature with the cutoff at $ell + delta$ instead of $ell$; the pipeline in `global_potential.jl` already computes $Z_"wing" slash Z$.]
+The integral in the middle is exactly the buffered wing mass at $d = oo$, which we enclose by interval-arithmetic quadrature at the selected cutoff $ell + delta$.
 
 Consider now the pointwise splitting
 
