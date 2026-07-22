@@ -172,10 +172,10 @@ which is negligible, while $tau ≪ t_2$ costs essentially nothing in flow time 
 In finite dimensions the choice of origin matters. The Wang–Harnack estimate of @thm:wang-harnack relies on the bound
 
 $
-exp(abs(x-y)^2 / (2t)) ≤ exp(abs(x)^2 / (2t)) exp(abs(y)^2 / (2t)),
+exp(abs(x-y)^2 / (2t)) ≤ exp(abs(x)^2 / t) exp(abs(y)^2 / t),
 $
 
-which comes from $abs(x - y)^2 ≤ abs(x)^2 + abs(y)^2$. In infinite dimensions this is harmless, since every point has radius $r = 1$. In finite dimensions, however, the barrel has radius of order $sqrt(d) slash 2$, so applied to the radial coordinate the same bound,
+which comes from $abs(x - y)^2 ≤ 2 abs(x)^2 +  2abs(y)^2$. In infinite dimensions this is harmless, since every point has radius $r = 1$. In finite dimensions, however, the barrel has radius of order $sqrt(d) slash 2$, so applied to the radial coordinate the same bound,
 $
 abs((x,r) - (x',r'))^2 ≤ abs((x,r))^2 + abs((x',r'))^2,
 $
