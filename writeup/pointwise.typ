@@ -1,4 +1,6 @@
 #import "template.typ": *
+#let results_limit = toml("results/log_concave_extension/high-resolution/summary.toml")
+#let results_fd = toml("results/finite_dim/finite-dim/summary.toml")
 
 = Pointwise bounds on the eigenfunction <sec:pointwise>
 
@@ -131,6 +133,57 @@ $
   $
 ]
 
+=== Numerical inputs in the limit $d = oo$ <sec:pointwise-limit-numerics>
+
+For the log-concave limit, the optimized splitting uses $s_1 = num(#results_limit.pointwise_limit.s1)$ and $alpha = num(#results_limit.pointwise_limit.alpha)$. The quantities entering @thm:pointwise-limit are collected in @tab:pointwise-limit-inputs.
+
+#figure(
+  table(
+    columns: (1.65fr, 1fr),
+    align: (left, left),
+    [*Quantity*], [*Computed value*],
+    [$d$], [$= oo$],
+    [$norm((L - lambda_*) phi.alt_*)_oo$], [$lt.tilde #num(results_limit.pointwise_limit.residual_bound)$],
+    [$norm(phi.alt_*)_oo$], [$lt.tilde #num(results_limit.pointwise_limit.phi_linf_bound)$],
+    [$sup_(Omega^circle) phi.alt_* - sup_(partial Omega) phi.alt_*$], [$approx #num(results_limit.mps_candidate.hot_spot_effect)$],
+    [$lambda_1$], [$in #interval(results_limit.eigenvalue_bounds.lambda1_lower, results_limit.eigenvalue_bounds.lambda1_upper)$],
+    [$lambda_*$], [$= #num(results_limit.mps_candidate.lambda)$],
+    [$lambda_2$], [$>= #num(results_limit.eigenvalue_bounds.lambda2_lower)$],
+    [$s_1$], [$= #num(results_limit.pointwise_limit.s1)$],
+    [$alpha$], [$= #num(results_limit.pointwise_limit.alpha)$],
+    [$(e^(s_1 lambda_1) - 1) slash lambda_1$], [$lt.tilde #num(results_limit.pointwise_limit.head_term)$],
+    [$integral_(s_1)^oo C_(alpha s) e^((lambda_1 - lambda_2(1 - alpha))s) dif s$], [$lt.tilde #num(results_limit.pointwise_limit.tail_term)$],
+    [$norm(phi.alt_* - a phi.alt_1)_oo$], [$lt.tilde #num(results_limit.pointwise_limit.pointwise_linf_bound)$],
+  ),
+  caption: [Quantities entering the pointwise estimate in the log-concave limit. The reported values have not been enclosed with interval arithmetic.],
+  kind: table,
+) <tab:pointwise-limit-inputs>
+
+#let limit_amplification = (
+  results_limit.pointwise_limit.head_term
+  + results_limit.pointwise_limit.tail_term
+)
+#let limit_eigenvalue_term = (
+  results_limit.pointwise_limit.lambda_error
+  * results_limit.pointwise_limit.phi_linf_bound
+)
+
+Keeping the residual and eigenvalue-error contributions visible, substitution into @thm:pointwise-limit gives
+
+$
+norm(phi.alt_* - a phi.alt_1)_oo
+&lt.tilde (
+  #num(results_limit.pointwise_limit.residual_bound)
+  + #num(results_limit.pointwise_limit.lambda_error)
+    dot #num(results_limit.pointwise_limit.phi_linf_bound)
+) \
+&quad times (
+  #num(results_limit.pointwise_limit.head_term)
+  + #num(results_limit.pointwise_limit.tail_term)
+) \
+&lt.tilde #num(results_limit.pointwise_limit.pointwise_linf_bound).
+$ <eq:pointwise-limit-numerical>
+
 == Pointwise bounds in the finite-dimensional case
 
 In the limit $d = oo$ the eigenvalue problem is effectively an interior one: the mass of the barrel concentrates at the outer boundary, the approximation $phi.alt_*$ satisfies the Neumann condition on $∂Q$ by construction, and the only error left to control is the "interior" residual $(L - lambda_*) phi.alt_*$. In finite dimensions this is no longer the case. The approximation satisfies the interior equation $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly, but it now leaves a residual in the Neumann condition on $Gamma_1 union Gamma_2$. Following @moler_bounds_1968, we first internalize this boundary residual, then the same proof as in @sec:pointwise-limit applies.
@@ -210,6 +263,56 @@ The corrected function $phi.alt_* + w$ thus takes over the role that $phi.alt_*$
   $
   gives the stated bound.
 ]
+
+=== Numerical inputs at $d = 10^18$ <sec:pointwise-finite-numerics>
+
+We now record the computed quantities entering @thm:pointwise-finite. As in the optimized time splitting following @thm:pointwise-limit, write $s = alpha s + (1 - alpha) s$. The long-time contribution is then bounded by
+$
+integral_(s_1)^oo C_(alpha s)
+e^((lambda_1 - lambda_2(1 - alpha))s) dif s.
+$
+For the finite-dimensional computation we take $s_1 = num(#results_fd.pointwise.s1)$ and $alpha = num(#results_fd.pointwise.alpha)$. The remaining inputs are collected in @tab:pointwise-finite-inputs.
+
+#figure(
+  table(
+    columns: (1.65fr, 1fr),
+    align: (left, left),
+    [*Quantity*], [*Computed value*],
+    [$d$], [$= #num(results_fd.mps_candidate.dimension)$],
+    [$norm(partial_arrow(n) phi.alt_*)_oo$], [$lt.tilde #num(results_fd.residual.normal_derivative_inf)$],
+    [$norm(phi.alt_*)_oo$], [$lt.tilde #num(results_fd.eigenfunction.sampled_linf)$],
+    [$sup_(Omega_d^circle) phi.alt_* - sup_(partial Omega_d) phi.alt_*$], [$approx #num(results_fd.eigenfunction.hot_spot_effect)$],
+    [$lambda_1$], [$in #interval(results_fd.eigenvalue_bounds.lambda1_lower, results_fd.eigenvalue_bounds.lambda1_upper)$],
+    [$lambda_*$], [$= #num(results_fd.mps_candidate.lambda)$],
+    [$lambda_2$], [$>= #num(results_fd.eigenvalue_bounds.lambda2_lower)$],
+    [$s_1$], [$= #num(results_fd.pointwise.s1)$],
+    [$alpha$], [$= #num(results_fd.pointwise.alpha)$],
+    [$(e^(s_1 lambda_1) - 1) slash lambda_1$], [$lt.tilde #num(results_fd.pointwise.head_term)$],
+    [$integral_(s_1)^oo C_(alpha s) e^((lambda_1 - lambda_2(1 - alpha))s) dif s$], [$lt.tilde #num(results_fd.pointwise.tail_term)$],
+    [$norm(v)_oo$], [unknown],
+  ),
+  caption: [Quantities entering the finite-dimensional pointwise estimate. The residual, eigenfunction norm, and hot-spot effect are obtained from floating-point sampling and have not been enclosed with interval arithmetic.],
+  kind: table,
+) <tab:pointwise-finite-inputs>
+
+#let fd_amplification = results_fd.pointwise.head_term + results_fd.pointwise.tail_term
+#let fd_eigenvalue_term = (
+  results_fd.eigenvalue_bounds.lambda_error
+  * results_fd.eigenfunction.sampled_linf
+)
+#let fd_constant_error = fd_eigenvalue_term * fd_amplification
+#let fd_barrier_coefficient = (
+  1
+  + results_fd.eigenvalue_bounds.lambda1_upper * fd_amplification
+)
+
+Substituting the available values into @thm:pointwise-finite gives the provisional estimate
+$
+norm(phi.alt_* - a phi.alt_1)_oo
+lt.tilde #num(fd_constant_error)
++ #num(fd_barrier_coefficient) norm(v)_oo.
+$ <eq:pointwise-finite-numerical>
+This cannot yet be evaluated because $norm(v)_oo$ is unknown. Moreover, even if the barrier term vanished, the present eigenvalue enclosure would produce an error much larger than the hot-spot effect. Thus the finite element enclosure is sufficient to locate the candidate in the spectrum, but a sharper residual-based enclosure of $lambda_1$ is also needed for a certificate.
 
 
 
