@@ -4,13 +4,7 @@
 
 = Pointwise bounds on the eigenfunction <sec:pointwise>
 
-The method of particular solutions of @numerics returns an approximate eigenpair $(lambda_*, phi.alt_*)$ that satisfies the interior equation $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly and has a small residual in the boundary condition. In this section we turn this boundary residual into a pointwise bound on the distance to the true principal eigenfunction $phi.alt_1$. We split the boundary of the reduced barrel $Omega_d = {(x, r) in Q times RR_(≥ 0) : r ≤ 1 - V(x)/d}$ into
-$
-Gamma_0 &= {(x, r) in ∂ Omega_d : x_1 = 0}, \
-Gamma_1 &= {(x, r) in ∂ Omega_d : abs(x_1) = 2 pi "or" abs(x_2) = 1 "or" r = 0}, \
-Gamma_2 &= {(x, r) in ∂ Omega_d : r = 1 - V(x)/d}.
-$
-Here $Gamma_0$ is the symmetry plane, on which $phi.alt_1$ vanishes because it is odd in $x_1$ (@lem:parity); $Gamma_1$ collects the Neumann walls on which the boundary condition is satisfied by design; and $Gamma_2$ is the curved wall of the Barrel, on which the Neumann condition is only satisfied approximately.
+The method of particular solutions of @numerics returns an approximate eigenpair $(lambda_*, phi.alt_*)$ that satisfies the interior equation $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly and has a small residual in the boundary condition. In this section we turn this boundary residual into a pointwise bound on the distance to the true principal eigenfunction $phi.alt_1$.
 
 We give two derivations from this residual to a pointwise bound. In @sec:pointwise-limit we treat the limit $d = oo$, where the problem reduces to the operator $L = -∆ + nabla V dot nabla$ on $Q$ and the ultracontractivity estimates of @sec:ultracontractivity make the bound fully explicit. In the finite-dimensional case, we instead follow @moler_bounds_1968 and add a harmonic correction that restores the boundary condition exactly, then control the correction by a barrier.
 
@@ -206,14 +200,31 @@ $ <eq:pointwise-limit-numerical>
 
 In the limit $d = oo$ the eigenvalue problem is effectively an interior one: the mass of the barrel concentrates at the outer boundary, the approximation $phi.alt_*$ satisfies the Neumann condition on $∂Q$ by construction, and the only error left to control is the "interior" residual $(L - lambda_*) phi.alt_*$. In finite dimensions this is no longer the case. The approximation satisfies the interior equation $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly, but it now leaves a residual in the Neumann condition on $Gamma_1 union Gamma_2$. Following @moler_bounds_1968, we first internalize this boundary residual, then the same proof as in @sec:pointwise-limit applies.
 
+We work on the half-barrel
+
+$
+F_d^+ := {(x,z) in F_d (Q,V) : x_1 ≥ 0}
+$
+
+and split its boundary into
+
+$
+Gamma_0 &= {(x,z) in ∂F_d^+ : x_1 = 0}, \
+Gamma_1 &= {(x,z) in ∂F_d^+ : x_1 = 2 pi "or" abs(x_2) = 1}, \
+Gamma_2 &= {(x,z) in ∂F_d^+ : abs(z) = sqrt(d)/2 (1 - V(x)/d)}.
+$
+
+Here $Gamma_0$ is the symmetry plane, on which $phi.alt_*$ and $phi.alt_1$ vanish because they are odd in $x_1$, $Gamma_1$ denotes the flat Neumann walls on which the boundary condition is satisfied by designm and $Gamma_2$ is the curved barrel wall, on which the Neumann condition is only satisfied approximately. All Laplacians, gradients, and normal derivatives in the remainder of this subsection are the ordinary Euclidean ones on $F_d^+$.
+
 We correct the boundary condition with a harmonic function $w$ solving
 
 $
--∆ w &= 0 "in" Omega_d, \
+-∆ w &= 0 "in" F_d^+, \
 w &= 0 "on" Gamma_0, \
-∂_arrow(n) w(x, r) &= -∂_arrow(n) phi.alt_*(x, r) "on" Gamma_1 union Gamma_2.
+∂_arrow(n) w(x, z) &= -∂_arrow(n) phi.alt_*(x, z) "on" Gamma_1 union Gamma_2.
 $<eq:harmonic-correction>
-By construction $phi.alt_* + w$ satisfies the Neumann condition exactly, and since $w$ is harmonic, using $-∆ phi.alt_* = lambda_* phi.alt_*$ and $-∆ w = 0$, we have
+
+By construction $phi.alt_* + w$ satisfies the mixed boundary conditions exactly on $F_d^+$. Extend $w$ oddly across $Gamma_0$. Since $w$ is harmonic, using $-∆ phi.alt_* = lambda_* phi.alt_*$ and $-∆ w = 0$, we have
 
 $
 (-∆ - lambda_1)(phi.alt_* + w) = (lambda_* - lambda_1) phi.alt_* - lambda_1 w.
@@ -224,17 +235,17 @@ The corrected function $phi.alt_* + w$ thus takes over the role that $phi.alt_*$
 #lemma[
   Let $w$ solve @eq:harmonic-correction, and let $v$ be a supersolution satisfying
   $
-  -∆ v &≥ 0 "in" Omega_d, \
+  -∆ v &≥ 0 "in" F_d^+, \
   v &= 0 "on" Gamma_0, \
   ∂_arrow(n) v &≥ 0 "on" Gamma_1, \
-  ∂_arrow(n) v(x, r) &≥ abs(∂_arrow(n) phi.alt_*(x, r)) "on" Gamma_2.
+  ∂_arrow(n) v(x, z) &≥ abs(∂_arrow(n) phi.alt_*(x, z)) "on" Gamma_2.
   $
-  Then $abs(w) ≤ v$ on $Omega_d$, in particular $norm(w)_oo ≤ norm(v)_oo$.
+  Then $abs(w) ≤ v$ on $F_d^+$, in particular $norm(w)_oo ≤ norm(v)_oo$.
 ]<lem:barrier>
 #proof[
-  Set $f := w - v$. Then $-∆ f ≤ 0$ in $Omega_d$, with $∂_arrow(n) f ≤ 0$ on $Gamma_1 union Gamma_2$ and $f = 0$ on $Gamma_0$. Testing against the positive part $f^+$ and integrating by parts,
+  Set $f := w - v$. Then $-∆ f ≤ 0$ in $F_d^+$, with $∂_arrow(n) f ≤ 0$ on $Gamma_1 union Gamma_2$ and $f = 0$ on $Gamma_0$. Testing against the positive part $f^+$ and integrating by parts,
   $
-  norm(nabla f^+)_2^2 = integral_(Omega_d) nabla f dot nabla f^+ = integral_(Omega_d) (-∆ f) f^+ + integral_(Gamma_1 union Gamma_2) (∂_arrow(n) f) f^+ ≤ 0,
+  norm(nabla f^+)_2^2 = integral_(F_d^+) nabla f dot nabla f^+ = integral_(F_d^+) (-∆ f) f^+ + integral_(Gamma_1 union Gamma_2) (∂_arrow(n) f) f^+ ≤ 0,
   $
   so $f^+$ is constant. Since it vanishes on $Gamma_0$ it is identically zero, giving $w ≤ v$. Repeating the argument with $-w$ in place of $w$ yields $abs(w) ≤ v$.
 ]
