@@ -154,21 +154,19 @@ Our first contribution is a modification of the potential $V$ of @de_dios_convex
   $
     max_(F_oo (Q, V)) phi.alt_* - max_(∂ F_oo (Q, V)) phi.alt_* gt.tilde num(#results.mps_candidate.hot_spot_effect).
   $
-  In this case we can moreover bound the pointwise distance to the true principal eigenfunction $phi.alt_1$,
+  In this case we can moreover bound the pointwise distance to a suitably scaled true principal eigenfunction $a phi.alt_1$,
   $
-    norm(phi.alt_* - phi.alt_1)_(L^oo (F_oo (Q, V))) lt.tilde num(#results.pointwise_limit.pointwise_linf_bound),
+    norm(phi.alt_* - a phi.alt_1)_(L^oo (F_oo (Q, V))) lt.tilde num(#results.pointwise_limit.pointwise_linf_bound),
   $
   which still exceeds the hot-spot effect and is therefore insufficient to certify the interior maximum.
 ]
 
-We do not yet obtain a certified counterexample. Even for the log-concave extension, the $L^oo$ boundary error of our approximation remains too large relative to the small hot-spot effect to certify the latter. We expect this can be improved by enlarging the approximation basis and the computational budget, by better sampling strategies, or by fine-tuning the potential to increase the hot-spot effect. In the finite-dimensional case, our pointwise bounds depend on a supersolution that we do not currently know how to compute. It is conceivable that this is not the right route, and that one should instead invoke the existing $L^2$ eigenfunction bounds for the Neumann problem and upgrade them directly to $L^oo$ via ultracontractivity. A further obstruction is that for the approximate eigenfunction to exhibit the desired interior maximum, the potential $V$ must be very large at the ends of the barrel, of order $10^6$, and the ultracontractivity estimates that pass from $L^2$ to pointwise bounds then require $d$ of order $norm(V)_(L^oo)^2 tilde 10^12$. We nonetheless observe the effect at far smaller $d$, which suggests that the limitation lies in these estimates rather than in the dynamics itself. Finally, all of our computations are carried out in floating-point arithmetic; we do not yet employ interval arithmetic.
+We do not yet obtain a certified counterexample. In @certificate we assemble the numerical error budget, quantify how far the log-concave computation is from the sufficient certification criterion, distinguish the evidence available at $d = 10^9$ and at larger dimensions, and describe the remaining analytical and validated-numerics steps.
 
 == Outline of the thesis
 
 This thesis is structured as follows: In @barrels we study barrel sets in detail. We explain how barrel sets approximate the log-concave problem in high dimensions. We show that on barrel sets the principal eigenfunction $phi.alt_1$ is highly symmetric, allowing us to reduce the effective dimension of the set giving the counterexample to three. On this effectively three dimensional set we construct a basis for the method of particular solutions. \
 In @construction we explain the construction of the potential $V$ inducing a counterexample log-concave measure in @de_dios_convex_2024 and derive an adaptation which can be explicitly computed. \
 In @numerics we present our numerical implementation of our method of particular solutions and the resulting approximation. Since the method of particular solutions cannot guarantee the position in the spectrum of the approximate eigenpairs, we derive a priori bounds in @sec:eigenvalues. \
-In @sec:pointwise we derive pointwise bounds for the eigenfunction based on the eigenvalue bounds and the MPS-residual. \
-Finally, 
-//in @certificate 
-we present the resulting numerical bounds and discuss improvements needed for a certificate for the failure of the hot spots conjecture. 
+In @sec:pointwise we derive pointwise bounds for the eigenfunction based on the eigenvalue bounds and the MPS residual. \
+Finally, in @certificate we present the resulting numerical bounds and discuss the improvements needed to certify a counterexample to the hot-spots conjecture.
