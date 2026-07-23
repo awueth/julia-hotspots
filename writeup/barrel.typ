@@ -303,7 +303,7 @@ Combining the three lemmas gives the explicit convergence rate.
 
 == Parity of eigenfunctions
 
-Since $Q$ is symmetric and $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$, lower eigenfunctions of $Omega_d$, are even or odd in each coordinate:
+Since $Q$ is symmetric and $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$, every eigenspace decomposes into subspaces of functions which are even or odd in each coordinate:
 
 #lemma[
   Every Neumann eigenspace of $F_d (Q,V)$ has an orthonormal basis whose elements are even/odd, odd/even, even/even or odd/odd in $(x_1,x_2)$.
@@ -327,14 +327,58 @@ Since $Q$ is symmetric and $V(-x_1,x_2)=V(x_1,x_2)=V(x_1,-x_2)$, lower eigenfunc
   The two reflections commute. Therefore their restrictions to any eigenspace $E_lambda$ are commuting self-adjoint operators on the finite-dimensional Hilbert space $E_lambda$, and can be simultaneously diagonalized. For a common eigenvector $u$ we have $R_i u = epsilon_i u$ with $epsilon_i in {+1,-1}$. The sign $+1$ means that $u$ is even in $x_i$, while the sign $-1$ means that $u$ is odd in $x_i$. This gives the claimed parity basis. In particular, every eigenfunction in a simple eigenspace has one of these four parity types.
 ]
 
-#lemma[
-  The eigenspace for $lambda_1$ does not contain odd/odd functions.
-] <lem:no-odd-odd-even-even>
-#proof[
-  By Courant's nodal domain theorem, every eigenfunction for $lambda_1$ has at most two nodal domains.
-]
+Let $lambda_(0,d)^"oe"$, $lambda_(0,d)^"eo"$ and $lambda_(0,d)^"oo"$ denote the lowest eigenvalues of the radial problem on $Omega_d$ in the odd/even, even/odd and odd/odd sectors, respectively, and let $lambda_(1,d)^"ee"$ denote the lowest eigenvalue in the even/even sector among functions orthogonal to the constant eigenfunction. Using the finite element method we can compute sectorwise eigenvalue bounds as described in @sec:eigenvalues that satisfy
 
-We know empirically that the first eigenspaces are all simple, and, that the first eigenfunction is odd in $x_1$ and even in $x_2$. We will assume from now on that $phi.alt_(1, d)$ indeed has these symmetries. We will prove later on via the eigenvalue bounds, that the obtained approximation of the eigenfunction, indeed approximates the principal eigenfunction. This assumption will allow us to reduce the number of free coefficients in the MPS basis by a factor of 4. 
+$
+  overline(lambda_(1,d)^"oe")
+  <
+  min(
+    underline(lambda_(0,d)^"eo"),
+    underline(lambda_(0,d)^"oo"),
+    underline(lambda_(1,d)^"ee"),
+  ).
+$
+
+It follows from @lem:parity that the first positive radial eigenvalue lies in the odd/even sector. Together with the radiality of the principal eigenfunction established above, this shows that the first eigenfunction of
+the full Barrel is odd in $x_1$ and even in $x_2$.
+
+The lowest eigenvalue in the odd/even sector is simple. Indeed, let
+
+$
+F_d^+ := {(x,w) in F_d (Q,V) : x_1 > 0, x_2 > 0}.
+$
+
+After restriction to $F_d^+$, the odd/even problem becomes a mixed
+boundary-value problem with a Dirichlet condition on the symmetry plane
+$Gamma_D := partial F_d^+ ∩ {x_1=0}$ and Neumann conditions on the remaining
+boundary. We follow  the argument from
+@evans_partial_1998[Section 6.5.1, Theorem 2, Steps 6--8], adapted to the space
+
+$
+cal(V) := {v in H^1(F_d^+) : v = 0 "on" Gamma_D}.
+$
+
+If $u$ is an eigenfunction for the principal eigenvalue $lambda_1$, testing
+the weak eigenvalue equation against its positive and negative parts
+$u_+$ and $u_-$ gives
+
+$
+integral_(B_d^+) |nabla u_±|^2 dif z
+= lambda_1 integral_(B_d^+) |u_±|^2 dif z.
+$
+Thus each nonzero part attains the minimum of the Rayleigh quotient over
+$cal(V)$ and is itself a nonnegative weak eigenfunction for $lambda_1$. The
+strong maximum principle implies that each such part is strictly positive in
+$F_d^+$. Since $u_+ u_-=0$, they cannot both be nonzero, so every
+$lambda_1$-eigenfunction has a strict sign.
+
+Now let $u>0$ and $v$ be two eigenfunctions for $lambda_1$, and choose $c$ so
+that $v-c u$ is orthogonal to $u$ in $L^2(F_d^+)$. If $v-c u$ were nonzero,
+then it would also have a strict sign, which contradicts its
+orthogonality to $u>0$. Hence $v=c u$, proving simplicity. Consequently, the
+first positive eigenvalue of the full Barrel is simple. We can therefore
+restrict the MPS basis to functions which are odd in $x_1$ and even in $x_2$,
+reducing the number of free coefficients by a factor of four.
 
 == MPS basis for Barrel sets <mps_basis>
 
