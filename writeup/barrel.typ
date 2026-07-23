@@ -29,7 +29,7 @@ For the purpose of this work, we use $Q = [-2 pi, 2 pi] times [-1,1]$. We also u
 
 == The low barrel eigenfunctions are radial
 
-The counterexample is in high dimension $d$. In order to compute its eigenfunction, we have to reduce the number of effective dimensions by showing that the ground eigenfunction is radial in the $w$-coordinate. The proof goes in two steps: First we prove that any eigenfunction with a radial dependence must have a high eigenvalue. In a second step we compute an approximate radial eigenfunction and compute its Rayleigh quotient, showing that the ground eigenvalue is small. By contradiction the eigenfunction must be radial.
+The counterexample is in high dimension $d$. In order to compute its eigenfunction, we have to reduce the number of effective dimensions by showing that the ground eigenfunction is radial in the $w$-coordinate. The proof goes in two steps: First we prove that any eigenfunction with an angular dependence must have a high eigenvalue. In a second step we compute an approximate radial eigenfunction and compute its Rayleigh quotient, showing that the ground eigenvalue is small. By contradiction the eigenfunction must be radial.
 
 #lemma[
   Let $phi.alt_(k, d)$ be the $k$-th Neumann eigenfunction of the Laplacian on $F_d (Q, V)$ and let $lambda_(k, d)$ be the corresponding eigenvalue. If $phi.alt_(k,d)(x, w)$ is not radial in the $w$-coordinate, then 
@@ -76,14 +76,7 @@ $
 
 with Neumann boundary conditions at $r=0$.
 
-On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$ and eigenfunctions $phi.alt_(0, Omega_d), phi.alt_(1, Omega)$ and so on. From now on, we will simply assume that the eigenfunctions $phi.alt_(1,d), phi.alt_(2,d)$ on the full Barrel are radial. We will therefore overload the notation and also write $phi.alt_(i,d)$ for $phi.alt_(i, Omega_d)$. 
-//In @certificate 
-We will show that $lambda_(2, Omega_d) < 4$, therefore $lambda_(i, Omega_d) = lambda_i$ for $i=0,1,2$ and our choice of $d$. Consequently, $phi.alt_(1,d), phi.alt_(2,d)$ are indeed radial, and, therefore if $phi.alt_(1, Omega_d)$ achieves its maximum in ${(x,r) in Q^circle times RR_(≥ 0) : r < 1 - V(x)/d}$ then $phi.alt_(1,d)$ attains its maximum in the interior of the full Barrel.
-
-// #inline-note-a[
-//   *How the above scales with scaling of the domain.* If we rescale $Q$ to $s Q$ and $V$ to $V_s = V(x\/s, y\/s)$, then the lower bound if the eigenfunction is not radial stays the same. However, the eigenvalue $lambda_(1,d)$ multiplies by $1/s^2$, hence the conclusion of the above lemma holds for $s Q, V_s$ whenever $lambda_(Q, V) < 4 s^2$.
-// ]
-
+On $Omega_d$ we have the eigenvalues $0 = lambda_(0, Omega_d) < ...$ and eigenfunctions $phi.alt_(0, Omega_d), phi.alt_(1, Omega_d)$ and so on. We will compute an upper bound to $lambda_(1, Omega_d)$ that is less than $4$ explicitly, showing that the eigenfunction $phi.alt_(1,d)$ on the full Barrel is radial. Therefore, if $phi.alt_(1, Omega_d)$ achieves its maximum in ${(x,r) in Q^circle times RR_(≥ 0) : r < 1 - V(x)/d}$ then $phi.alt_(1,d)$ attains its maximum in the interior of the full Barrel. As a consequence, we can reduce the problem immediately to $Omega_d$ and no longer be concerned with the higher eigenfunctions of the full barell.  We will therefore -- abusing notation -- write $phi.alt_(i,d)$ for the radial sector eigenfunctions $phi.alt_(i, Omega_d)$. 
 
 == The effective problem in infinite dimensions
 
