@@ -3,7 +3,7 @@
 = Solving for the eigenfunction numerically <numerics>
 
 
-In this section we explain how we compute approximations of the Neumann eigenfunctions of the Barrel sets. We use the Method of Particular Solutions (MPS) as described by @betcke_reviving_2005. That is, we write our approximate eigenfunction $phi.alt_*$ as a finite linear combination $sum_j c_j b_j$ of the basis functions derived in @mps_basis. The basis functions are such that $-∆ b_j = lambda_*$ for all $j$ any chosen $lambda_*$ which is a parameter of $b_j$. As a result, the approximation $phi.alt_*$ satisfies $-∆ phi.alt_* = lambda_*$ exactly. We aim to find coefficients $c_j$ and a value $lambda_*$, which minimize the error in the Neumann boundary condition. We sample $m_B$ points $(x_i, r_i)$ from the boundary $Gamma_2 subset ∂Ω$. Using these collocation points we define the matrix
+In this section we explain how we compute approximations of the Neumann eigenfunctions of the Barrel sets. We use the Method of Particular Solutions (MPS) as described by @betcke_reviving_2005. That is, we write our approximate eigenfunction $phi.alt_*$ as a finite linear combination $sum_j c_j b_j$ of the basis functions derived in @mps_basis. The basis functions are such that $-∆ b_j = lambda_* b_j$ for all $j$ any chosen $lambda_*$ which is a parameter of $b_j$. As a result, the approximation $phi.alt_*$ satisfies $-∆ phi.alt_* = lambda_* phi.alt_*$ exactly. We aim to find coefficients $c_j$ and a value $lambda_*$, which minimize the error in the Neumann boundary condition. We sample $m_B$ points $(x_i, r_i)$ from the boundary $Gamma_2 subset ∂Ω$. Using these collocation points we define the matrix
 
 $
 A_B (lambda) &= [ ∂_arrow(n) b_j (x_i, r_i) ]_(i,j).
