@@ -66,6 +66,10 @@
 
 #include "certificate.typ"
 
+#heading(numbering: none)[Use of Large Language Models]
+
+The author used large language models (LLMs) to review and correct grammar, spelling, and wording. LLMs were also used extensively to write, review and debug code. The algorithmic choices, however, are the author's own. Attempts to use LLMs for mathematical work were less successful, with the notable exception of the reduction to the core in @sec:finite-core-reduction, which was derived entirely by Claude Fable 5. In particular, we tried to improve the various ultracontractivity constants with the help of LLMs. The derived bounds often looked promising at first, but  would typically break down once implemented and computed explicitly. These constants often depend on quantities such as gradients or the curvature of the potential, which were not directly available to the LLM. In our experience, LLMs need some form of feedback loop to test against in order to make meaningful progress. A possible approach would be to specify a contract for a numerical implementation of the ultracontractivity constants, allowing the LLM to test each proposed constant within the pipeline used to compute the pointwise estimates. However, this pipeline had not yet been implemented at the time we were exploring how to derive the pointwise estimates.
+
 #bibliography("zotero.bib")
 
 #include "appendix.typ"
