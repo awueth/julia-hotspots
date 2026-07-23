@@ -36,9 +36,12 @@ const FIT_CHK = joinpath(ARTIFACT_DIR, "first_eigenfunction.chk")
 
 int_tuple(v) = Tuple(Int.(v))
 
-function wing_correction_factor(lambda_upper, t, C, wing_mass; multiplicity::Integer=1)
+function wing_correction_factor(lambda_upper, t, C, wing_mass; multiplicity::Integer=1, include_constant_mode::Bool=false)
     multiplicity > 0 || throw(ArgumentError("multiplicity must be positive"))
-    return interval(1.0) - interval(multiplicity) * exp(interval(2.0) * lambda_upper * t) * C^2 * wing_mass
+    eigenfunction_term =
+        interval(multiplicity) * exp(interval(2.0) * lambda_upper * t) * C^2
+    constant_term = include_constant_mode ? interval(1.0) : interval(0.0)
+    return interval(1.0) - (constant_term + eigenfunction_term) * wing_mass
 end
 
 function _exp_integral(a, b, rate)
@@ -178,7 +181,12 @@ function compute_bounds(config)
         interval(lambda1_upper), lambda1_parts.t, lambda1_parts.C, wing_mass; multiplicity=1,
     )
     lambda2_factor = wing_correction_factor(
-        interval(Float64(lb["lambda2_upper"])), lambda2_parts.t, lambda2_parts.C, wing_mass; multiplicity=2,
+        interval(Float64(lb["lambda2_upper"])),
+        lambda2_parts.t,
+        lambda2_parts.C,
+        wing_mass;
+        multiplicity=2,
+        include_constant_mode=true,
     )
     lambda1_lower = inf(interval(lambda1_core) * lambda1_factor)
     lambda2_lower = inf(interval(lambda2_core) * lambda2_factor)

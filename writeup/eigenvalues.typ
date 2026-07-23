@@ -91,23 +91,33 @@ which, combined with the ultracontractivity bound, gives the following.
   $
 ]<lem:lambda1-core>
 
-For $lambda_2$ we test the second core eigenvalue against the two-dimensional trial space spanned by the first two global eigenfunctions, $S = op("span"){phi.alt_1, phi.alt_2}$. By the min-max principle, for $h in S$ with zero mean on the core,
+For $lambda_2$ we start from the three-dimensional trial space $S = op("span"){phi.alt_0, phi.alt_1, phi.alt_2}$ and impose zero mean on the core. The resulting subspace $S_0 := {h in S : integral_(Q_"core") h dif mu = 0}$ has dimension at least two and is therefore admissible in the variational characterization of the second nonzero core eigenvalue. Thus, by the min-max principle,
+
 $
 lambda_2^"core"
-&≤ max_(1 perp h in S) (integral_(Q_"core") abs(nabla h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu) \
-&≤ max_(1 perp h in S) (integral_Q abs(nabla h)^2 dif mu) / (integral_Q abs(h)^2 dif mu) dot.c (integral_Q abs(h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu) \
-&≤ lambda_2 max_(1 perp h in S) (integral_Q abs(h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu),
+&≤ max_(0 ≠ h in S_0) (integral_(Q_"core") abs(nabla h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu) \
+&≤ max_(0 ≠ h in S_0) (integral_Q abs(nabla h)^2 dif mu) / (integral_Q abs(h)^2 dif mu) dot.c (integral_Q abs(h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu) \
+&≤ lambda_2 max_(0 ≠ h in S_0) (integral_Q abs(h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu),
 $
-since the first factor is at most $lambda_2$ because $h$ lies in the span of the first two eigenfunctions. For the remaining ratio, write $h = a phi.alt_1 + b phi.alt_2$ with $a^2 + b^2 = norm(h)_(L^2(mu))^2$. Cauchy–Schwarz gives the pointwise bound $abs(h)^2 ≤ (a^2 + b^2)(norm(phi.alt_1)_oo^2 + norm(phi.alt_2)_oo^2)$, so $integral_(Q_"wing") abs(h)^2 dif mu ≤ (norm(phi.alt_1)_oo^2 + norm(phi.alt_2)_oo^2) mu(Q_"wing") norm(h)_(L^2(mu))^2$ and hence
+
+since the first factor is at most $lambda_2$ for every $h in S$. For the remaining ratio, write $h = c phi.alt_0 + a phi.alt_1 + b phi.alt_2$, where $phi.alt_0 equiv 1$ and $c^2 + a^2 + b^2 = norm(h)_(L^2(mu))^2$. Cauchy–Schwarz gives the pointwise bound $abs(h)^2 ≤ (c^2 + a^2 + b^2)(1 + norm(phi.alt_1)_oo^2 + norm(phi.alt_2)_oo^2)$, so
+
 $
-(integral_Q abs(h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu) ≤ 1 / (1 - (norm(phi.alt_1)_oo^2 + norm(phi.alt_2)_oo^2) mu(Q_"wing")).
+integral_(Q_"wing") abs(h)^2 dif mu
+≤ (1 + norm(phi.alt_1)_oo^2 + norm(phi.alt_2)_oo^2) mu(Q_"wing") norm(h)_(L^2(mu))^2,
+$
+
+and hence
+
+$
+(integral_Q abs(h)^2 dif mu) / (integral_(Q_"core") abs(h)^2 dif mu) ≤ 1 / (1 - (1 + norm(phi.alt_1)_oo^2 + norm(phi.alt_2)_oo^2) mu(Q_"wing")).
 $
 Bounding both eigenfunction norms by ultracontractivity yields the analogue of the previous lemma.
 
 #lemma[
   For every $t > 0$ and every upper bound $overline(lambda_2) ≥ lambda_2$,
   $
-  lambda_2 ≥ lambda_2^"core" (1 - 2 e^(2 overline(lambda_2) t) C_t^2 thin mu(Q_"wing")).
+  lambda_2 ≥ lambda_2^"core" (1 - (1 + 2 e^(2 overline(lambda_2) t) C_t^2) mu(Q_"wing")).
   $
 ]<lem:lambda2-core>
 
