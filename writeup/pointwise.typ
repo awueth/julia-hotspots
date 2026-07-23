@@ -95,6 +95,24 @@ $
   Adding the two contributions and evaluating $integral_0^(s_1) e^(lambda_1 s) dif s = (e^(s_1 lambda_1) - 1) slash lambda_1$ gives the stated bound.
 ]
 
+The above theorem gives a pointwise bound on the _initial condition_ of @eq:limit-ivp. Since we expect to observe the hot spot at $t=1 slash 8$ (or $r=0$), we have to propagate the error in time. 
+
+#theorem[
+  $
+  norm(h_* (t) - a h_1 (t)) ≤ e^(lambda_* t) E + abs(e^(lambda_* t - lambda_1 t)) (norm(phi.alt_*)_oo + E)
+  $
+]
+#proof[
+  We have $h_* = e^(lambda_*) P_t^(Delta_N) phi.alt_*$ and $h_* = e^(lambda_1) P_t^(Delta_N) phi.alt_*$ where $P_t^(Delta_N) = e^(Delta_N t)$ for the Neumann Laplacian on $Delta_N$ on $Q$. Indeed, we have $∂_t h = Delta_N h + lambda_h$ then setting $u = e^(-lambda t) h(x,t)$ gives $partial_t u = Delta_N u$. Hence $u = P_t^(Delta_N) phi.alt$ implies $h(t) = e^(lambda_t) P_t^(Delta_N) phi.alt$.
+
+  Now we use the fact that $P^(Delta_N)_t$ is an $L_oo$ contraction to conclude
+
+  $
+  norm(h_* (t) - a h_1 (t))_oo ≤ e^(lambda_* t) norm(phi.alt_* - a phi.alt_1)_oo + abs(e^(lambda_* t - lambda_1 t)) (norm(phi.alt_*)_oo + norm(phi.alt_* - a phi.alt_1)_oo.)
+  $
+  
+]
+
 #remark[
   We chose to rescale the true eigenfunction instead of normalizing the
   approximate eigenfunction in the theorem above. To see why this is
